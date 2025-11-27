@@ -29,4 +29,13 @@ Thumbs.db
 # Testing
 coverage/
 *.log
+*.lcov
+test-*/
+.tmp/
+temp/
+*.tmp
+
+# LogicStamp context files (generated during tests)
+context_main.json
+**/context.json
 

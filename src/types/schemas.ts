@@ -8,7 +8,7 @@
 // ============================================================================
 
 export interface Snapshot {
-  id: string; // e.g., "snap_1764033034172"
+  id: string; // e.g., "snap_1764033034172_0"
   createdAt: string; // ISO timestamp
   projectPath: string; // Absolute path to project
   profile: 'llm-chat' | 'llm-safe' | 'ci-strict';

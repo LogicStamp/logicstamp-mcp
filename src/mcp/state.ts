@@ -7,12 +7,16 @@ import type { Snapshot, MCPServerState, CompareResult } from '../types/schemas.j
 class StateManager {
   private state: MCPServerState = {};
   private snapshots: Map<string, Snapshot> = new Map();
+  private idCounter: number = 0;
 
   /**
    * Generate a unique snapshot ID
    */
   generateSnapshotId(): string {
-    return `snap_${Date.now()}`;
+    // Use timestamp + counter to ensure uniqueness even when called rapidly
+    const timestamp = Date.now();
+    const counter = this.idCounter++;
+    return `snap_${timestamp}_${counter}`;
   }
 
   /**

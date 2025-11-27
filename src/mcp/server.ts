@@ -240,5 +240,7 @@ export async function startServer(): Promise<void> {
 
   await server.connect(transport);
 
-  console.error('LogicStamp Context MCP server running on stdio');
+  console.error('    /\\_/\\   🦊 LogicStamp MCP Server');
+  console.error('   ( o.o )  Running on stdio');
+  console.error('    > ^ <');
 }

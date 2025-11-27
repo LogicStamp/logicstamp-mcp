@@ -66,10 +66,20 @@ export async function compareSnapshot(input: CompareSnapshotInput): Promise<Comp
     
     try {
       const currentContextMainContent = await readFile(currentContextMainPath, 'utf-8');
-      currentIndex = JSON.parse(currentContextMainContent);
+      try {
+        currentIndex = JSON.parse(currentContextMainContent);
+      } catch (parseError) {
+        // Invalid JSON - return error
+        throw new Error(`Invalid JSON in ${currentContextMainPath}: ${parseError instanceof Error ? parseError.message : String(parseError)}`);
+      }
     } catch (error) {
-      // Current state doesn't exist - all folders are removed
-      return createRemovedAllResult(baseline, baselineIndex);
+      // Check if it's a file not found error
+      if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
+        // Current state doesn't exist - all folders are removed
+        return createRemovedAllResult(baseline, baselineIndex);
+      }
+      // Other errors (including invalid JSON) should be re-thrown to be caught by outer try-catch
+      throw error;
     }
 
     // Compare the two states
@@ -412,25 +422,29 @@ function compareContracts(
       if (!currentImports.has(imp)) removedImports.push(imp);
     }
 
-    // Compare exports
-    if (baselineContract.exports || currentContract.exports) {
-      const baselineExports = new Set([
-        ...(baselineContract.exports?.named || []),
-        ...(baselineContract.exports?.default ? [baselineContract.exports.default] : []),
-      ]);
-      const currentExports = new Set([
-        ...(currentContract.exports?.named || []),
-        ...(currentContract.exports?.default ? [currentContract.exports.default] : []),
-      ]);
-      for (const exp of currentExports) {
-        if (!baselineExports.has(exp)) modifiedExports.push(exp);
-      }
-    }
-
     if (addedFunctions.length > 0) details.addedFunctions = addedFunctions;
     if (removedFunctions.length > 0) details.removedFunctions = removedFunctions;
     if (addedImports.length > 0) details.addedImports = addedImports;
     if (removedImports.length > 0) details.removedImports = removedImports;
+  }
+
+  // Compare exports (separate from version)
+  if (
+    JSON.stringify(baselineContract.exports) !== JSON.stringify(currentContract.exports)
+  ) {
+    modifiedFields.push('exports');
+    const modifiedExports: string[] = [];
+    const baselineExports = new Set([
+      ...(baselineContract.exports?.named || []),
+      ...(baselineContract.exports?.default ? [baselineContract.exports.default] : []),
+    ]);
+    const currentExports = new Set([
+      ...(currentContract.exports?.named || []),
+      ...(currentContract.exports?.default ? [currentContract.exports.default] : []),
+    ]);
+    for (const exp of currentExports) {
+      if (!baselineExports.has(exp)) modifiedExports.push(exp);
+    }
     if (modifiedExports.length > 0) details.modifiedExports = modifiedExports;
   }
 
