@@ -13,6 +13,7 @@ export interface Snapshot {
   projectPath: string; // Absolute path to project
   profile: 'llm-chat' | 'llm-safe' | 'ci-strict';
   mode: 'header' | 'full' | 'none';
+  includeStyle?: boolean; // Whether style metadata was included
   contextDir: string; // Where context_main.json + folders live
 }
 
@@ -80,6 +81,7 @@ export interface ComponentChange {
 export interface RefreshSnapshotInput {
   profile?: 'llm-chat' | 'llm-safe' | 'ci-strict';
   mode?: 'header' | 'full' | 'none';
+  includeStyle?: boolean; // Include style metadata (equivalent to stamp context style)
   projectPath?: string;
 }
 
@@ -88,6 +90,7 @@ export interface RefreshSnapshotOutput {
   projectPath: string;
   profile: string;
   mode: string;
+  includeStyle?: boolean; // Whether style metadata was included
   summary: {
     totalComponents: number;
     totalBundles: number;
@@ -154,6 +157,7 @@ export interface ReadBundleOutput {
 export interface CompareSnapshotInput {
   profile?: 'llm-chat' | 'llm-safe' | 'ci-strict';
   mode?: 'header' | 'full' | 'none';
+  includeStyle?: boolean; // Include style metadata (equivalent to stamp context style)
   projectPath?: string;
   baseline?: 'disk' | 'snapshot' | string;
 }

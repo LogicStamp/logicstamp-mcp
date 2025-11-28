@@ -42,7 +42,7 @@ export function createServer(): Server {
         {
           name: 'logicstamp_refresh_snapshot',
           description:
-            'Run LogicStamp Context analysis on a project and create a snapshot. This captures the current state of all React/TypeScript components before making edits. Returns a summary with component counts, token estimates, and folder structure.',
+            'STEP 1: Run LogicStamp Context analysis on a project and create a snapshot. This generates context bundles for all components but only returns a high-level summary (component counts, token estimates, folder structure). IMPORTANT: The summary does NOT contain component details, props, dependencies, or style metadata - you must use logicstamp_list_bundles and logicstamp_read_bundle to access that data. Set includeStyle to true when you need visual/design information: Tailwind CSS classes, SCSS modules, framer-motion animations, color palettes, spacing patterns, layout types (flex/grid), responsive breakpoints. Use includeStyle: true for design system analysis, visual consistency checks, or when the user asks about styling, colors, spacing, animations, or visual design. After calling this, you MUST call logicstamp_list_bundles to see available bundles, then logicstamp_read_bundle to get actual component contracts, dependencies, and style metadata.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -58,6 +58,11 @@ export function createServer(): Server {
                 description: 'Code inclusion mode: none=contracts only, header=with JSDoc, full=complete source (default: header)',
                 default: 'header',
               },
+              includeStyle: {
+                type: 'boolean',
+                description: 'Include style metadata in context bundles (Tailwind classes, SCSS modules, framer-motion, color palettes, layout patterns). Style data appears in the "style" field of component contracts when you read bundles with logicstamp_read_bundle. The summary from refresh_snapshot does NOT show style info - you must read bundles to see it. Equivalent to stamp context style command (default: false)',
+                default: false,
+              },
               projectPath: {
                 type: 'string',
                 description: 'Absolute path to project (default: current directory)',
@@ -68,7 +73,7 @@ export function createServer(): Server {
         {
           name: 'logicstamp_list_bundles',
           description:
-            'List all available component bundles in a snapshot. Use this to see what components are available before reading their full details. Returns bundle descriptors with names, paths, and token estimates for selective loading.',
+            'STEP 2: List all available component bundles in a snapshot. Call this AFTER logicstamp_refresh_snapshot to see what components are available. Returns bundle descriptors with component names, file paths, bundle paths (use these in logicstamp_read_bundle), and token estimates. Use folderPrefix to filter by directory. You MUST call this before reading bundles - it tells you which bundlePath values to use in logicstamp_read_bundle.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -87,7 +92,7 @@ export function createServer(): Server {
         {
           name: 'logicstamp_read_bundle',
           description:
-            'Read the full component bundle (contract + dependency graph) for a specific component. Returns complete UIFContract with props, state, hooks, dependencies, and optionally source code.',
+            'STEP 3: Read the full component bundle - THIS IS WHERE THE ACTUAL USEFUL DATA IS. Call this AFTER logicstamp_list_bundles to get detailed component information. Returns complete UIFContract with: props (types, optional flags, descriptions), state variables, hooks used, dependency graph (what components/functions this imports), exports, and optionally source code (based on mode). If includeStyle was true in refresh_snapshot, the contract will also contain a "style" field with: styleSources (Tailwind classes categorized, SCSS modules, framer-motion usage), layout metadata (flex/grid patterns, responsive breakpoints), visual metadata (color palette, spacing patterns, typography), and animation metadata. This is the ONLY way to see component contracts, dependencies, and style information - the refresh_snapshot summary does NOT include this data. Use bundlePath from list_bundles output, optionally filter by rootComponent name.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -97,11 +102,11 @@ export function createServer(): Server {
               },
               bundlePath: {
                 type: 'string',
-                description: 'Relative path to context.json file (from list_bundles)',
+                description: 'Relative path to context.json file. Get this value from the "bundlePath" field in logicstamp_list_bundles output. Example: "src/components/HeroVisualization/context.json"',
               },
               rootComponent: {
                 type: 'string',
-                description: 'Specific component name (optional, returns first bundle if omitted)',
+                description: 'Specific component name to filter within the bundle file (optional). Use the "rootComponent" value from list_bundles if you want a specific component. If omitted, returns the first bundle in the file.',
               },
             },
             required: ['snapshotId', 'bundlePath'],
@@ -110,7 +115,7 @@ export function createServer(): Server {
         {
           name: 'logicstamp_compare_snapshot',
           description:
-            'Compare current project state against baseline to detect changes. Use this after editing files to verify what changed. Returns structured diff showing modified components, changed contracts, and token deltas.',
+            'Compare current project state against baseline to detect changes. Use this after editing files to verify what changed. Returns structured diff showing modified components, changed contracts (props added/removed, functions changed), and token deltas. Set includeStyle to true when comparing visual/design changes: detecting style source changes (Tailwind classes added/removed, SCSS changes), layout pattern changes, color palette changes, spacing changes, or animation changes. Use includeStyle: true when the user asks about style changes, design drift, or visual consistency. Note: This compares the context files on disk - make sure you\'ve run logicstamp_refresh_snapshot first to generate the baseline, and regenerate if needed with includeStyle matching your comparison needs.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -125,6 +130,11 @@ export function createServer(): Server {
                 enum: ['header', 'full', 'none'],
                 description: 'Code inclusion mode (default: header)',
                 default: 'header',
+              },
+              includeStyle: {
+                type: 'boolean',
+                description: 'Include style metadata in comparison. Regenerates current state with style metadata if true (default: false)',
+                default: false,
               },
               projectPath: {
                 type: 'string',

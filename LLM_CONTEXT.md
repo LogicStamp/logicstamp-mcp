@@ -20,7 +20,7 @@
 - Install globally: `npm install -g logicstamp-context`.
 - Show version: `stamp --version` or `stamp -v` displays the version number.
 - Default command `stamp context [target]` scans the current directory (or supplied path) and emits multiple `context.json` files (one per folder containing components) plus a `context_main.json` index file at the output root.
-- Key flags: `--depth` (dependency traversal), `--include-code none|header|full`, `--profile llm-chat|llm-safe|ci-strict`, `--out <file>` (output directory or file path), `--max-nodes <n>`, `--quiet` or `-q` (suppress verbose output, show only errors).
+- Key flags: `--depth` (dependency traversal), `--include-code none|header|full`, `--include-style` (include style metadata: Tailwind, SCSS, animations), `--profile llm-chat|llm-safe|ci-strict`, `--out <file>` (output directory or file path), `--max-nodes <n>`, `--quiet` or `-q` (suppress verbose output, show only errors).
 - Profiles tune defaults: `llm-chat` (balanced), `llm-safe` (token-conservative), `ci-strict` (validation-first).
 - Supports pretty and NDJSON formats via `--format`.
 - Compare command: `stamp context compare` compares all context files (multi-file mode) to detect drift, ADDED/ORPHANED folders, and component changes. Supports `--approve` for auto-updates, `--clean-orphaned` for cleanup, `--stats` for per-folder token deltas, and `--quiet` or `-q` to show only diffs.
@@ -170,8 +170,10 @@ When `meta.missing` is non-empty, it signals incomplete dependency resolution:
 ### Bundle Analysis
 
 - Use `version.functions` and `logicSignature` to reason about available APIs without scanning full source.
+- If `includeStyle: true` was used, check the `style` field in contracts for visual/design information (Tailwind classes, color palettes, layout patterns, animations).
 - Combine multiple bundles when a task spans related modules; respect `max-nodes` constraints to stay within token budgets.
 - For deeper understanding, rerun the CLI with `--include-code full` or higher `--depth` before querying the assistant.
+- For style analysis, use `--include-style` or `stamp context style` to get visual metadata in component contracts.
 - **Always inspect `meta.missing`** in each bundle to understand analysis completeness before providing architectural guidance.
 
 ### Folder-Based Organization Benefits

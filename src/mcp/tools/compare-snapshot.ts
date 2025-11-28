@@ -6,6 +6,8 @@
 
 import { readFile } from 'fs/promises';
 import { join, resolve } from 'path';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 import type {
   CompareSnapshotInput,
   CompareSnapshotOutput,
@@ -19,9 +21,12 @@ import type {
 } from '../../types/schemas.js';
 import { stateManager } from '../state.js';
 
+const execAsync = promisify(exec);
+
 export async function compareSnapshot(input: CompareSnapshotInput): Promise<CompareSnapshotOutput> {
   const profile = input.profile || 'llm-chat';
   const mode = input.mode || 'header';
+  const includeStyle = input.includeStyle || false;
   const projectPath = input.projectPath 
     ? resolve(input.projectPath) 
     : (process.env.PROJECT_PATH ? resolve(process.env.PROJECT_PATH) : process.cwd());
@@ -60,26 +65,43 @@ export async function compareSnapshot(input: CompareSnapshotInput): Promise<Comp
     const baselineContextMainContent = await readFile(baselineContextMainPath, 'utf-8');
     const baselineIndex: LogicStampIndex = JSON.parse(baselineContextMainContent);
 
-    // Read current context_main.json
+    // Read or regenerate current state
+    // If includeStyle is true, regenerate to ensure style metadata is included
     const currentContextMainPath = join(projectPath, 'context_main.json');
     let currentIndex: LogicStampIndex;
     
-    try {
-      const currentContextMainContent = await readFile(currentContextMainPath, 'utf-8');
+    // If includeStyle is true, always regenerate current state to ensure style metadata is included
+    if (includeStyle) {
+      const styleFlag = ' --include-style';
+      const command = `stamp context --profile ${profile} --include-code ${mode}${styleFlag} --skip-gitignore --quiet`;
+      
+      await execAsync(command, {
+        cwd: projectPath,
+        maxBuffer: 10 * 1024 * 1024, // 10MB buffer
+      });
+      
+      // Read the regenerated context_main.json
+      const regeneratedContextMainContent = await readFile(currentContextMainPath, 'utf-8');
+      currentIndex = JSON.parse(regeneratedContextMainContent);
+    } else {
+      // Read existing current state
       try {
-        currentIndex = JSON.parse(currentContextMainContent);
-      } catch (parseError) {
-        // Invalid JSON - return error
-        throw new Error(`Invalid JSON in ${currentContextMainPath}: ${parseError instanceof Error ? parseError.message : String(parseError)}`);
+        const currentContextMainContent = await readFile(currentContextMainPath, 'utf-8');
+        try {
+          currentIndex = JSON.parse(currentContextMainContent);
+        } catch (parseError) {
+          // Invalid JSON - return error
+          throw new Error(`Invalid JSON in ${currentContextMainPath}: ${parseError instanceof Error ? parseError.message : String(parseError)}`);
+        }
+      } catch (error) {
+        // Check if it's a file not found error
+        if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
+          // Current state doesn't exist - all folders are removed
+          return createRemovedAllResult(baseline, baselineIndex);
+        }
+        // Other errors (including invalid JSON) should be re-thrown to be caught by outer try-catch
+        throw error;
       }
-    } catch (error) {
-      // Check if it's a file not found error
-      if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
-        // Current state doesn't exist - all folders are removed
-        return createRemovedAllResult(baseline, baselineIndex);
-      }
-      // Other errors (including invalid JSON) should be re-thrown to be caught by outer try-catch
-      throw error;
     }
 
     // Compare the two states

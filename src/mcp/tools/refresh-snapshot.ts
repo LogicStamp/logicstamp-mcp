@@ -15,6 +15,7 @@ const execAsync = promisify(exec);
 export async function refreshSnapshot(input: RefreshSnapshotInput): Promise<RefreshSnapshotOutput> {
   const profile = input.profile || 'llm-chat';
   const mode = input.mode || 'header';
+  const includeStyle = input.includeStyle || false;
   const projectPath = input.projectPath 
     ? resolve(input.projectPath) 
     : (process.env.PROJECT_PATH ? resolve(process.env.PROJECT_PATH) : process.cwd());
@@ -26,7 +27,9 @@ export async function refreshSnapshot(input: RefreshSnapshotInput): Promise<Refr
     // Execute stamp context command
     // Use --skip-gitignore to ensure non-interactive operation and prevent .gitignore modifications
     // Use --quiet to suppress verbose output since MCP reads JSON files directly
-    const command = `stamp context --profile ${profile} --include-code ${mode} --skip-gitignore --quiet`;
+    // Add --include-style flag if includeStyle is true (equivalent to stamp context style)
+    const styleFlag = includeStyle ? ' --include-style' : '';
+    const command = `stamp context --profile ${profile} --include-code ${mode}${styleFlag} --skip-gitignore --quiet`;
 
     await execAsync(command, {
       cwd: projectPath,
@@ -45,6 +48,7 @@ export async function refreshSnapshot(input: RefreshSnapshotInput): Promise<Refr
       projectPath,
       profile,
       mode,
+      includeStyle,
       contextDir: projectPath,
     });
 
@@ -54,6 +58,7 @@ export async function refreshSnapshot(input: RefreshSnapshotInput): Promise<Refr
       projectPath,
       profile,
       mode,
+      includeStyle,
       summary: {
         totalComponents: contextMain.summary.totalComponents,
         totalBundles: contextMain.summary.totalBundles,

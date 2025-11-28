@@ -126,7 +126,38 @@ When enabled with `--predict-behavior`, adds semantic predictions:
 - Loading/error state handling
 - Performance optimization patterns
 
-### 4. Lightweight Documentation
+### 4. Style Metadata Extraction
+
+When using `stamp context style` or `stamp context --include-style`, LogicStamp Context analyzes and extracts visual and layout information:
+
+#### Style Sources
+- **Tailwind CSS** - Categorized classes (layout, spacing, colors, typography, borders, effects)
+- **SCSS/CSS Modules** - Module imports, selectors, properties, SCSS features (variables, nesting, mixins)
+- **Inline Styles** - Detects `style={{...}}` usage
+- **styled-components/Emotion** - Styled component declarations, theme usage
+- **framer-motion** - Motion components, animation variants, gesture handlers, viewport animations
+
+#### Layout Metadata
+- **Layout Type** - Identifies flex or grid layouts
+- **Grid Patterns** - Column configurations (e.g., "grid-cols-2 md:grid-cols-3")
+- **Hero Patterns** - Detects hero sections (large text + CTA buttons)
+- **Feature Cards** - Identifies grid layouts with card-like elements
+- **Responsive Breakpoints** - Lists all breakpoints used (sm, md, lg, etc.)
+
+#### Visual Metadata
+- **Color Palette** - Extracts color classes (bg-*, text-*, border-*)
+- **Spacing Patterns** - Identifies padding and margin utilities used
+- **Border Radius** - Detects rounded corner patterns
+- **Typography** - Extracts text size and font weight classes
+
+#### Animation Metadata
+- **Animation Library** - framer-motion or CSS
+- **Animation Type** - fade-in, slide, etc.
+- **Trigger Type** - inView, hover, click, etc.
+
+Style metadata appears in the `style` field of component contracts (`UIFContract`) when style information is detected. Components without style usage will not have a `style` field.
+
+### 5. Lightweight Documentation
 
 LogicStamp Context extracts and preserves existing documentation:
 
@@ -242,7 +273,57 @@ Each component contract (`UIFContract`) includes:
     isInAppDir?: boolean
   },
   semanticHash: string,               // Content-based hash
-  fileHash: string                    // File-based hash
+  fileHash: string,                   // File-based hash
+  style?: {                           // Style metadata (when includeStyle: true)
+    styleSources: {
+      tailwind?: {
+        categories: {
+          layout: string[],
+          spacing: string[],
+          colors: string[],
+          typography: string[],
+          borders: string[],
+          effects: string[]
+        },
+        breakpoints: string[],
+        classCount: number
+      },
+      scssModule?: string,
+      scssDetails?: {
+        selectors: string[],
+        properties: string[],
+        features: {
+          variables: boolean,
+          nesting: boolean
+        }
+      },
+      motion?: {
+        components: string[],
+        variants: string[],
+        features: {
+          gestures: boolean,
+          viewportAnimations: boolean
+        }
+      }
+    },
+    layout: {
+      type: "flex" | "grid",
+      cols?: string,
+      hasHeroPattern?: boolean,
+      hasFeatureCards?: boolean
+    },
+    visual: {
+      colors: string[],
+      spacing: string[],
+      radius?: string,
+      typography: string[]
+    },
+    animation?: {
+      library: "framer-motion" | "css",
+      type: string,
+      trigger: string
+    }
+  }
 }
 ```
 
@@ -340,6 +421,7 @@ stamp context [path] [options]
 ### Key Options
 - `--depth <n>` - Dependency traversal depth (default: 1)
 - `--include-code <mode>` - Code inclusion: `none|header|full` (default: `header`)
+- `--include-style` - Include style metadata (Tailwind, SCSS, animations, etc.) - equivalent to `stamp context style`
 - `--profile <profile>` - Preset: `llm-safe|llm-chat|ci-strict`
 - `--predict-behavior` - Enable behavioral predictions
 - `--strict-missing` - Fail on missing dependencies (CI-friendly)
@@ -347,6 +429,7 @@ stamp context [path] [options]
 - `--stats` - Output JSON stats for CI
 
 ### Additional Commands
+- `stamp context style` - Generate context with style metadata (equivalent to `stamp context --include-style`)
 - `stamp context compare` - Multi-file drift detection
 - `stamp context validate` - Schema validation
 - `stamp context clean` - Remove generated files

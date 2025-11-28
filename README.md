@@ -8,6 +8,7 @@ This MCP server provides AI assistants with structured access to your codebase t
 
 - **Snapshot-based analysis** - Capture codebase state before making edits
 - **Component contracts** - Extract props, state, hooks, and dependencies
+- **Style metadata** - Extract Tailwind classes, SCSS modules, framer-motion animations, color palettes, layout patterns
 - **Dependency graphs** - Understand component relationships
 - **Drift detection** - Verify changes after modifications
 - **Token optimization** - Control context size with configurable code inclusion modes
@@ -180,6 +181,44 @@ The 4 LogicStamp tools will be available:
 
 ## Usage Examples
 
+### Example: Analyzing with Style Metadata
+
+To analyze components with style information (Tailwind classes, animations, color palettes):
+
+```
+1. USER: "Analyze my components with style information"
+
+2. AI → MCP: logicstamp_refresh_snapshot({ includeStyle: true })
+   Response: { snapshotId: "snap_123", includeStyle: true, ... }
+
+3. AI → MCP: logicstamp_list_bundles(snapshotId)
+   Response: [{ bundlePath: "src/components/context.json", ... }]
+
+4. AI → MCP: logicstamp_read_bundle(snapshotId, bundlePath)
+   Response: { 
+     bundle: { 
+       graph: { 
+         nodes: [{ 
+           contract: { 
+             style: {
+               styleSources: { tailwind: {...}, scssModule: "...", motion: {...} },
+               layout: { type: "flex", breakpoints: ["md", "lg"] },
+               visual: { colors: ["bg-blue-500", "text-white"], spacing: [...] },
+               animation: { library: "framer-motion", type: "fade-in" }
+             }
+           }
+         }]
+       }
+     }
+   }
+
+5. AI: Provides analysis including:
+   - Component structure (props, state, hooks)
+   - Visual design (colors, spacing, typography)
+   - Layout patterns (flex vs grid, responsive breakpoints)
+   - Animation usage
+```
+
 ### Example Workflow: Safe Code Modification
 
 ```
@@ -228,6 +267,7 @@ Create a snapshot of the current codebase state.
 {
   "profile": "llm-chat",      // optional: llm-chat | llm-safe | ci-strict
   "mode": "header",            // optional: none | header | full
+  "includeStyle": false,       // optional: include style metadata (Tailwind, SCSS, animations, etc.)
   "projectPath": "/abs/path"   // optional: defaults to cwd
 }
 ```
@@ -239,6 +279,7 @@ Create a snapshot of the current codebase state.
   "projectPath": "/path/to/project",
   "profile": "llm-chat",
   "mode": "header",
+  "includeStyle": false,
   "summary": {
     "totalComponents": 32,
     "totalBundles": 30,
@@ -300,6 +341,12 @@ Read full component contract and dependency graph.
 }
 ```
 
+**Note:** If `includeStyle: true` was used in `refresh_snapshot`, the bundle contracts will include a `style` field with:
+- `styleSources` - Tailwind classes (categorized), SCSS modules, framer-motion usage
+- `layout` - Layout patterns (flex/grid), responsive breakpoints
+- `visual` - Color palettes, spacing patterns, typography
+- `animation` - Animation libraries and types
+
 **Output:**
 ```json
 {
@@ -348,6 +395,7 @@ Detect changes after edits.
 {
   "profile": "llm-chat",      // optional
   "mode": "header",            // optional
+  "includeStyle": false,       // optional: include style metadata in comparison
   "projectPath": "/abs/path",  // optional
   "baseline": "disk"           // optional: disk | snapshot | git:<ref>
 }
@@ -559,6 +607,9 @@ Control context size with mode parameter:
 ```
 You: "Create a snapshot with mode=none to save tokens"
 Claude: [Calls logicstamp_refresh_snapshot with mode: "none"]
+
+You: "Analyze components with style information"
+Claude: [Calls logicstamp_refresh_snapshot with includeStyle: true]
 ```
 
 ### Debug Mode

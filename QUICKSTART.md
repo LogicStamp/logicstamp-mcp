@@ -84,6 +84,14 @@ Claude:
 2. [Uses logicstamp_list_bundles to find Button component]
 3. [Uses logicstamp_read_bundle to read Button's contract]
 4. [Provides detailed analysis of Button's props, state, hooks, etc.]
+
+You: Analyze components with style information
+
+Claude:
+1. [Uses logicstamp_refresh_snapshot with includeStyle: true]
+2. [Uses logicstamp_list_bundles to find components]
+3. [Uses logicstamp_read_bundle to read component contracts with style metadata]
+4. [Provides analysis including Tailwind classes, color palettes, layout patterns, animations]
 ```
 
 ## Troubleshooting
