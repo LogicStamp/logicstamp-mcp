@@ -290,7 +290,8 @@ Create a snapshot of the current codebase state.
       "gpt4oMiniFullCode": 39141,
       "claude": 12351,
       "claudeFullCode": 34792
-    }
+    },
+    "missingDependencies": []
   },
   "folders": [...]
 }
@@ -410,6 +411,8 @@ Detect changes after edits.
     "totalFolders": 14,
     "unchangedFolders": 12,
     "changedFolders": 2,
+    "addedFolders": 0,
+    "removedFolders": 0,
     "tokenDelta": {
       "gpt4oMini": 320,
       "claude": 270
@@ -436,6 +439,19 @@ Detect changes after edits.
   ]
 }
 ```
+
+**Change Types:**
+The `changes` array can contain objects with different `type` values:
+- `uif_contract_changed` - Component contract changed (props, functions, imports, etc.)
+- `hash_changed` - Bundle hash changed but semantic hash unchanged
+- `bundle_added` - New component bundle added
+- `bundle_removed` - Component bundle removed
+- `props_signature_changed` - Props signature changed (reserved for future use)
+
+**Status Values:**
+- `pass` - No changes detected
+- `diff` - Changes detected
+- `error` - Comparison failed (check `error` field for details)
 
 ## Development
 
