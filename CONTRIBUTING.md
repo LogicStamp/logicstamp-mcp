@@ -322,7 +322,7 @@ test: add tests for Z
 When adding features, update:
 
 - `README.md` - User-facing docs
-- `IMPLEMENTATION_SUMMARY.md` - Technical overview
+- `docs/implementation_summary.md` - Technical overview
 - Code comments - JSDoc for functions
 - Type definitions - Document complex types
 
@@ -340,8 +340,8 @@ When adding features, update:
 ## Getting Help
 
 - Check existing issues
-- Read MCP_INTEGRATION.md for architecture
-- Review TOOL_DESCRIPTION.md for LogicStamp details
+- Read `docs/mcp_integration.md` for architecture
+- Review `docs/tool_description.md` for LogicStamp details
 - Ask questions in issues or discussions
 
 ## Areas for Contribution

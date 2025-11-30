@@ -146,7 +146,139 @@ On Windows, edit `%APPDATA%\Claude\claude_desktop_config.json`:
 
 #### Using Local Installation
 
-If you installed from source, use absolute paths to the built file. See `.claude.json.example` in this repository for a template.
+If you installed from source (for development or testing), use absolute paths to the built file:
+
+**On macOS/Linux:**
+```json
+{
+  "mcpServers": {
+    "logicstamp": {
+      "command": "node",
+      "args": ["/absolute/path/to/logicstamp-context-mcp/dist/index.js"]
+    }
+  }
+}
+```
+
+**On Windows:**
+```json
+{
+  "mcpServers": {
+    "logicstamp": {
+      "command": "node",
+      "args": ["C:\\Users\\YourName\\path\\to\\logicstamp-context-mcp\\dist\\index.js"]
+    }
+  }
+}
+```
+
+**Global Install vs Local Development:**
+
+The recommended approach is to use `npx` with the globally installed package:
+
+```json
+{
+  "mcpServers": {
+    "logicstamp": {
+      "command": "npx",
+      "args": ["logicstamp-context-mcp"]
+    }
+  }
+}
+```
+
+**Why use global install?**
+- ✅ Simpler - No absolute paths needed
+- ✅ Portable - Works on any machine
+- ✅ Auto-updates - `npm update -g` updates it
+- ✅ Team-friendly - Same config for everyone
+
+**When to use local development:**
+- Contributing to the codebase
+- Testing before publishing
+- Package isn't published yet
+
+### For Cursor Users
+
+Cursor is an AI-powered code editor that supports MCP servers. Choose one setup option:
+
+#### Global Setup (Available Everywhere)
+
+**Create `~/.cursor/mcp.json` manually:**
+
+**On macOS/Linux:**
+```bash
+mkdir -p ~/.cursor
+nano ~/.cursor/mcp.json
+```
+
+**On Windows:**
+```bash
+mkdir %USERPROFILE%\.cursor
+notepad %USERPROFILE%\.cursor\mcp.json
+```
+
+Add the following configuration:
+
+```json
+{
+  "mcpServers": {
+    "logicstamp": {
+      "command": "npx",
+      "args": ["logicstamp-context-mcp"]
+    }
+  }
+}
+```
+
+This makes LogicStamp available in all projects you open in Cursor.
+
+#### Project Setup (For Teams)
+
+**Create `.cursor/mcp.json` in your project root:**
+
+```bash
+cd /path/to/your/project
+mkdir -p .cursor
+```
+
+Create `.cursor/mcp.json` with this content:
+
+```json
+{
+  "mcpServers": {
+    "logicstamp": {
+      "command": "npx",
+      "args": ["logicstamp-context-mcp"]
+    }
+  }
+}
+```
+
+This file can be committed to git for team collaboration.
+
+**Local Development Setup:**
+
+If you're developing the MCP server locally, use absolute paths instead:
+
+```json
+{
+  "mcpServers": {
+    "logicstamp": {
+      "command": "node",
+      "args": ["C:\\Users\\YourName\\path\\to\\logicstamp-context-mcp\\dist\\index.js"]
+    }
+  }
+}
+```
+
+**Note:** For production use, prefer the `npx` approach (shown above) as it's simpler and portable. Use absolute paths only when developing locally.
+
+**Verify installation:**
+1. Completely quit and restart Cursor
+2. Open Cursor settings (Cmd/Ctrl + ,) → Features → Model Context Protocol
+3. Check that LogicStamp appears in the list
+4. Open AI chat and ask: "Can you analyze my project using LogicStamp?"
 
 ## 4. Start Using LogicStamp
 
@@ -165,6 +297,17 @@ Can you analyze my React project using LogicStamp?
 ### With Claude Desktop
 
 Completely quit and restart Claude Desktop for the changes to take effect, then start a conversation and ask Claude to analyze your project.
+
+### With Cursor
+
+1. Open your project in Cursor
+2. Open Cursor's AI chat (Cmd/Ctrl + L)
+3. Ask the AI to analyze your project:
+   ```
+   Can you analyze my React project using LogicStamp?
+   ```
+
+The AI will automatically use the LogicStamp tools to analyze your codebase.
 
 ## 5. Available Tools
 
@@ -233,12 +376,30 @@ claude mcp add --scope project --transport stdio logicstamp -- npx logicstamp-co
 4. Completely quit and restart Claude Desktop
 5. Check Claude's logs for errors
 
+### Server doesn't show up in Cursor
+
+**Check config file location:**
+- Global: `~/.cursor/mcp.json` (macOS/Linux) or `%USERPROFILE%\.cursor\mcp.json` (Windows)
+- Project: `.cursor/mcp.json` in project root
+- Ensure the `.cursor` directory exists
+
+**If not working:**
+1. Verify JSON syntax is valid
+2. Check package is installed: `npm list -g logicstamp-context-mcp`
+3. Test manually: `npx logicstamp-context-mcp`
+4. Completely quit and restart Cursor (not just close window)
+5. Check Cursor's developer console (Help → Toggle Developer Tools) for errors
+
+**Verify MCP is enabled:**
+- Settings → Features → Model Context Protocol should be enabled
+- LogicStamp should appear in the MCP servers list
+
 ### "Snapshot not found"
 
 Always call `logicstamp_refresh_snapshot` first before using other tools. The snapshot ID from that call is needed for subsequent operations.
 
 ## Next Steps
 
-- Read [README.md](README.md) for full documentation
+- Read [README.md](../README.md) for full documentation
 - Check [MCP_INTEGRATION.md](MCP_INTEGRATION.md) for architecture details
 - See [TOOL_DESCRIPTION.md](TOOL_DESCRIPTION.md) for LogicStamp Context details

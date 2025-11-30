@@ -1,6 +1,6 @@
 /**
  * TypeScript schemas for LogicStamp MCP server
- * Based on MCP_INTEGRATION.md specification
+ * Based on docs/mcp_integration.md specification
  */
 
 // ============================================================================
@@ -165,7 +165,7 @@ export interface CompareSnapshotInput {
 export type CompareSnapshotOutput = CompareResult;
 
 // ============================================================================
-// LogicStamp Core Types (from TOOL_DESCRIPTION.md)
+// LogicStamp Core Types (from docs/tool_description.md)
 // ============================================================================
 
 export interface LogicStampIndex {

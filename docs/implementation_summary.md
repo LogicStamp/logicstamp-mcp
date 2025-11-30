@@ -1,5 +1,7 @@
 # Implementation Summary
 
+> **See also:** [MCP Integration Guide](mcp_integration.md) for architecture and API reference | [Quick Start](quickstart.md) for setup | [README](../README.md) for user documentation
+
 ## What Was Built
 
 A complete MCP (Model Context Protocol) server for LogicStamp Context that enables AI assistants to analyze React/TypeScript codebases safely and efficiently.
@@ -24,7 +26,7 @@ logicstamp-mcp/
 ├── package.json                      # Dependencies & scripts
 ├── tsconfig.json                     # TypeScript config
 ├── README.md                         # Full documentation
-├── QUICKSTART.md                     # Setup guide
+├── docs/quickstart.md                # Setup guide
 ├── LICENSE                           # MIT license
 ├── .gitignore                        # Git ignore rules
 └── claude_desktop_config.example.json # Config template
@@ -34,29 +36,14 @@ logicstamp-mcp/
 
 ### 4 MCP Tools
 
-1. **logicstamp_refresh_snapshot**
-   - Executes `stamp context` CLI command
-   - Parses `context_main.json` output
-   - Stores snapshot metadata in memory
-   - Returns summary with token estimates
+The MCP server implements 4 core tools that wrap the LogicStamp Context CLI:
 
-2. **logicstamp_list_bundles**
-   - Reads snapshot's folder structure
-   - Filters by optional folder prefix
-   - Returns bundle descriptors with metadata
-   - Includes token estimates per bundle
+1. **logicstamp_refresh_snapshot** - Creates codebase snapshots
+2. **logicstamp_list_bundles** - Lists available component bundles
+3. **logicstamp_read_bundle** - Reads component contracts and dependency graphs
+4. **logicstamp_compare_snapshot** - Detects changes after edits
 
-3. **logicstamp_read_bundle**
-   - Reads specific context.json files
-   - Finds bundles by component name
-   - Returns complete UIFContract + dependency graph
-   - Includes props, state, hooks, and code
-
-4. **logicstamp_compare_snapshot**
-   - Executes `stamp context compare --json`
-   - Parses structured diff output
-   - Falls back to text parsing if needed
-   - Returns detailed change information
+For detailed API specifications, input/output examples, and usage workflows, see [MCP Integration Guide](mcp_integration.md#mcp-tools-mvp).
 
 ### State Management
 
@@ -83,25 +70,14 @@ Complete TypeScript schemas covering:
 
 ## Architecture Principles
 
-### 1. Thin Wrapper Design
-- No re-implementation of analysis logic
-- Shells out to existing `stamp` CLI
-- Single source of truth
+The MCP server follows four core design principles:
 
-### 2. Stateful Snapshots
-- Before/after comparison capability
-- Drift detection support
-- Token-efficient caching
+1. **Thin Wrapper Design** - Shells out to existing `stamp` CLI, no duplication
+2. **Stateful Snapshots** - Tracks context before/after edits for drift detection
+3. **Read-Only Access** - Server never modifies project files (AI uses IDE tools)
+4. **Token Optimization** - Selective bundle loading with configurable code inclusion modes
 
-### 3. Read-Only Access
-- Server never modifies project files
-- AI uses IDE tools for edits
-- Safe by design
-
-### 4. Token Optimization
-- Selective bundle loading
-- Three code inclusion modes
-- Per-folder token estimates
+For detailed architecture discussion and design rationale, see [MCP Integration Guide](mcp_integration.md#architecture).
 
 ## Build & Distribution
 
@@ -163,7 +139,7 @@ The MCP server requires:
 - Context files are in project root (not configurable output dir yet)
 
 ### Future Enhancements
-From MCP_INTEGRATION.md Phase 4:
+From docs/mcp_integration.md Phase 4:
 - Git baseline comparison (`baseline: "git:main"`)
 - Semantic component search
 - Incremental snapshot updates
@@ -174,13 +150,13 @@ From MCP_INTEGRATION.md Phase 4:
 
 ### User-Facing
 - **README.md** - Complete API reference with examples
-- **QUICKSTART.md** - Step-by-step setup guide
+- **docs/QUICKSTART.md** - Step-by-step setup guide
 - **claude_desktop_config.example.json** - Config template
 
 ### Technical
-- **MCP_INTEGRATION.md** - Architecture and design doc
-- **TOOL_DESCRIPTION.md** - LogicStamp Context reference
-- **IMPLEMENTATION_SUMMARY.md** - This file
+- **docs/mcp_integration.md** - Architecture and design doc (complete API reference)
+- **docs/tool_description.md** - LogicStamp Context reference
+- **docs/implementation_summary.md** - This file (project status & deployment)
 
 ### Code Documentation
 - JSDoc comments on all functions
@@ -206,12 +182,11 @@ From MCP_INTEGRATION.md Phase 4:
    - Test on actual React/TypeScript codebases
    - Verify tool chain workflows
 
-2. **CLI Enhancements** (if needed)
-   - Add `--json-summary` flag to `stamp context`
-   - Add `--json` flag to `stamp context compare`
+2. **CLI Enhancements**
+   - ✅ Added `--stats` flag to `stamp context --compare-modes`
    - Verify output format matches schemas
 
-3. **Publish to NPM** (optional)
+3. **Publish to NPM**
    - Update package.json with correct details
    - Add repository, author, keywords
    - Publish as `logicstamp-context-mcp`
@@ -241,11 +216,11 @@ From MCP_INTEGRATION.md Phase 4:
 | src/mcp/tools/read-bundle.ts | 62 | Tool 3 implementation |
 | src/mcp/tools/compare-snapshot.ts | 119 | Tool 4 implementation |
 | README.md | 500+ | User documentation |
-| QUICKSTART.md | 100+ | Setup guide |
+| docs/quickstart.md | 100+ | Setup guide |
 
 **Total Source Code:** ~913 lines of TypeScript
 **Total Documentation:** ~600+ lines of Markdown
 
 ## Conclusion
 
-The MCP server is fully implemented, type-safe, well-documented, and ready for testing. It follows the architecture specified in MCP_INTEGRATION.md and provides a clean interface for AI assistants to analyze codebases using LogicStamp Context.
+The MCP server is fully implemented, type-safe, well-documented, and ready for testing. It follows the architecture specified in docs/mcp_integration.md and provides a clean interface for AI assistants to analyze codebases using LogicStamp Context.
