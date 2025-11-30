@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "logicstamp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["logicstamp-context-mcp"]
+    }
+  }
+}
+

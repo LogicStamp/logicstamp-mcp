@@ -1,6 +1,7 @@
 {
   "mcpServers": {
     "logicstamp": {
+      "type": "stdio",
       "command": "node",
       "args": ["/absolute/path/to/logicstamp-mcp/dist/index.js"],
       "env": {

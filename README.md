@@ -50,8 +50,39 @@ Install globally to use LogicStamp in **all your projects**:
 ```bash
 # Install the package (when published)
 npm install -g logicstamp-context-mcp
+```
 
-# Add to Claude Code - available everywhere
+**Configure by editing `~/.claude.json`:**
+
+Create or edit `~/.claude.json` in your home directory:
+
+**On macOS/Linux:**
+```bash
+nano ~/.claude.json
+```
+
+**On Windows:**
+```bash
+notepad %USERPROFILE%\.claude.json
+```
+
+Add the following configuration:
+
+```json
+{
+  "mcpServers": {
+    "logicstamp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["logicstamp-context-mcp"]
+    }
+  }
+}
+```
+
+**Alternative: Use CLI command**
+
+```bash
 claude mcp add --scope user --transport stdio logicstamp -- npx logicstamp-context-mcp
 ```
 
@@ -67,18 +98,19 @@ Install per-project to share configuration with your team via git:
 ```bash
 # Install the package
 npm install -g logicstamp-context-mcp
-
-# In your project directory
-cd /path/to/your/project
-claude mcp add --scope project --transport stdio logicstamp -- npx logicstamp-context-mcp
 ```
 
-**What this does:**
-- Creates `.mcp.json` in your project root
-- Can be committed to git for team collaboration
-- Team members get the same MCP configuration
+**Configure by creating `.mcp.json`:**
 
-**Example `.mcp.json`:**
+In your project directory, create `.mcp.json`. You can copy `.mcp.json.example` from this repository:
+
+```bash
+cd /path/to/your/project
+cp .mcp.json.example .mcp.json
+```
+
+Or create it manually with this content:
+
 ```json
 {
   "mcpServers": {
@@ -90,6 +122,18 @@ claude mcp add --scope project --transport stdio logicstamp -- npx logicstamp-co
   }
 }
 ```
+
+**Alternative: Use CLI command**
+
+```bash
+cd /path/to/your/project
+claude mcp add --scope project --transport stdio logicstamp -- npx logicstamp-context-mcp
+```
+
+**What this does:**
+- Creates `.mcp.json` in your project root
+- Can be committed to git for team collaboration
+- Team members get the same MCP configuration
 
 #### Option 3: Local Development
 
