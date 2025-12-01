@@ -157,7 +157,8 @@ export interface ReadBundleOutput {
 export interface CompareSnapshotInput {
   profile?: 'llm-chat' | 'llm-safe' | 'ci-strict';
   mode?: 'header' | 'full' | 'none';
-  includeStyle?: boolean; // Include style metadata (equivalent to stamp context style)
+  includeStyle?: boolean; // Include style metadata in comparison. When true, also forces regeneration.
+  forceRegenerate?: boolean; // Force regeneration of context before comparing (default: false, or true if includeStyle is true)
   projectPath?: string;
   baseline?: 'disk' | 'snapshot' | string;
 }

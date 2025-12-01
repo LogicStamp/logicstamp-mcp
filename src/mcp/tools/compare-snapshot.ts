@@ -27,6 +27,9 @@ export async function compareSnapshot(input: CompareSnapshotInput): Promise<Comp
   const profile = input.profile || 'llm-chat';
   const mode = input.mode || 'header';
   const includeStyle = input.includeStyle || false;
+  // Completely independent: includeStyle only affects CLI flag, forceRegenerate controls regeneration
+  const forceRegenerate = input.forceRegenerate || false;
+  
   const projectPath = input.projectPath 
     ? resolve(input.projectPath) 
     : (process.env.PROJECT_PATH ? resolve(process.env.PROJECT_PATH) : process.cwd());
@@ -66,13 +69,12 @@ export async function compareSnapshot(input: CompareSnapshotInput): Promise<Comp
     const baselineIndex: LogicStampIndex = JSON.parse(baselineContextMainContent);
 
     // Read or regenerate current state
-    // If includeStyle is true, regenerate to ensure style metadata is included
     const currentContextMainPath = join(projectPath, 'context_main.json');
     let currentIndex: LogicStampIndex;
     
-    // If includeStyle is true, always regenerate current state to ensure style metadata is included
-    if (includeStyle) {
-      const styleFlag = ' --include-style';
+    if (forceRegenerate) {
+      // Force regeneration: run stamp context before comparing
+      const styleFlag = includeStyle ? ' --include-style' : '';
       const command = `stamp context --profile ${profile} --include-code ${mode}${styleFlag} --skip-gitignore --quiet`;
       
       await execAsync(command, {
@@ -84,7 +86,7 @@ export async function compareSnapshot(input: CompareSnapshotInput): Promise<Comp
       const regeneratedContextMainContent = await readFile(currentContextMainPath, 'utf-8');
       currentIndex = JSON.parse(regeneratedContextMainContent);
     } else {
-      // Read existing current state
+      // Read existing current state from disk
       try {
         const currentContextMainContent = await readFile(currentContextMainPath, 'utf-8');
         try {
@@ -95,11 +97,17 @@ export async function compareSnapshot(input: CompareSnapshotInput): Promise<Comp
         }
       } catch (error) {
         // Check if it's a file not found error
-        if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
-          // Current state doesn't exist - all folders are removed
-          return createRemovedAllResult(baseline, baselineIndex);
+        const nodeError = error as NodeJS.ErrnoException;
+        if (nodeError && nodeError.code === 'ENOENT') {
+          // context_main.json is missing - this usually means the context hasn't been generated yet
+          // Fail loudly with a clear error message rather than assuming "all folders removed"
+          throw new Error(
+            `context_main.json not found in ${projectPath}. ` +
+            `Run 'stamp context' or 'logicstamp_refresh_snapshot' first to generate context files, ` +
+            `or use forceRegenerate: true to regenerate automatically.`
+          );
         }
-        // Other errors (including invalid JSON) should be re-thrown to be caught by outer try-catch
+        // Other errors should be re-thrown
         throw error;
       }
     }
@@ -594,37 +602,6 @@ function calculateTokenDelta(
   return {
     gpt4oMini: gpt4oMiniDelta,
     claude: claudeDelta,
-  };
-}
-
-/**
- * Create result when all folders are removed
- */
-function createRemovedAllResult(
-  baseline: string,
-  baselineIndex: LogicStampIndex
-): CompareResult {
-  const folderDiffs: FolderDiff[] = baselineIndex.folders.map((folder) => ({
-    path: folder.path,
-    status: 'removed',
-    changes: [], // Will be populated if needed
-  }));
-
-  return {
-    baseline,
-    status: 'diff',
-    summary: {
-      totalFolders: baselineIndex.folders.length,
-      unchangedFolders: 0,
-      changedFolders: 0,
-      addedFolders: 0,
-      removedFolders: baselineIndex.folders.length,
-      tokenDelta: {
-        gpt4oMini: -(baselineIndex.summary.tokenEstimates?.gpt4oMini || 0),
-        claude: -(baselineIndex.summary.tokenEstimates?.claude || 0),
-      },
-    },
-    folderDiffs,
   };
 }
 

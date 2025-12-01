@@ -115,7 +115,10 @@ export function createServer(): Server {
         {
           name: 'logicstamp_compare_snapshot',
           description:
-            'Compare current project state against baseline to detect changes. Use this after editing files to verify what changed. Returns structured diff showing modified components, changed contracts (props added/removed, functions changed), and token deltas. Set includeStyle to true when comparing visual/design changes: detecting style source changes (Tailwind classes added/removed, SCSS changes), layout pattern changes, color palette changes, spacing changes, or animation changes. Use includeStyle: true when the user asks about style changes, design drift, or visual consistency. Note: This compares the context files on disk - make sure you\'ve run logicstamp_refresh_snapshot first to generate the baseline, and regenerate if needed with includeStyle matching your comparison needs.',
+            'Compare current project state against baseline to detect changes. Use this after editing files to verify what changed. Returns structured diff showing modified components, changed contracts (props added/removed, functions changed), and token deltas. ' +
+            'By default (forceRegenerate: false), reads existing context_main.json from disk (fast, assumes context is fresh). ' +
+            'Set forceRegenerate: true to regenerate context before comparing. Set includeStyle: true (with forceRegenerate: true) to include style metadata (Tailwind classes, SCSS, layout patterns, colors, spacing, animations). ' +
+            'If context_main.json is missing and forceRegenerate is false, this will fail with a clear error - run logicstamp_refresh_snapshot first, or use forceRegenerate: true to regenerate automatically.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -133,7 +136,12 @@ export function createServer(): Server {
               },
               includeStyle: {
                 type: 'boolean',
-                description: 'Include style metadata in comparison. Regenerates current state with style metadata if true (default: false)',
+                description: 'Include style metadata in comparison (Tailwind classes, SCSS, layout patterns, etc.). Only takes effect when forceRegenerate is true. If forceRegenerate is false, compares whatever is on disk (may not have style metadata).',
+                default: false,
+              },
+              forceRegenerate: {
+                type: 'boolean',
+                description: 'Force regeneration of context before comparing. When true, runs stamp context (with --include-style if includeStyle is true). When false, reads existing context_main.json from disk (fast, assumes context is fresh).',
                 default: false,
               },
               projectPath: {

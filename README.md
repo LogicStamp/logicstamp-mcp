@@ -92,8 +92,15 @@ The MCP server provides 4 tools. For complete API documentation with input/outpu
 - Returns: Complete bundle with contracts and dependency graph
 
 **logicstamp_compare_snapshot** - Detect changes after edits
-- Parameters: `profile` (optional), `mode` (optional), `includeStyle` (optional), `projectPath` (optional), `baseline` (optional)
+- Parameters: 
+  - `profile` (optional): Analysis profile (default: `llm-chat`)
+  - `mode` (optional): Code inclusion mode (default: `header`)
+  - `includeStyle` (optional): Include style metadata in comparison. Only takes effect when `forceRegenerate` is `true` (default: `false`)
+  - `forceRegenerate` (optional): Force regeneration of context before comparing. When `false`, reads existing `context_main.json` from disk (fast). When `true`, runs `stamp context` to regenerate (default: `false`)
+  - `projectPath` (optional): Project path (defaults to current directory)
+  - `baseline` (optional): Comparison baseline: `disk` (default), `snapshot`, or custom path
 - Returns: Comparison result with change details
+- **Note**: By default (`forceRegenerate: false`), reads from disk for fast comparison. Set `forceRegenerate: true` to ensure fresh context or when `context_main.json` is missing.
 
 ## Documentation
 
