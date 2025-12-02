@@ -370,7 +370,9 @@ logicstamp-context/
 
 ---
 
-### Tool 5: `logicstamp_get_last_compare_result` (Optional)
+### Tool 5: `logicstamp_get_last_compare_result` (Not Yet Implemented)
+
+**Status**: ⚠️ **This tool is documented but not yet implemented.** The underlying state management functions exist (`getLastCompareResult`, `setLastCompareResult`), but no MCP tool currently exposes them.
 
 **Purpose**: Retrieve cached comparison result without re-running.
 
@@ -385,6 +387,8 @@ logicstamp-context/
 - `since` (optional): ISO timestamp filter
 
 **Output**: Same as `logicstamp_compare_snapshot`
+
+**Future Implementation**: This tool is planned for Phase 4 (see [Implementation Checklist](#implementation-checklist)).
 
 ---
 
@@ -696,6 +700,7 @@ interface ComponentChange {
 ### Phase 4: Advanced Features (Future)
 - [ ] Support `baseline: "git:<ref>"` for git-based comparison
 - [ ] Add `logicstamp_search_components` for semantic search
+- [ ] Implement `logicstamp_get_last_compare_result` tool for cached comparison results
 - [ ] Implement incremental snapshot updates
 - [ ] Add streaming support for large bundles
 - [ ] WebSocket support for real-time drift monitoring

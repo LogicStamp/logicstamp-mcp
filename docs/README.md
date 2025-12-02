@@ -18,7 +18,7 @@ Platform-specific installation and configuration:
 
 - **[MCP Integration Guide](mcp_integration.md)** - Architecture, design principles, and implementation details
 - **[Tool Description](tool_description.md)** - Complete reference for LogicStamp Context capabilities
-- **[Commands Reference](commands.md)** - CLI command reference
+- **[CLI Commands Reference](cli_commands.md)** - CLI command reference
 
 ## Related Documentation
 
@@ -34,7 +34,7 @@ For technical implementation details, see [MCP Integration Guide](mcp_integratio
 docs/
 ├── README.md                    # This file - navigation index
 ├── quickstart.md                # Quick start guide
-├── commands.md                  # CLI commands reference
+├── cli_commands.md             # CLI commands reference
 ├── mcp_integration.md           # MCP architecture & design
 ├── tool_description.md          # LogicStamp Context reference
 └── integrations/                # Platform-specific guides
@@ -49,6 +49,6 @@ docs/
 - **Setting up an MCP client?** → Check [Integration Guides](integrations/)
 - **Understanding the architecture?** → Read [MCP Integration Guide](mcp_integration.md)
 - **Using LogicStamp with AI?** → See [LogicStamp Context LLM Guide](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/LLM_CONTEXT.md) (CLI repo)
-- **Looking for CLI commands?** → Reference [Commands](commands.md)
+- **Looking for CLI commands?** → Reference [CLI Commands](cli_commands.md)
 - **Contributing to the project?** → Review [Contributing Guide](../CONTRIBUTING.md) and [MCP Integration Guide](mcp_integration.md)
 

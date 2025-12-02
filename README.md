@@ -95,7 +95,7 @@ The MCP server provides 4 tools. For complete API documentation with input/outpu
 - Parameters: 
   - `profile` (optional): Analysis profile (default: `llm-chat`)
   - `mode` (optional): Code inclusion mode (default: `header`)
-  - `includeStyle` (optional): Include style metadata in comparison. Only takes effect when `forceRegenerate` is `true` (default: `false`)
+  - `includeStyle` (optional): Include style metadata in comparison. Only takes effect when `forceRegenerate` is `true`. When `forceRegenerate` is `false`, compares whatever style metadata exists on disk (may be incomplete) (default: `false`)
   - `forceRegenerate` (optional): Force regeneration of context before comparing. When `false`, reads existing `context_main.json` from disk (fast). When `true`, runs `stamp context` to regenerate (default: `false`)
   - `projectPath` (optional): Project path (defaults to current directory)
   - `baseline` (optional): Comparison baseline: `disk` (default), `snapshot`, or custom path
@@ -107,7 +107,7 @@ The MCP server provides 4 tools. For complete API documentation with input/outpu
 - **[Quick Start Guide](docs/quickstart.md)** - Get up and running in minutes
 - **[MCP Integration Guide](docs/mcp_integration.md)** - Complete API reference and architecture
 - **[Tool Description](docs/tool_description.md)** - LogicStamp Context capabilities
-- **[Commands Reference](docs/commands.md)** - CLI command reference
+- **[CLI Commands Reference](docs/cli_commands.md)** - CLI command reference
 - **[Integration Guides](docs/integrations/)** - Platform-specific setup
 
 ## Troubleshooting
