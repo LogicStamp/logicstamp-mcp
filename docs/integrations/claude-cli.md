@@ -2,6 +2,53 @@
 
 LogicStamp MCP server works with [Claude Code](https://claude.com/claude-code) - Anthropic's official CLI for Claude.
 
+## Quick Troubleshooting Checklist
+
+Before diving into setup, check these common issues:
+
+- ✅ **Node.js installed?** Run `node --version` (needs 18.0.0+)
+- ✅ **Claude CLI installed?** Run `claude --version`
+- ✅ **Package installed?** Run `npm list -g logicstamp-context-mcp`
+- ✅ **LogicStamp CLI installed?** Run `stamp --version` (needs `npm install -g logicstamp-context`)
+- ✅ **MCP server listed?** Run `claude mcp list` - should show `logicstamp: ✓ Connected`
+- ✅ **Config file exists?** Check `~/.claude.json` (macOS/Linux) or `%USERPROFILE%\.claude.json` (Windows)
+- ✅ **JSON valid?** Validate your config file syntax
+- ✅ **In project directory?** MCP tools need a valid project context
+
+If all checks pass but it's still not working, see the [Troubleshooting](#troubleshooting) section below.
+
+## Finding MCP Settings in Claude CLI
+
+Claude CLI provides command-line tools to manage MCP servers:
+
+1. **List All MCP Servers:**
+   ```bash
+   claude mcp list
+   ```
+   - Shows all configured MCP servers
+   - Status indicator: `✓ Connected` (working) or `✗ Failed` (error)
+   - Example output:
+     ```
+     logicstamp: npx logicstamp-context-mcp - ✓ Connected
+     ```
+
+2. **Check Specific Server:**
+   ```bash
+   claude mcp get logicstamp
+   ```
+   - Shows configuration for the LogicStamp server
+   - Displays scope (user/project) and command details
+
+3. **Verify Connection:**
+   ```bash
+   claude mcp list
+   ```
+   - Look for `logicstamp` in the output
+   - Status should be `✓ Connected`
+   - If you see `✗ Failed`, check the [Troubleshooting](#troubleshooting) section
+
+**Quick Test:** Run `claude mcp list` - if you see `logicstamp: ✓ Connected`, you're all set!
+
 ## Installation
 
 ### Step 1: Install the MCP Server Package
@@ -171,16 +218,30 @@ Or edit `~/.claude.json` manually:
 
 After installation, verify the server is configured:
 
-```bash
-claude mcp list
-```
+1. **Check MCP Server Status** - Run the command from [Finding MCP Settings in Claude CLI](#finding-mcp-settings-in-claude-cli) above:
+   ```bash
+   claude mcp list
+   ```
 
-You should see:
-```
-Checking MCP server health...
+2. **Verify Connection** - You should see:
+   ```
+   Checking MCP server health...
 
-logicstamp: npx logicstamp-context-mcp - ✓ Connected
-```
+   logicstamp: npx logicstamp-context-mcp - ✓ Connected
+   ```
+
+3. **Test in Project** - Navigate to a React/TypeScript project and start Claude:
+   ```bash
+   cd /path/to/your/react-project
+   claude
+   ```
+
+4. **Test LogicStamp** - Ask Claude to analyze your project:
+   ```
+   Can you analyze my React project using LogicStamp?
+   ```
+
+**Quick Check:** If `claude mcp list` shows `logicstamp: ✓ Connected`, you're all set! If you see `✗ Failed`, check the [Troubleshooting](#troubleshooting) section below.
 
 ## Usage
 

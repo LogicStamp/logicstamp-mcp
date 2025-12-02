@@ -2,11 +2,8 @@
   "mcpServers": {
     "logicstamp": {
       "type": "stdio",
-      "command": "node",
-      "args": ["/absolute/path/to/logicstamp-mcp/dist/index.js"],
-      "env": {
-        "PROJECT_PATH": "/absolute/path/to/your/project"
-      }
+      "command": "npx",
+      "args": ["logicstamp-context-mcp"]
     }
   }
 }

@@ -2,6 +2,40 @@
 
 LogicStamp MCP server works with Claude Desktop - Anthropic's desktop application for Claude.
 
+## Quick Troubleshooting Checklist
+
+Before diving into setup, check these common issues:
+
+- ✅ **Node.js installed?** Run `node --version` (needs 18.0.0+)
+- ✅ **Package installed?** Run `npm list -g logicstamp-context-mcp`
+- ✅ **LogicStamp CLI installed?** Run `stamp --version` (needs `npm install -g logicstamp-context`)
+- ✅ **Config file exists?** Check `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows)
+- ✅ **JSON valid?** Validate your config file syntax (no trailing commas)
+- ✅ **Claude Desktop restarted?** Fully quit and reopen (not just close window)
+- ✅ **Config file location correct?** Must be in the exact path shown above
+
+If all checks pass but it's still not working, see the [Troubleshooting](#troubleshooting) section below.
+
+## Finding MCP Settings in Claude Desktop
+
+Claude Desktop doesn't have a visible MCP settings UI. Instead, MCP servers are configured via the config file:
+
+1. **Locate Config File:**
+   - **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+   - **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+   - Open Finder/Explorer and navigate to this path, or use Terminal/PowerShell
+
+2. **Verify Config File:**
+   - The file should contain a `mcpServers` object with your LogicStamp configuration
+   - If the file doesn't exist, create it with the JSON structure shown below
+
+3. **Check Logs (if issues occur):**
+   - **macOS:** `~/Library/Logs/Claude/`
+   - **Windows:** Check Event Viewer or Claude logs folder
+   - Look for MCP-related errors
+
+**Note:** Unlike Cursor, Claude Desktop doesn't show MCP servers in a settings UI. The only way to verify it's working is to test it in a conversation or check the logs.
+
 ## Installation
 
 ### Step 1: Install the MCP Server Package
@@ -35,6 +69,19 @@ Add the following configuration:
 }
 ```
 
+**Note:** Some MCP clients may require a `"type": "stdio"` field. If the above doesn't work, try:
+```json
+{
+  "mcpServers": {
+    "logicstamp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["logicstamp-context-mcp"]
+    }
+  }
+}
+```
+
 #### On Windows
 
 Edit `%APPDATA%\Claude\claude_desktop_config.json`:
@@ -55,6 +102,8 @@ Add the following configuration:
   }
 }
 ```
+
+**Note:** Some MCP clients may require a `"type": "stdio"` field. If the above doesn't work, add `"type": "stdio"` to the configuration.
 
 ### Step 3: Restart Claude Desktop
 
@@ -90,6 +139,8 @@ If you installed from source (for development or testing), use absolute paths to
 }
 ```
 
+**Note:** Some MCP clients may require a `"type": "stdio"` field. If the above doesn't work, add `"type": "stdio"` to the configuration.
+
 **Global Install vs Local Development:**
 
 The recommended approach is to use `npx` with the globally installed package:
@@ -116,12 +167,13 @@ The recommended approach is to use `npx` with the globally installed package:
 - Testing before publishing
 - Package isn't published yet
 
-## Usage
+## Verification
 
-After restarting Claude Desktop:
+After configuring and restarting Claude Desktop:
 
-1. Start a new conversation
-2. Ask Claude to analyze your project:
+1. **Verify Config File** - Check that your config file exists and has valid JSON (see [Finding MCP Settings in Claude Desktop](#finding-mcp-settings-in-claude-desktop) above)
+2. **Start a New Conversation** - Open Claude Desktop and start a fresh conversation
+3. **Test LogicStamp** - Ask Claude to analyze your project:
    ```
    Can you analyze my React project using LogicStamp?
    ```
@@ -131,6 +183,20 @@ The AI should be able to use the 4 LogicStamp tools:
 - `logicstamp_list_bundles` - List available components
 - `logicstamp_read_bundle` - Read component contracts
 - `logicstamp_compare_snapshot` - Detect changes after edits
+
+**Note:** Unlike Cursor, Claude Desktop doesn't show MCP servers in a UI. The only way to verify it's working is to test it in a conversation. If Claude can use the LogicStamp tools, it's working! If not, check the [Troubleshooting](#troubleshooting) section below.
+
+## Usage
+
+After verification, you can use LogicStamp in any conversation:
+
+1. Start a new conversation or continue an existing one
+2. Ask Claude to analyze your project:
+   ```
+   Can you analyze my React project using LogicStamp?
+   ```
+
+Claude will automatically use the LogicStamp tools to analyze your codebase.
 
 ## Troubleshooting
 
