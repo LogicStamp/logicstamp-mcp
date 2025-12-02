@@ -322,7 +322,7 @@ test: add tests for Z
 When adding features, update:
 
 - `README.md` - User-facing docs
-- `docs/implementation_summary.md` - Technical overview
+- `docs/mcp_integration.md` - Architecture and technical details
 - Code comments - JSDoc for functions
 - Type definitions - Document complex types
 

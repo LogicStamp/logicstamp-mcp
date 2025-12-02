@@ -151,7 +151,7 @@ npm start
 npm run dev
 ```
 
-For development details, see [Implementation Summary](docs/implementation_summary.md).
+For development details, see [MCP Integration Guide](docs/mcp_integration.md) and [Contributing Guide](CONTRIBUTING.md).
 
 ## Architecture
 

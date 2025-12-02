@@ -26,7 +26,7 @@ Platform-specific installation and configuration:
 
 ## Development
 
-- **[Implementation Summary](implementation_summary.md)** - Technical implementation details and project structure
+For technical implementation details, see [MCP Integration Guide](mcp_integration.md) and [Contributing Guide](../CONTRIBUTING.md).
 
 ## Documentation Structure
 
@@ -37,7 +37,6 @@ docs/
 ├── commands.md                  # CLI commands reference
 ├── mcp_integration.md           # MCP architecture & design
 ├── tool_description.md          # LogicStamp Context reference
-├── implementation_summary.md    # Implementation details
 └── integrations/                # Platform-specific guides
     ├── claude-cli.md
     ├── claude-desktop.md
@@ -51,5 +50,5 @@ docs/
 - **Understanding the architecture?** → Read [MCP Integration Guide](mcp_integration.md)
 - **Using LogicStamp with AI?** → See [LogicStamp Context LLM Guide](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/LLM_CONTEXT.md) (CLI repo)
 - **Looking for CLI commands?** → Reference [Commands](commands.md)
-- **Contributing to the project?** → Review [Implementation Summary](implementation_summary.md)
+- **Contributing to the project?** → Review [Contributing Guide](../CONTRIBUTING.md) and [MCP Integration Guide](mcp_integration.md)
 

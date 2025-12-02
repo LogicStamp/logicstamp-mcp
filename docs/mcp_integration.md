@@ -1,6 +1,6 @@
 # MCP Integration Guide for LogicStamp Context
 
-> **See also:** [Implementation Summary](implementation_summary.md) for project status and deployment guide | [Tool Description](tool_description.md) for LogicStamp Context capabilities | [Quick Start](quickstart.md) for setup instructions
+> **See also:** [Tool Description](tool_description.md) for LogicStamp Context capabilities | [Quick Start](quickstart.md) for setup instructions
 
 ## Overview
 
