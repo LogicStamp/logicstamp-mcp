@@ -30,7 +30,11 @@ npm install
 npm run build
 ```
 
+**Note:** After building, you can test the server with `npm start` or `npx logicstamp-mcp` (if installed globally). However, when using with an MCP client, the client automatically starts the server - you don't need to run it manually.
+
 ## 3. Configure Your MCP Client
+
+**Setup is done once (globally):** After configuring the MCP server globally, it will be available in all your projects. You don't need to set it up again for each project. However, when you analyze a project, you'll call `logicstamp_refresh_snapshot` for that specific project - the analysis itself is per-project, but the MCP server setup is global.
 
 Choose your MCP client for detailed installation instructions:
 

@@ -168,6 +168,7 @@ When starting work with a new project, use the [Startup Ritual](docs/startup-rit
 
 **Server doesn't show up**
 - Verify installation: `npm list -g logicstamp-mcp`
+- Test server manually: `npx logicstamp-mcp` (should wait for stdin, press Ctrl+C to exit)
 - Check configuration in your MCP client (see integration guides)
 - Restart your MCP client completely
 
@@ -188,11 +189,28 @@ npm install
 npm run build
 ```
 
-### Run Locally
+### Run the Server
 
+The MCP server can be run in several ways:
+
+**After building from source:**
 ```bash
 npm start
+# or directly
+node dist/index.js
 ```
+
+**After global installation:**
+```bash
+npx logicstamp-mcp
+```
+
+**Note:** The server runs via stdio (standard input/output) and waits for MCP protocol messages. When configured with an MCP client (Claude CLI, Cursor, etc.), the client automatically starts the server - you don't need to run it manually. The commands above are useful for:
+- Testing the server during development
+- Debugging connection issues
+- Verifying the server starts correctly
+
+When running manually, the server will wait for stdin input. Press `Ctrl+C` to exit.
 
 ### Watch Mode
 

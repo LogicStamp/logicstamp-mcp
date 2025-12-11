@@ -29,6 +29,9 @@
     "ai-tools"
   ],
   "author": "Amit Levi <amit23082@gmail.com> (https://amitlevi.dev)",
+  "contributors": [
+  "LogicStamp Contributors"
+],
   "license": "MIT",
   "repository": {
     "type": "git",
