@@ -1,4 +1,4 @@
-# LogicStamp Context MCP Server
+# LogicStamp MCP Server
 
 Model Context Protocol (MCP) server for [LogicStamp Context](https://github.com/LogicStamp/logicstamp-context) - enabling AI assistants to safely analyze and understand React/TypeScript codebases.
 
@@ -15,12 +15,14 @@ This MCP server provides AI assistants with structured access to your codebase t
 
 ## Features
 
-### 4 Core Tools
+### 6 Tools
 
 1. **`logicstamp_refresh_snapshot`** - Analyze project and create snapshot
 2. **`logicstamp_list_bundles`** - List available component bundles
 3. **`logicstamp_read_bundle`** - Read full component contract + graph
 4. **`logicstamp_compare_snapshot`** - Detect changes after edits
+5. **`logicstamp_compare_modes`** - Generate token cost comparison across all modes
+6. **`logicstamp_read_logicstamp_docs`** - Read LogicStamp documentation
 
 ### Key Benefits
 
@@ -41,7 +43,7 @@ This MCP server provides AI assistants with structured access to your codebase t
 
 1. **Install the MCP server:**
    ```bash
-   npm install -g logicstamp-context-mcp
+   npm install -g logicstamp-mcp
    ```
 
 2. **Configure your MCP client** - See [integration guides](docs/integrations/) for platform-specific instructions:
@@ -75,21 +77,24 @@ For more examples and workflows, see [Usage Examples](docs/mcp_integration.md#ll
 
 ## Tool Reference
 
-The MCP server provides 4 tools. For complete API documentation with input/output examples, see the [MCP Integration Guide](docs/mcp_integration.md#mcp-tools-mvp).
+The MCP server provides 6 tools. For complete API documentation with input/output examples, see the [MCP Integration Guide](docs/mcp_integration.md#mcp-tools-mvp).
 
 ### Quick Reference
 
-**logicstamp_refresh_snapshot** - Create a snapshot of the current codebase state
+**logicstamp_refresh_snapshot** - Create a snapshot of the current codebase state (STEP 1)
 - Parameters: `profile` (optional), `mode` (optional), `includeStyle` (optional), `projectPath` (optional)
 - Returns: `snapshotId`, `summary`, `folders`
+- **Always call this first** when analyzing a new repo
 
-**logicstamp_list_bundles** - List available bundles for selective loading
+**logicstamp_list_bundles** - List available bundles for selective loading (STEP 2)
 - Parameters: `snapshotId` (required), `folderPrefix` (optional)
 - Returns: `bundles` array with metadata
+- **Call this after refresh_snapshot** to discover available bundles
 
-**logicstamp_read_bundle** - Read full component contract and dependency graph
+**logicstamp_read_bundle** - Read full component contract and dependency graph (STEP 3)
 - Parameters: `snapshotId` (required), `bundlePath` (required), `rootComponent` (optional)
 - Returns: Complete bundle with contracts and dependency graph
+- **This is where the valuable data is** - prefer bundles over raw source files
 
 **logicstamp_compare_snapshot** - Detect changes after edits
 - Parameters: 
@@ -102,13 +107,53 @@ The MCP server provides 4 tools. For complete API documentation with input/outpu
 - Returns: Comparison result with change details
 - **Note**: By default (`forceRegenerate: false`), reads from disk for fast comparison. Set `forceRegenerate: true` to ensure fresh context or when `context_main.json` is missing.
 
+**logicstamp_compare_modes** - Generate token cost comparison across all modes
+- Parameters: `projectPath` (optional)
+- Returns: Token counts for all modes (none/header/header+style/full), savings percentages, file statistics
+- **Use this** to understand token costs before generating context or when user asks about token budgets/optimization
+
+**logicstamp_read_logicstamp_docs** - Read LogicStamp documentation
+- Parameters: None
+- Returns: Complete LogicStamp documentation bundle
+- **Use this when confused** - explains LogicStamp, workflow, and best practices
+
+## Startup Ritual
+
+When starting work with a new project, use the [Startup Ritual](docs/startup-ritual.md) to guide the AI through the recommended workflow. This ensures the AI:
+1. Calls `logicstamp_refresh_snapshot` first
+2. Uses bundles instead of raw source files when possible
+3. Follows the recommended LogicStamp workflow
+
 ## Documentation
 
+### MCP-Specific Docs (This Repo)
+
 - **[Quick Start Guide](docs/quickstart.md)** - Get up and running in minutes
+- **[Startup Ritual](docs/startup-ritual.md)** - Recommended message to paste when starting with a new project
 - **[MCP Integration Guide](docs/mcp_integration.md)** - Complete API reference and architecture
-- **[Tool Description](docs/tool_description.md)** - LogicStamp Context capabilities
-- **[CLI Commands Reference](docs/cli_commands.md)** - CLI command reference
-- **[Integration Guides](docs/integrations/)** - Platform-specific setup
+- **[Integration Guides](docs/integrations/)** - Platform-specific setup (Claude CLI, Claude Desktop, Cursor)
+
+### Canonical LogicStamp Docs (Redundant Sources)
+
+**Full CLI & Context Documentation:**
+- **Primary:** [logicstamp.dev/docs](https://logicstamp.dev/docs) - Complete documentation (landing page, best UX)
+- **Fallback:** [CLI Repository Docs](https://github.com/LogicStamp/logicstamp-context) - GitHub docs (always available, versioned)
+
+**Key Topics** (both primary and fallback links):
+
+| Topic | Primary (Landing Page) | Fallback (GitHub) |
+|-------|----------------------|-------------------|
+| **Usage Guide** | [logicstamp.dev/docs/usage](https://logicstamp.dev/docs/usage) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/usage.md) |
+| **UIF Contracts** | [logicstamp.dev/docs/uif-contracts](https://logicstamp.dev/docs/uif-contracts) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/uif_contracts.md) |
+| **Schema Reference** | [logicstamp.dev/docs/schema](https://logicstamp.dev/docs/schema) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/schema.md) |
+| **CLI Commands** | [logicstamp.dev/docs/cli/context](https://logicstamp.dev/docs/cli/context) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/cli/context.md) |
+| **Compare Modes** | [logicstamp.dev/docs/cli/compare-modes](https://logicstamp.dev/docs/cli/compare-modes) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/cli/compare-modes.md) |
+| **Limitations** | [logicstamp.dev/docs/limitations](https://logicstamp.dev/docs/limitations) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/limitations.md) |
+
+**Note:** 
+- Docs are maintained in the CLI repo and synced to the landing page
+- If the landing page is unavailable, use the GitHub links as fallback
+- The `logicstamp_read_logicstamp_docs` tool returns an embedded LLM-focused doc snapshot (`docs/logicstamp-for-llms.md`) for offline use
 
 ## Troubleshooting
 
@@ -118,7 +163,7 @@ The MCP server provides 4 tools. For complete API documentation with input/outpu
 - Install LogicStamp Context CLI: `npm install -g logicstamp-context`
 
 **Server doesn't show up**
-- Verify installation: `npm list -g logicstamp-context-mcp`
+- Verify installation: `npm list -g logicstamp-mcp`
 - Check configuration in your MCP client (see integration guides)
 - Restart your MCP client completely
 
@@ -174,6 +219,12 @@ This MCP server requires:
 ## License
 
 MIT
+
+## Branding & Attribution
+
+The LogicStamp Fox mascot and related brand assets are © 2025 LogicStamp Contributors.
+
+These assets may not be used for third-party branding, logos, or commercial identity without permission. They are included in this repository for documentation and non-commercial use within the LogicStamp ecosystem only.
 
 ## Contributing
 

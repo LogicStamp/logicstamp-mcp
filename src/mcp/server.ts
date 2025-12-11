@@ -1,5 +1,5 @@
 /**
- * LogicStamp Context MCP Server
+ * LogicStamp MCP Server
  * Provides AI assistants with access to codebase analysis via Model Context Protocol
  */
 
@@ -16,6 +16,8 @@ import { refreshSnapshot } from './tools/refresh-snapshot.js';
 import { listBundles } from './tools/list-bundles.js';
 import { readBundle } from './tools/read-bundle.js';
 import { compareSnapshot } from './tools/compare-snapshot.js';
+import { compareModes } from './tools/compare-modes.js';
+import { readLogicStampDocs } from './tools/read-logicstamp-docs.js';
 
 /**
  * Create and configure the MCP server
@@ -23,7 +25,7 @@ import { compareSnapshot } from './tools/compare-snapshot.js';
 export function createServer(): Server {
   const server = new Server(
     {
-      name: 'logicstamp-context-mcp',
+      name: 'logicstamp-mcp',
       version: '0.1.0',
     },
     {
@@ -42,30 +44,44 @@ export function createServer(): Server {
         {
           name: 'logicstamp_refresh_snapshot',
           description:
-            'STEP 1: Run LogicStamp Context analysis on a project and create a snapshot. This generates context bundles for all components but only returns a high-level summary (component counts, token estimates, folder structure). IMPORTANT: The summary does NOT contain component details, props, dependencies, or style metadata - you must use logicstamp_list_bundles and logicstamp_read_bundle to access that data. Set includeStyle to true when you need visual/design information: Tailwind CSS classes, SCSS modules, framer-motion animations, color palettes, spacing patterns, layout types (flex/grid), responsive breakpoints. Use includeStyle: true for design system analysis, visual consistency checks, or when the user asks about styling, colors, spacing, animations, or visual design. After calling this, you MUST call logicstamp_list_bundles to see available bundles, then logicstamp_read_bundle to get actual component contracts, dependencies, and style metadata.',
+            'STEP 1: Scan the current project using LogicStamp Context and regenerate all AI-ready bundles. ' +
+            'ALWAYS CALL THIS FIRST when analyzing a new repo or after large code changes. ' +
+            'WHAT IT DOES: Runs `stamp context` which analyzes your React/TypeScript codebase and generates structured context files optimized for AI consumption: ' +
+            '(1) `context_main.json` - Main index with folder metadata, summary statistics, and folder entries. This is your entry point to discover all components. ' +
+            '(2) Multiple `context.json` files - One per folder containing component bundles with contracts, dependency graphs, and relationships. ' +
+            'These files are STRUCTURED DATA, not raw source - they capture the complete architecture and relationships in your codebase. ' +
+            'WHAT YOU GET: Summary statistics (component counts, token estimates, folder structure) and a snapshotId. ' +
+            'IMPORTANT: This summary does NOT include component details, props, dependencies, or style metadata. ' +
+            'WHAT TO DO NEXT: (1) Call logicstamp_list_bundles with the snapshotId to see available bundles, ' +
+            '(2) Then call logicstamp_read_bundle to get actual component contracts with full details including dependency graphs. ' +
+            'STYLE METADATA: Set includeStyle=true to extract visual/design information (Tailwind CSS classes, SCSS modules, framer-motion animations, color palettes, spacing patterns). ' +
+            'Style data appears in the "style" field of UIFContract when reading bundles - the summary does NOT show style info. ' +
+            'Use includeStyle=true for design system analysis, visual consistency checks, or when the user asks about styling, colors, spacing, animations, or visual design. ' +
+            'PREFER BUNDLES OVER RAW CODE: These bundles are pre-parsed summaries optimized for AI - use them instead of reading raw .ts/.tsx files when possible. ' +
+            'If you\'re unsure how LogicStamp works, call logicstamp_read_logicstamp_docs first.',
           inputSchema: {
             type: 'object',
             properties: {
               profile: {
                 type: 'string',
                 enum: ['llm-chat', 'llm-safe', 'ci-strict'],
-                description: 'Analysis profile (default: llm-chat)',
+                description: 'Analysis profile: llm-chat=balanced (default), llm-safe=conservative (max 30 nodes), ci-strict=contracts only, strict deps',
                 default: 'llm-chat',
               },
               mode: {
                 type: 'string',
                 enum: ['header', 'full', 'none'],
-                description: 'Code inclusion mode: none=contracts only, header=with JSDoc, full=complete source (default: header)',
+                description: 'Code inclusion mode: none=contracts only (~79% token savings), header=contracts+JSDoc headers (~65% savings, recommended), full=complete source code (no savings)',
                 default: 'header',
               },
               includeStyle: {
                 type: 'boolean',
-                description: 'Include style metadata in context bundles (Tailwind classes, SCSS modules, framer-motion, color palettes, layout patterns). Style data appears in the "style" field of component contracts when you read bundles with logicstamp_read_bundle. The summary from refresh_snapshot does NOT show style info - you must read bundles to see it. Equivalent to stamp context style command (default: false)',
+                description: 'Extract style metadata (Tailwind, SCSS, Material UI, animations, layout patterns). Equivalent to `stamp context style` or `stamp context --include-style`. Style data appears in component contracts when reading bundles, NOT in the summary.',
                 default: false,
               },
               projectPath: {
                 type: 'string',
-                description: 'Absolute path to project (default: current directory)',
+                description: 'Absolute path to project root (default: current working directory)',
               },
             },
           },
@@ -73,17 +89,26 @@ export function createServer(): Server {
         {
           name: 'logicstamp_list_bundles',
           description:
-            'STEP 2: List all available component bundles in a snapshot. Call this AFTER logicstamp_refresh_snapshot to see what components are available. Returns bundle descriptors with component names, file paths, bundle paths (use these in logicstamp_read_bundle), and token estimates. Use folderPrefix to filter by directory. You MUST call this before reading bundles - it tells you which bundlePath values to use in logicstamp_read_bundle.',
+            'STEP 2: List all LogicStamp bundles available for this project. ' +
+            'WHAT IT DOES: Reads the folder structure from `context_main.json` (the main index file) and returns a catalog of all bundles with their locations. ' +
+            'The `context_main.json` file is a structured index that organizes all your component bundles by folder, making it easy to discover and navigate the codebase architecture. ' +
+            'WHAT YOU GET: Bundle descriptors with component names, file paths, bundle paths (use these in logicstamp_read_bundle), token estimates, and positions. ' +
+            'Each bundle path points to a `context.json` file containing structured component data with dependency graphs. ' +
+            'WHEN TO USE: Call this AFTER logicstamp_refresh_snapshot to discover what components exist and where their bundles are located. ' +
+            'REQUIRED BEFORE: You MUST call logicstamp_refresh_snapshot first to generate context files and get a snapshotId. ' +
+            'REQUIRED FOR: You MUST call this before logicstamp_read_bundle - it tells you which bundlePath values to use to access the bundle data. ' +
+            'FILTERING: Use folderPrefix to filter bundles by directory path (e.g., "src/components" to see only components in that folder). ' +
+            'TYPICAL FLOW: refresh_snapshot → list_bundles → read_bundle("context_main") → read specific bundles as needed.',
           inputSchema: {
             type: 'object',
             properties: {
               snapshotId: {
                 type: 'string',
-                description: 'Snapshot ID from refresh_snapshot',
+                description: 'Snapshot ID returned from logicstamp_refresh_snapshot',
               },
               folderPrefix: {
                 type: 'string',
-                description: 'Filter bundles by folder path (optional)',
+                description: 'Filter bundles by folder path prefix (optional, e.g., "src/components" to see only that folder)',
               },
             },
             required: ['snapshotId'],
@@ -92,21 +117,32 @@ export function createServer(): Server {
         {
           name: 'logicstamp_read_bundle',
           description:
-            'STEP 3: Read the full component bundle - THIS IS WHERE THE ACTUAL USEFUL DATA IS. Call this AFTER logicstamp_list_bundles to get detailed component information. Returns complete UIFContract with: props (types, optional flags, descriptions), state variables, hooks used, dependency graph (what components/functions this imports), exports, and optionally source code (based on mode). If includeStyle was true in refresh_snapshot, the contract will also contain a "style" field with: styleSources (Tailwind classes categorized, SCSS modules, framer-motion usage), layout metadata (flex/grid patterns, responsive breakpoints), visual metadata (color palette, spacing patterns, typography), and animation metadata. This is the ONLY way to see component contracts, dependencies, and style information - the refresh_snapshot summary does NOT include this data. Use bundlePath from list_bundles output, optionally filter by rootComponent name.',
+            'STEP 3: Read a LogicStamp bundle (e.g., context_main.json or a per-folder context file). ' +
+            'WHAT IT DOES: Reads a folder\'s `context.json` file (which contains a LogicStampBundle[] array) and returns the complete bundle with full component contracts. ' +
+            'These `context.json` files are STRUCTURED DATA sources containing AI-ready documentation of your codebase architecture - pre-parsed summaries optimized for AI consumption. ' +
+            'WHAT YOU GET: Complete LogicStampBundle containing: (1) entryId - root component path, (2) graph.nodes[] - Array of components, each with entryId and contract (UIFContract), (3) graph.edges[] - Array of dependency tuples [sourceEntryId, targetEntryId] showing relationships, (4) meta.missing[] - Unresolved dependencies. ' +
+            'Each UIFContract in graph.nodes includes: kind, description, version (variables, hooks, components, functions, imports), logicSignature.props (complete prop signatures with types, optional flags, descriptions), logicSignature.emits (event/callback signatures), logicSignature.state (useState variables with types), exports, semanticHash, fileHash, and optionally style metadata (if includeStyle=true). ' +
+            'VALUE OF BUNDLE DATA: Each bundle contains a root component and its COMPLETE dependency graph - all components it uses, up to configured depth. This structured data captures the full architecture: component APIs, relationships, dependencies, and behavioral patterns. ' +
+            'PREFER THIS OVER RAW CODE: These bundles are pre-parsed summaries optimized for AI. Use this tool over reading raw .ts/.tsx files when you want to understand structure, behavior, or relationships. ' +
+            'WHEN TO USE: Call this AFTER logicstamp_list_bundles to get detailed information about specific components. ' +
+            'TYPICAL FLOW: (1) Call read_bundle on context_main to get the project overview, (2) Follow links in that file to more specific bundles as needed. ' +
+            'REQUIRED BEFORE: You MUST call logicstamp_refresh_snapshot first, then logicstamp_list_bundles to get bundlePath values. ' +
+            'THIS IS THE ONLY WAY: To see component contracts (UIFContract), dependency graphs (graph.nodes and graph.edges), and style information - the refresh_snapshot summary does NOT include this detailed data. ' +
+            'BUNDLE STRUCTURE: Each bundle represents a root component and its complete dependency graph. graph.nodes[] contains all components in the bundle (each with entryId and UIFContract). graph.edges[] contains dependency tuples [sourceEntryId, targetEntryId] showing relationships.',
           inputSchema: {
             type: 'object',
             properties: {
               snapshotId: {
                 type: 'string',
-                description: 'Snapshot ID from refresh_snapshot',
+                description: 'Snapshot ID from logicstamp_refresh_snapshot',
               },
               bundlePath: {
                 type: 'string',
-                description: 'Relative path to context.json file. Get this value from the "bundlePath" field in logicstamp_list_bundles output. Example: "src/components/HeroVisualization/context.json"',
+                description: 'Relative path to context.json file from project root. Get this from the "bundlePath" field in logicstamp_list_bundles output. Example: "src/components/context.json" or "src/components/HeroVisualization/context.json"',
               },
               rootComponent: {
                 type: 'string',
-                description: 'Specific component name to filter within the bundle file (optional). Use the "rootComponent" value from list_bundles if you want a specific component. If omitted, returns the first bundle in the file.',
+                description: 'Specific root component name to filter within the bundle file (optional). Each context.json contains multiple bundles (one per root component). Use the "rootComponent" value from list_bundles. If omitted, returns the first bundle in the file.',
               },
             },
             required: ['snapshotId', 'bundlePath'],
@@ -115,45 +151,88 @@ export function createServer(): Server {
         {
           name: 'logicstamp_compare_snapshot',
           description:
-            'Compare current project state against baseline to detect changes. Use this after editing files to verify what changed. Returns structured diff showing modified components, changed contracts (props added/removed, functions changed), and token deltas. ' +
-            'By default (forceRegenerate: false), reads existing context_main.json from disk (fast, assumes context is fresh). ' +
-            'Set forceRegenerate: true to regenerate context before comparing. Set includeStyle: true (with forceRegenerate: true) to include style metadata (Tailwind classes, SCSS, layout patterns, colors, spacing, animations). ' +
-            'If context_main.json is missing and forceRegenerate is false, this will fail with a clear error - run logicstamp_refresh_snapshot first, or use forceRegenerate: true to regenerate automatically.',
+            'Compare the current LogicStamp snapshot with a saved one to detect changes. ' +
+            'WHAT IT DOES: Compares all context files (multi-file mode) by reading the structured data in `context_main.json` and folder `context.json` files. ' +
+            'Detects: ADDED folders/components, REMOVED folders/components, CHANGED components (props added/removed, hooks changed, imports changed, semantic hash changed), UNCHANGED components. ' +
+            'Returns structured diff with folder-level and component-level changes, token deltas. ' +
+            'VALUE OF COMPARISON: By comparing the structured context files (which contain dependency graphs, contracts, and metadata), this tool can detect meaningful changes in component APIs, dependencies, and relationships - not just file changes, but architectural changes. ' +
+            'WHEN TO USE: After editing files to verify what changed. Like Jest snapshots - detects contract drift by comparing the structured context data. ' +
+            'This is useful when refactoring or reviewing a PR, instead of diffing raw code. ' +
+            'REGENERATION MODE: By default (forceRegenerate: false), reads existing context_main.json from disk (fast, assumes context is fresh). ' +
+            'Set forceRegenerate: true to run `stamp context` before comparing (ensures fresh context files with latest structured data). ' +
+            'STYLE METADATA: Set includeStyle: true (with forceRegenerate: true) to include style metadata in comparison. ' +
+            'If forceRegenerate is false, compares whatever is on disk (may not have style metadata). ' +
+            'BASELINE OPTIONS: Compare against "disk" (current snapshot), "snapshot" (stored snapshot), or "git:<ref>" (future: git baseline). ' +
+            'ERROR HANDLING: If context_main.json is missing and forceRegenerate is false, fails with clear error - run logicstamp_refresh_snapshot first, or use forceRegenerate: true to regenerate automatically.',
           inputSchema: {
             type: 'object',
             properties: {
               profile: {
                 type: 'string',
                 enum: ['llm-chat', 'llm-safe', 'ci-strict'],
-                description: 'Analysis profile (default: llm-chat)',
+                description: 'Analysis profile (only used if forceRegenerate: true). llm-chat=balanced (default), llm-safe=conservative, ci-strict=contracts only',
                 default: 'llm-chat',
               },
               mode: {
                 type: 'string',
                 enum: ['header', 'full', 'none'],
-                description: 'Code inclusion mode (default: header)',
+                description: 'Code inclusion mode (only used if forceRegenerate: true). none=contracts only, header=contracts+JSDoc (default), full=complete source',
                 default: 'header',
               },
               includeStyle: {
                 type: 'boolean',
-                description: 'Include style metadata in comparison (Tailwind classes, SCSS, layout patterns, etc.). Only takes effect when forceRegenerate is true. If forceRegenerate is false, compares whatever is on disk (may not have style metadata).',
+                description: 'Include style metadata in comparison (only takes effect when forceRegenerate: true). Extracts Tailwind classes, SCSS, layout patterns, colors, spacing, animations. If forceRegenerate is false, compares whatever is on disk (may not have style metadata).',
                 default: false,
               },
               forceRegenerate: {
                 type: 'boolean',
-                description: 'Force regeneration of context before comparing. When true, runs stamp context (with --include-style if includeStyle is true). When false, reads existing context_main.json from disk (fast, assumes context is fresh).',
+                description: 'Force regeneration before comparing. When true, runs `stamp context` (with --include-style if includeStyle is true) to generate fresh context files. When false, reads existing context_main.json from disk (fast, assumes context is fresh).',
                 default: false,
               },
               projectPath: {
                 type: 'string',
-                description: 'Absolute path to project (default: current directory)',
+                description: 'Absolute path to project root (default: current working directory)',
               },
               baseline: {
                 type: 'string',
-                description: 'Comparison baseline: disk, snapshot, or git:<ref> (default: disk)',
+                description: 'Comparison baseline: "disk" (current snapshot, default), "snapshot" (stored snapshot), or "git:<ref>" (future: git baseline)',
                 default: 'disk',
               },
             },
+          },
+        },
+        {
+          name: 'logicstamp_compare_modes',
+          description:
+            'Generate detailed token cost comparison across all context generation modes to help choose the optimal mode for AI workflows. ' +
+            'WHAT IT DOES: Executes `stamp context --compare-modes --stats` which analyzes the codebase and generates `context_compare_modes.json` with token counts for all modes: ' +
+            '(1) none - contracts only (~79% savings vs full), (2) header - contracts+JSDoc (~65% savings, recommended), (3) header+style - header+style metadata (~52% savings), (4) full - complete source code (no savings). ' +
+            'Also compares against raw source files to show LogicStamp efficiency (typically 70% savings for header mode). ' +
+            'WHAT YOU GET: Token counts for all modes (GPT-4o-mini and Claude), savings percentages vs raw source and vs full context, file statistics, mode breakdown. ' +
+            'WHEN TO USE: (1) Before generating context to understand token costs, (2) User asks about token budgets/optimization/cost analysis, (3) Need to decide between modes (none/header/header+style/full), (4) Evaluate token impact of including style metadata, (5) Compare LogicStamp efficiency vs raw source files. ' +
+            'PERFORMANCE: Takes 2-3x longer than normal generation (regenerates contracts with/without style for accurate comparison).',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              projectPath: {
+                type: 'string',
+                description: 'Absolute path to project root (default: current working directory)',
+              },
+            },
+          },
+        },
+        {
+          name: 'logicstamp_read_logicstamp_docs',
+          description:
+            'Read LogicStamp documentation to understand how the tool works and how to use it effectively. ' +
+            'WHAT IT DOES: Returns comprehensive LogicStamp documentation including: the canonical guide for LLMs (logicstamp-for-llms.md), usage guide, UIF contracts documentation, schema reference, CLI command documentation, compare modes guide, and known limitations. ' +
+            'WHAT YOU GET: Complete documentation bundle with summary of key concepts, workflow instructions, and best practices. ' +
+            'WHEN TO USE: (1) When you\'re unsure how LogicStamp works or how to use these tools, (2) Before starting to work with a new project, (3) When you need to understand the bundle structure or contract format, (4) When you want to understand the recommended workflow. ' +
+            'This is your escape hatch: if you\'re confused about LogicStamp, call this tool first. ' +
+            'The documentation explains: what LogicStamp is, why bundles are preferred over raw code, the recommended workflow (refresh → list → read), how to understand bundle structure, and best practices.',
+          inputSchema: {
+            type: 'object',
+            properties: {},
           },
         },
       ],
@@ -218,6 +297,30 @@ export function createServer(): Server {
 
         case 'logicstamp_compare_snapshot': {
           const result = await compareSnapshot(args || {});
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(result, null, 2),
+              },
+            ],
+          };
+        }
+
+        case 'logicstamp_compare_modes': {
+          const result = await compareModes(args || {});
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(result, null, 2),
+              },
+            ],
+          };
+        }
+
+        case 'logicstamp_read_logicstamp_docs': {
+          const result = await readLogicStampDocs();
           return {
             content: [
               {

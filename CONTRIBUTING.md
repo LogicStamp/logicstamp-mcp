@@ -1,4 +1,4 @@
-# Contributing to LogicStamp Context MCP
+# Contributing to LogicStamp MCP
 
 Thank you for your interest in contributing! This guide will help you get started.
 
@@ -239,7 +239,7 @@ npm uninstall -g logicstamp-context
 
 ### Manual Testing Checklist
 
-- [ ] All 4 tools work correctly
+- [ ] All 6 tools work correctly
 - [ ] Error messages are helpful
 - [ ] Snapshot cache works across multiple calls
 - [ ] Performance is acceptable for large projects

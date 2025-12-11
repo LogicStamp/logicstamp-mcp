@@ -139,7 +139,7 @@ We follow responsible disclosure practices:
 
 ### Security Checklist for Users
 
-- [ ] Keep `logicstamp-context-mcp` updated to the latest version
+- [ ] Keep `logicstamp-mcp` updated to the latest version
 - [ ] Keep `logicstamp-context` CLI updated
 - [ ] Review MCP configuration files before use
 - [ ] Only use with trusted MCP clients (Claude Code, Cursor, Claude Desktop)
@@ -161,5 +161,5 @@ For security-related questions that are not vulnerabilities, please:
 - Check existing issues
 - Review the documentation in `docs/`
 
-Thank you for helping keep LogicStamp Context MCP secure!
+Thank you for helping keep LogicStamp MCP secure!
 

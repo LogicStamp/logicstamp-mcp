@@ -23,6 +23,16 @@ export async function readBundle(input: ReadBundleInput): Promise<ReadBundleOutp
     // Read the context.json file from the specified bundle path
     const contextPath = join(snapshot.contextDir, input.bundlePath);
     const contextContent = await readFile(contextPath, 'utf-8');
+    
+    // Validate that we're reading JSON, not a TypeScript file
+    const trimmedContent = contextContent.trim();
+    if (trimmedContent.startsWith('import ') || trimmedContent.startsWith('export ')) {
+      throw new Error(
+        `Invalid bundle file: ${contextPath} appears to be a TypeScript file, not JSON. ` +
+        `Expected a JSON file (context.json). Check that bundlePath is correct.`
+      );
+    }
+    
     const bundleArray: LogicStampBundle[] = JSON.parse(contextContent);
 
     // If rootComponent is specified, find matching bundle

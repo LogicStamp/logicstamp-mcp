@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * LogicStamp Context MCP Server
+ * LogicStamp MCP Server
  * Entry point for the MCP server
  */
 

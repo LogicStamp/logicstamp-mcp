@@ -8,7 +8,7 @@ Before diving into setup, check these common issues:
 
 - ✅ **Node.js installed?** Run `node --version` (needs 18.0.0+)
 - ✅ **Claude CLI installed?** Run `claude --version`
-- ✅ **Package installed?** Run `npm list -g logicstamp-context-mcp`
+- ✅ **Package installed?** Run `npm list -g logicstamp-mcp`
 - ✅ **LogicStamp CLI installed?** Run `stamp --version` (needs `npm install -g logicstamp-context`)
 - ✅ **MCP server listed?** Run `claude mcp list` - should show `logicstamp: ✓ Connected`
 - ✅ **Config file exists?** Check `~/.claude.json` (macOS/Linux) or `%USERPROFILE%\.claude.json` (Windows)
@@ -29,7 +29,7 @@ Claude CLI provides command-line tools to manage MCP servers:
    - Status indicator: `✓ Connected` (working) or `✗ Failed` (error)
    - Example output:
      ```
-     logicstamp: npx logicstamp-context-mcp - ✓ Connected
+     logicstamp: npx logicstamp-mcp - ✓ Connected
      ```
 
 2. **Check Specific Server:**
@@ -54,7 +54,7 @@ Claude CLI provides command-line tools to manage MCP servers:
 ### Step 1: Install the MCP Server Package
 
 ```bash
-npm install -g logicstamp-context-mcp
+npm install -g logicstamp-mcp
 ```
 
 ### Step 2: Choose Your Setup
@@ -85,7 +85,7 @@ Add the following configuration:
     "logicstamp": {
       "type": "stdio",
       "command": "npx",
-      "args": ["logicstamp-context-mcp"]
+      "args": ["logicstamp-mcp"]
     }
   }
 }
@@ -94,7 +94,7 @@ Add the following configuration:
 ### Using CLI Command (Alternative)
 
 ```bash
-claude mcp add --scope user --transport stdio logicstamp -- npx logicstamp-context-mcp
+claude mcp add --scope user --transport stdio logicstamp -- npx logicstamp-mcp
 ```
 
 This automatically adds LogicStamp to `~/.claude.json` and makes it available in all your projects.
@@ -111,7 +111,7 @@ Install per-project to share configuration with your team via git.
 ### Step 1: Install Package Globally
 
 ```bash
-npm install -g logicstamp-context-mcp
+npm install -g logicstamp-mcp
 ```
 
 ### Step 2: Configure Project
@@ -132,7 +132,7 @@ Create `.mcp.json` with this content:
     "logicstamp": {
       "type": "stdio",
       "command": "npx",
-      "args": ["logicstamp-context-mcp"]
+      "args": ["logicstamp-mcp"]
     }
   }
 }
@@ -142,7 +142,7 @@ Create `.mcp.json` with this content:
 
 ```bash
 cd /path/to/your/project
-claude mcp add --scope project --transport stdio logicstamp -- npx logicstamp-context-mcp
+claude mcp add --scope project --transport stdio logicstamp -- npx logicstamp-mcp
 ```
 
 This automatically creates `.mcp.json` in your project root.
@@ -160,8 +160,8 @@ For contributors or if you're developing the MCP server locally:
 
 ```bash
 # Clone and build
-git clone https://github.com/your-org/logicstamp-context-mcp.git
-cd logicstamp-context-mcp
+git clone https://github.com/your-org/logicstamp-mcp.git
+cd logicstamp-mcp
 npm install
 npm run build
 ```
@@ -170,12 +170,12 @@ npm run build
 
 **On macOS/Linux:**
 ```bash
-claude mcp add --scope user --transport stdio logicstamp -- node /absolute/path/to/logicstamp-context-mcp/dist/index.js
+claude mcp add --scope user --transport stdio logicstamp -- node /absolute/path/to/logicstamp-mcp/dist/index.js
 ```
 
 **On Windows:**
 ```bash
-claude mcp add --scope user --transport stdio logicstamp -- node C:\Users\YourName\path\to\logicstamp-context-mcp\dist\index.js
+claude mcp add --scope user --transport stdio logicstamp -- node C:\Users\YourName\path\to\logicstamp-mcp\dist\index.js
 ```
 
 Or edit `~/.claude.json` manually:
@@ -186,7 +186,7 @@ Or edit `~/.claude.json` manually:
     "logicstamp": {
       "type": "stdio",
       "command": "node",
-      "args": ["/absolute/path/to/logicstamp-context-mcp/dist/index.js"]
+      "args": ["/absolute/path/to/logicstamp-mcp/dist/index.js"]
     }
   }
 }
@@ -196,12 +196,12 @@ Or edit `~/.claude.json` manually:
 
 | Approach | Configuration | Use Case |
 |----------|---------------|----------|
-| **Global Install** (Recommended) | `"command": "npx", "args": ["logicstamp-context-mcp"]` | Production use, team sharing |
+| **Global Install** (Recommended) | `"command": "npx", "args": ["logicstamp-mcp"]` | Production use, team sharing |
 | **Local Development** | `"command": "node", "args": ["/absolute/path/to/dist/index.js"]` | Contributing, testing before publish |
 
 **Why prefer global install?**
 - ✅ **Simpler** - No absolute paths needed, `npx` resolves automatically
-- ✅ **Portable** - Works on any machine with `npm install -g logicstamp-context-mcp`
+- ✅ **Portable** - Works on any machine with `npm install -g logicstamp-mcp`
 - ✅ **Auto-updates** - `npm update -g` updates without config changes
 - ✅ **Team-friendly** - Same config works for everyone
 - ✅ **Cleaner** - No need to specify `dist/index.js` path
@@ -227,7 +227,7 @@ After installation, verify the server is configured:
    ```
    Checking MCP server health...
 
-   logicstamp: npx logicstamp-context-mcp - ✓ Connected
+   logicstamp: npx logicstamp-mcp - ✓ Connected
    ```
 
 3. **Test in Project** - Navigate to a React/TypeScript project and start Claude:
@@ -277,7 +277,7 @@ The 4 LogicStamp tools will be available:
 claude mcp list
 
 # If not listed, add it
-claude mcp add --scope user --transport stdio logicstamp -- npx logicstamp-context-mcp
+claude mcp add --scope user --transport stdio logicstamp -- npx logicstamp-mcp
 
 # Restart Claude Code or start a new conversation
 ```
@@ -290,9 +290,9 @@ claude mcp add --scope user --transport stdio logicstamp -- npx logicstamp-conte
 
 1. **Check if the package is installed:**
    ```bash
-   npm list -g logicstamp-context-mcp
+   npm list -g logicstamp-mcp
    # or verify npx can find it
-   npx logicstamp-context-mcp --help
+   npx logicstamp-mcp --help
    ```
 
 2. **For local development, verify the path is correct:**
@@ -306,7 +306,7 @@ claude mcp add --scope user --transport stdio logicstamp -- npx logicstamp-conte
 
 3. **Check build output:**
    ```bash
-   cd /path/to/logicstamp-context-mcp
+   cd /path/to/logicstamp-mcp
    npm run build
    # Should compile without errors
    ```

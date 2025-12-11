@@ -98,12 +98,14 @@ describe('MCP Server E2E tests', () => {
     it('should list all available tools', async () => {
       const response = await listTools();
 
-      expect(response.tools).toHaveLength(4);
+      expect(response.tools).toHaveLength(6);
       expect(response.tools.map((t: any) => t.name)).toEqual([
         'logicstamp_refresh_snapshot',
         'logicstamp_list_bundles',
         'logicstamp_read_bundle',
         'logicstamp_compare_snapshot',
+        'logicstamp_compare_modes',
+        'logicstamp_read_logicstamp_docs',
       ]);
     });
 
@@ -465,6 +467,16 @@ describe('MCP Server E2E tests', () => {
       expect(tool?.inputSchema.properties).toHaveProperty('baseline');
       expect(tool?.inputSchema.properties).toHaveProperty('profile');
       expect(tool?.inputSchema.properties).toHaveProperty('mode');
+    });
+
+    it('should expose correct schema for compare_modes', async () => {
+      const response = await listTools();
+
+      const tool = response.tools.find(
+        (t: any) => t.name === 'logicstamp_compare_modes'
+      );
+
+      expect(tool?.inputSchema.properties).toHaveProperty('projectPath');
     });
   });
 });

@@ -165,6 +165,16 @@ export interface CompareSnapshotInput {
 
 export type CompareSnapshotOutput = CompareResult;
 
+// Tool 5: compare_modes
+export interface CompareModesInput {
+  projectPath?: string;
+}
+
+export interface CompareModesOutput {
+  projectPath: string;
+  [key: string]: any; // The JSON file structure may vary, so we allow any additional fields
+}
+
 // ============================================================================
 // LogicStamp Core Types (from docs/tool_description.md)
 // ============================================================================

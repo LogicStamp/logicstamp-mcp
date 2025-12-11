@@ -7,7 +7,7 @@ LogicStamp MCP server works with Claude Desktop - Anthropic's desktop applicatio
 Before diving into setup, check these common issues:
 
 - ✅ **Node.js installed?** Run `node --version` (needs 18.0.0+)
-- ✅ **Package installed?** Run `npm list -g logicstamp-context-mcp`
+- ✅ **Package installed?** Run `npm list -g logicstamp-mcp`
 - ✅ **LogicStamp CLI installed?** Run `stamp --version` (needs `npm install -g logicstamp-context`)
 - ✅ **Config file exists?** Check `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows)
 - ✅ **JSON valid?** Validate your config file syntax (no trailing commas)
@@ -41,7 +41,7 @@ Claude Desktop doesn't have a visible MCP settings UI. Instead, MCP servers are 
 ### Step 1: Install the MCP Server Package
 
 ```bash
-npm install -g logicstamp-context-mcp
+npm install -g logicstamp-mcp
 ```
 
 ### Step 2: Configure Claude Desktop
@@ -63,7 +63,7 @@ Add the following configuration:
   "mcpServers": {
     "logicstamp": {
       "command": "npx",
-      "args": ["logicstamp-context-mcp"]
+      "args": ["logicstamp-mcp"]
     }
   }
 }
@@ -76,7 +76,7 @@ Add the following configuration:
     "logicstamp": {
       "type": "stdio",
       "command": "npx",
-      "args": ["logicstamp-context-mcp"]
+      "args": ["logicstamp-mcp"]
     }
   }
 }
@@ -97,7 +97,7 @@ Add the following configuration:
   "mcpServers": {
     "logicstamp": {
       "command": "npx",
-      "args": ["logicstamp-context-mcp"]
+      "args": ["logicstamp-mcp"]
     }
   }
 }
@@ -120,7 +120,7 @@ If you installed from source (for development or testing), use absolute paths to
   "mcpServers": {
     "logicstamp": {
       "command": "node",
-      "args": ["/absolute/path/to/logicstamp-context-mcp/dist/index.js"]
+      "args": ["/absolute/path/to/logicstamp-mcp/dist/index.js"]
     }
   }
 }
@@ -133,7 +133,7 @@ If you installed from source (for development or testing), use absolute paths to
   "mcpServers": {
     "logicstamp": {
       "command": "node",
-      "args": ["C:\\Users\\YourName\\path\\to\\logicstamp-context-mcp\\dist\\index.js"]
+      "args": ["C:\\Users\\YourName\\path\\to\\logicstamp-mcp\\dist\\index.js"]
     }
   }
 }
@@ -150,7 +150,7 @@ The recommended approach is to use `npx` with the globally installed package:
   "mcpServers": {
     "logicstamp": {
       "command": "npx",
-      "args": ["logicstamp-context-mcp"]
+      "args": ["logicstamp-mcp"]
     }
   }
 }
@@ -235,9 +235,9 @@ stamp --version
 
 1. **Check if the package is installed:**
    ```bash
-   npm list -g logicstamp-context-mcp
+   npm list -g logicstamp-mcp
    # or verify npx can find it
-   npx logicstamp-context-mcp --help
+   npx logicstamp-mcp --help
    ```
 
 2. **For local builds, verify the path is correct:**
@@ -251,7 +251,7 @@ stamp --version
 
 3. **Check build output:**
    ```bash
-   cd /path/to/logicstamp-context-mcp
+   cd /path/to/logicstamp-mcp
    npm run build
    # Should compile without errors
    ```

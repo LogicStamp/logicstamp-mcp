@@ -1,6 +1,6 @@
 # LogicStamp MCP Tests
 
-Comprehensive test suite for the LogicStamp Context MCP server.
+Comprehensive test suite for the LogicStamp MCP server.
 
 ## Test Structure
 
