@@ -3,7 +3,7 @@
     "logicstamp": {
       "type": "stdio",
       "command": "npx",
-      "args": ["logicstamp-context-mcp"]
+      "args": ["logicstamp-mcp"]
     }
   }
 }
