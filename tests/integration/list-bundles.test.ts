@@ -328,7 +328,7 @@ describe('listBundles integration tests', () => {
       await createMockIndex(tempDir, {
         folders: [
           {
-            path: 'src\\components',
+            path: 'src/components',
             bundles: 1,
             components: ['Button'],
           },
@@ -340,6 +340,7 @@ describe('listBundles integration tests', () => {
 
       const result = await listBundles({ snapshotId });
 
+      expect(result.bundles.length).toBeGreaterThan(0);
       expect(result.bundles[0].bundlePath).not.toContain('\\');
       expect(result.bundles[0].bundlePath).toContain('/');
     });

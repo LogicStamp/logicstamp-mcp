@@ -21,15 +21,15 @@ const mockExecImpl = jest.fn((command: string, options: any, callback: any) => {
   return {} as any;
 });
 
-// Mock child_process module - must be before any imports
-jest.mock('child_process', () => ({
+// Mock child_process module using doMock for ESM compatibility
+jest.doMock('child_process', () => ({
   exec: jest.fn((command: string, options: any, callback: any) => {
     return mockExecImpl(command, options, callback);
   }),
 }));
 
 // Mock util.promisify to wrap our mock exec
-jest.mock('util', () => ({
+jest.doMock('util', () => ({
   promisify: jest.fn((fn: any) => {
     return jest.fn(async (command: string, options?: any) => {
       return new Promise((resolve, reject) => {

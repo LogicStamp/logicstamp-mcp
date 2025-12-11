@@ -24,13 +24,13 @@ const mockExecImpl = jest.fn((command: string, options: any, callback: any) => {
   return {} as any;
 });
 
-jest.mock('child_process', () => ({
+jest.doMock('child_process', () => ({
   exec: jest.fn((command: string, options: any, callback: any) => {
     return mockExecImpl(command, options, callback);
   }),
 }));
 
-jest.mock('util', () => ({
+jest.doMock('util', () => ({
   promisify: jest.fn((fn: any) => {
     return jest.fn(async (command: string, options?: any) => {
       return new Promise((resolve, reject) => {
