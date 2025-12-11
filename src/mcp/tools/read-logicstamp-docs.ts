@@ -84,30 +84,44 @@ async function findPackageRoot(startPath: string): Promise<string> {
 }
 
 async function readDocFile(docPath: string): Promise<string> {
-  // Try multiple strategies to find the docs file
+  // Ensure we're only reading the correct file
+  if (docPath !== 'docs/logicstamp-for-llms.md') {
+    throw new Error(
+      `Invalid documentation path requested: ${docPath}. ` +
+      `This tool only reads docs/logicstamp-for-llms.md`
+    );
+  }
+
+  const triedPaths: string[] = [];
   
   // Strategy 1: From __dirname (dist/mcp/tools/) going up to package root
   const packageRootFromDist = join(__dirname, '../../..');
   const docFilePath1 = join(packageRootFromDist, docPath);
+  triedPaths.push(docFilePath1);
   
   try {
     return await readFile(docFilePath1, 'utf-8');
-  } catch {
+  } catch (error1) {
     // Strategy 2: Find package root by searching for package.json
     try {
       const packageRoot = await findPackageRoot(__dirname);
       const docFilePath2 = join(packageRoot, docPath);
+      triedPaths.push(docFilePath2);
       return await readFile(docFilePath2, 'utf-8');
-    } catch {
+    } catch (error2) {
       // Strategy 3: Try from process.cwd() (for development)
       const cwdPath = join(process.cwd(), docPath);
+      triedPaths.push(cwdPath);
       try {
         return await readFile(cwdPath, 'utf-8');
-      } catch {
+      } catch (error3) {
+        // Include __dirname and process.cwd() in error for debugging
         throw new Error(
-          `Could not find documentation file: ${docPath}. ` +
-          `Tried: ${docFilePath1}, and ${cwdPath}. ` +
-          `Make sure docs/logicstamp-for-llms.md is included in the package files array.`
+          `Could not find documentation file: ${docPath}\n` +
+          `__dirname: ${__dirname}\n` +
+          `process.cwd(): ${process.cwd()}\n` +
+          `Tried paths:\n${triedPaths.map(p => `  - ${p}`).join('\n')}\n` +
+          `Make sure docs/logicstamp-for-llms.md is included in the package.json files array.`
         );
       }
     }
@@ -118,7 +132,9 @@ export async function readLogicStampDocs(): Promise<ReadLogicStampDocsOutput> {
   try {
     // Read only the LLM-focused doc bundle (embedded in MCP package)
     // This is a frozen snapshot for LLMs - full docs live at logicstamp.dev/docs
-    const forLLMs = await readDocFile('docs/logicstamp-for-llms.md');
+    // IMPORTANT: Only reads docs/logicstamp-for-llms.md - does NOT read any CLI docs
+    const docPath = 'docs/logicstamp-for-llms.md';
+    const forLLMs = await readDocFile(docPath);
 
     return {
       type: 'LogicStampDocs',
