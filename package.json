@@ -40,6 +40,7 @@
   },
   "files": [
     "dist",
+    "docs/logicstamp-for-llms.md",
     "README.md",
     "LICENSE",
     ".claude.json.example",

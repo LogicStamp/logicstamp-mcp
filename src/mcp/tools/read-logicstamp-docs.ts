@@ -55,14 +55,25 @@ export interface ReadLogicStampDocsOutput {
 }
 
 async function readDocFile(docPath: string): Promise<string> {
-  // Try relative path first (for development)
-  const relativePath = join(__dirname, '../../..', docPath);
+  // When installed via npm/npx, __dirname will be dist/mcp/tools/
+  // Going up 3 levels gets us to the package root where docs/ should be
+  const packageRoot = join(__dirname, '../../..');
+  const docFilePath = join(packageRoot, docPath);
+  
   try {
-    return await readFile(relativePath, 'utf-8');
-  } catch {
-    // Fallback to cwd (for installed packages)
+    return await readFile(docFilePath, 'utf-8');
+  } catch (error) {
+    // Fallback: try from process.cwd() (for development scenarios)
     const cwdPath = join(process.cwd(), docPath);
-    return await readFile(cwdPath, 'utf-8');
+    try {
+      return await readFile(cwdPath, 'utf-8');
+    } catch {
+      throw new Error(
+        `Could not find documentation file: ${docPath}. ` +
+        `Tried: ${docFilePath} and ${cwdPath}. ` +
+        `Make sure docs/logicstamp-for-llms.md is included in the package.`
+      );
+    }
   }
 }
 
