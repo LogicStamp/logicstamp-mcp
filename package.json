@@ -45,6 +45,7 @@
     "dist",
     "docs/logicstamp-for-llms.md",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE",
     ".claude.json.example",
     ".mcp.json.example"

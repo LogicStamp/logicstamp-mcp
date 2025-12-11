@@ -252,6 +252,10 @@ These assets may not be used for third-party branding, logos, or commercial iden
 
 Contributions welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for a detailed list of changes and version history.
+
 ## Links
 
 - [LogicStamp Context](https://github.com/LogicStamp/logicstamp-context)
