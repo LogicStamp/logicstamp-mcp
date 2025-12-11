@@ -3,8 +3,8 @@
  * Returns LogicStamp documentation as a bundle for LLMs to understand the tool
  */
 
-import { readFile } from 'fs/promises';
-import { join, dirname } from 'path';
+import { readFile, stat } from 'fs/promises';
+import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -54,25 +54,62 @@ export interface ReadLogicStampDocsOutput {
   };
 }
 
+/**
+ * Find the package root by looking for package.json
+ * This works reliably whether installed via npm, npx, or running from source
+ */
+async function findPackageRoot(startPath: string): Promise<string> {
+  let current = resolve(startPath);
+  const root = resolve('/');
+  
+  while (current !== root) {
+    try {
+      const packageJsonPath = join(current, 'package.json');
+      await stat(packageJsonPath);
+      // Check if it's the right package
+      const packageJson = JSON.parse(await readFile(packageJsonPath, 'utf-8'));
+      if (packageJson.name === 'logicstamp-mcp') {
+        return current;
+      }
+    } catch {
+      // Continue searching up
+    }
+    
+    const parent = dirname(current);
+    if (parent === current) break; // Reached filesystem root
+    current = parent;
+  }
+  
+  throw new Error('Could not find logicstamp-mcp package root');
+}
+
 async function readDocFile(docPath: string): Promise<string> {
-  // When installed via npm/npx, __dirname will be dist/mcp/tools/
-  // Going up 3 levels gets us to the package root where docs/ should be
-  const packageRoot = join(__dirname, '../../..');
-  const docFilePath = join(packageRoot, docPath);
+  // Try multiple strategies to find the docs file
+  
+  // Strategy 1: From __dirname (dist/mcp/tools/) going up to package root
+  const packageRootFromDist = join(__dirname, '../../..');
+  const docFilePath1 = join(packageRootFromDist, docPath);
   
   try {
-    return await readFile(docFilePath, 'utf-8');
-  } catch (error) {
-    // Fallback: try from process.cwd() (for development scenarios)
-    const cwdPath = join(process.cwd(), docPath);
+    return await readFile(docFilePath1, 'utf-8');
+  } catch {
+    // Strategy 2: Find package root by searching for package.json
     try {
-      return await readFile(cwdPath, 'utf-8');
+      const packageRoot = await findPackageRoot(__dirname);
+      const docFilePath2 = join(packageRoot, docPath);
+      return await readFile(docFilePath2, 'utf-8');
     } catch {
-      throw new Error(
-        `Could not find documentation file: ${docPath}. ` +
-        `Tried: ${docFilePath} and ${cwdPath}. ` +
-        `Make sure docs/logicstamp-for-llms.md is included in the package.`
-      );
+      // Strategy 3: Try from process.cwd() (for development)
+      const cwdPath = join(process.cwd(), docPath);
+      try {
+        return await readFile(cwdPath, 'utf-8');
+      } catch {
+        throw new Error(
+          `Could not find documentation file: ${docPath}. ` +
+          `Tried: ${docFilePath1}, and ${cwdPath}. ` +
+          `Make sure docs/logicstamp-for-llms.md is included in the package files array.`
+        );
+      }
     }
   }
 }
