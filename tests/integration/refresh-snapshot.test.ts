@@ -10,6 +10,7 @@ import {
   createMockIndex,
 } from '../helpers/test-utils.js';
 import { tmpdir } from 'os';
+import { resolve } from 'path';
 
 // Create a shared mock exec function
 const mockExecImpl = jest.fn((command: string, options: any, callback: any) => {
@@ -155,7 +156,8 @@ describe('refreshSnapshot integration tests', () => {
 
         const result = await refreshSnapshot({});
 
-        expect(result.projectPath).toBe(tempDir);
+        // Normalize paths to handle macOS symlink resolution (/var -> /private/var)
+        expect(resolve(result.projectPath)).toBe(resolve(tempDir));
       } finally {
         process.chdir(originalCwd);
       }

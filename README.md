@@ -1,5 +1,9 @@
 # LogicStamp MCP Server
 
+<div align="center">
+  <img src="./assets/logicstamp-fox.svg" alt="LogicStamp Fox Mascot" width="120" height="120">
+</div>
+
 Model Context Protocol (MCP) server for [LogicStamp Context](https://github.com/LogicStamp/logicstamp-context) - enabling AI assistants to safely analyze and understand React/TypeScript codebases.
 
 ## Overview
