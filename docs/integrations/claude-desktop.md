@@ -48,6 +48,8 @@ npm install -g logicstamp-mcp
 
 Claude Desktop only supports **global configuration** (no project-specific config).
 
+**Important:** This setup is done **once** (globally). After configuring the MCP server globally, it will be available in every project. You don't need to set it up again for each project. However, when you actually analyze a project, you'll call `logicstamp_refresh_snapshot` for that specific project - the analysis itself is per-project, but the MCP server setup is global.
+
 #### On macOS
 
 Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
@@ -178,11 +180,13 @@ After configuring and restarting Claude Desktop:
    Can you analyze my React project using LogicStamp?
    ```
 
-The AI should be able to use the 4 LogicStamp tools:
+The AI should be able to use the 6 LogicStamp tools:
 - `logicstamp_refresh_snapshot` - Analyze project structure
 - `logicstamp_list_bundles` - List available components
 - `logicstamp_read_bundle` - Read component contracts
 - `logicstamp_compare_snapshot` - Detect changes after edits
+- `logicstamp_compare_modes` - Generate token cost comparison across modes
+- `logicstamp_read_logicstamp_docs` - Read LogicStamp documentation
 
 **Note:** Unlike Cursor, Claude Desktop doesn't show MCP servers in a UI. The only way to verify it's working is to test it in a conversation. If Claude can use the LogicStamp tools, it's working! If not, check the [Troubleshooting](#troubleshooting) section below.
 

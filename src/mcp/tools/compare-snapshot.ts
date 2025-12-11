@@ -6,8 +6,6 @@
 
 import { readFile } from 'fs/promises';
 import { join, resolve } from 'path';
-import { exec } from 'child_process';
-import { promisify } from 'util';
 import type {
   CompareSnapshotInput,
   CompareSnapshotOutput,
@@ -20,8 +18,7 @@ import type {
   UIFContract,
 } from '../../types/schemas.js';
 import { stateManager } from '../state.js';
-
-const execAsync = promisify(exec);
+import { execWithTimeout } from '../utils/exec-with-timeout.js';
 
 export async function compareSnapshot(input: CompareSnapshotInput): Promise<CompareSnapshotOutput> {
   const profile = input.profile || 'llm-chat';
@@ -77,7 +74,7 @@ export async function compareSnapshot(input: CompareSnapshotInput): Promise<Comp
       const styleFlag = includeStyle ? ' --include-style' : '';
       const command = `stamp context --profile ${profile} --include-code ${mode}${styleFlag} --skip-gitignore --quiet`;
       
-      await execAsync(command, {
+      await execWithTimeout(command, {
         cwd: projectPath,
         maxBuffer: 10 * 1024 * 1024, // 10MB buffer
       });

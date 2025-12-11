@@ -3,14 +3,11 @@
  * Run `stamp context` and create a snapshot before edits
  */
 
-import { exec } from 'child_process';
-import { promisify } from 'util';
 import { readFile } from 'fs/promises';
 import { join, resolve } from 'path';
 import type { RefreshSnapshotInput, RefreshSnapshotOutput, LogicStampIndex } from '../../types/schemas.js';
 import { stateManager } from '../state.js';
-
-const execAsync = promisify(exec);
+import { execWithTimeout } from '../utils/exec-with-timeout.js';
 
 export async function refreshSnapshot(input: RefreshSnapshotInput): Promise<RefreshSnapshotOutput> {
   const profile = input.profile || 'llm-chat';
@@ -31,7 +28,7 @@ export async function refreshSnapshot(input: RefreshSnapshotInput): Promise<Refr
     const styleFlag = includeStyle ? ' --include-style' : '';
     const command = `stamp context --profile ${profile} --include-code ${mode}${styleFlag} --skip-gitignore --quiet`;
 
-    await execAsync(command, {
+    await execWithTimeout(command, {
       cwd: projectPath,
       maxBuffer: 10 * 1024 * 1024, // 10MB buffer
     });
@@ -77,8 +74,25 @@ export async function refreshSnapshot(input: RefreshSnapshotInput): Promise<Refr
 
     return output;
   } catch (error) {
-    throw new Error(
-      `Failed to refresh snapshot: ${error instanceof Error ? error.message : String(error)}`
+    // Preserve original error information
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const enhancedError = new Error(
+      `Failed to refresh snapshot: ${errorMessage}`
     );
+    
+    // Preserve error code and other properties if available
+    if (error && typeof error === 'object') {
+      if ('code' in error) {
+        (enhancedError as any).code = (error as any).code;
+      }
+      if ('stdout' in error) {
+        (enhancedError as any).stdout = (error as any).stdout;
+      }
+      if ('stderr' in error) {
+        (enhancedError as any).stderr = (error as any).stderr;
+      }
+    }
+    
+    throw enhancedError;
   }
 }

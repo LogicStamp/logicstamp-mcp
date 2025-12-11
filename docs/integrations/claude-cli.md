@@ -65,6 +65,8 @@ Choose one of the following setup options based on your needs:
 
 Install globally to use LogicStamp in **all your projects**.
 
+**Important:** This setup is done **once** (globally). After configuring the MCP server globally, it will be available in every project. You don't need to set it up again for each project. However, when you actually analyze a project, you'll call `logicstamp_refresh_snapshot` for that specific project - the analysis itself is per-project, but the MCP server setup is global.
+
 ### Manual Configuration
 
 **On macOS/Linux:**
@@ -101,7 +103,7 @@ This automatically adds LogicStamp to `~/.claude.json` and makes it available in
 
 **What this does:**
 - Adds LogicStamp to your global Claude Code configuration (`~/.claude.json`)
-- Makes the 4 LogicStamp tools available in every project
+- Makes the 6 LogicStamp tools available in every project
 - Server auto-starts when Claude Code needs it (no manual startup required)
 
 ## Option 2: Per-Project Installation (For Teams)
@@ -259,11 +261,13 @@ You: "Use LogicStamp to analyze the components in src/components"
 Claude: [Automatically uses logicstamp_refresh_snapshot and logicstamp_list_bundles]
 ```
 
-The 4 LogicStamp tools will be available:
+The 6 LogicStamp tools will be available:
 - `logicstamp_refresh_snapshot` - Analyze project structure
 - `logicstamp_list_bundles` - List available components
 - `logicstamp_read_bundle` - Read component contracts
 - `logicstamp_compare_snapshot` - Detect changes after edits
+- `logicstamp_compare_modes` - Generate token cost comparison across modes
+- `logicstamp_read_logicstamp_docs` - Read LogicStamp documentation
 
 ## Troubleshooting
 
