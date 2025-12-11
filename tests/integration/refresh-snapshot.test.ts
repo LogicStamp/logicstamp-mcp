@@ -2,7 +2,7 @@
  * Integration tests for refresh-snapshot tool
  */
 
-import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { jest, describe, it, expect, beforeEach, afterEach, beforeAll } from '@jest/globals';
 import { stateManager } from '../../src/mcp/state.js';
 import {
   createTempDir,
@@ -19,15 +19,15 @@ const mockExecImpl = jest.fn((command: string, options: any, callback: any) => {
   return {} as any;
 });
 
-// Mock child_process module using doMock for ESM compatibility
-jest.doMock('child_process', () => ({
+// Mock child_process module using unstable_mockModule for ESM compatibility
+jest.unstable_mockModule('child_process', () => ({
   exec: jest.fn((command: string, options: any, callback: any) => {
     return mockExecImpl(command, options, callback);
   }),
 }));
 
 // Mock util.promisify to wrap our mock exec
-jest.doMock('util', () => ({
+jest.unstable_mockModule('util', () => ({
   promisify: jest.fn((fn: any) => {
     return jest.fn(async (command: string, options?: any) => {
       return new Promise((resolve, reject) => {
@@ -43,8 +43,13 @@ jest.doMock('util', () => ({
   }),
 }));
 
-// Import after mocks are set up
-import { refreshSnapshot } from '../../src/mcp/tools/refresh-snapshot.js';
+// Dynamically import the module after mocks are set up
+let refreshSnapshot: typeof import('../../src/mcp/tools/refresh-snapshot.js').refreshSnapshot;
+
+beforeAll(async () => {
+  const module = await import('../../src/mcp/tools/refresh-snapshot.js');
+  refreshSnapshot = module.refreshSnapshot;
+});
 
 describe('refreshSnapshot integration tests', () => {
   let tempDir: string;

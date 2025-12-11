@@ -3,8 +3,7 @@
  * Tests the server's tool registration and execution without transport layer
  */
 
-import { jest } from '@jest/globals';
-import { createServer } from '../../src/mcp/server.js';
+import { jest, beforeAll } from '@jest/globals';
 import { stateManager } from '../../src/mcp/state.js';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import {
@@ -24,13 +23,13 @@ const mockExecImpl = jest.fn((command: string, options: any, callback: any) => {
   return {} as any;
 });
 
-jest.doMock('child_process', () => ({
+jest.unstable_mockModule('child_process', () => ({
   exec: jest.fn((command: string, options: any, callback: any) => {
     return mockExecImpl(command, options, callback);
   }),
 }));
 
-jest.doMock('util', () => ({
+jest.unstable_mockModule('util', () => ({
   promisify: jest.fn((fn: any) => {
     return jest.fn(async (command: string, options?: any) => {
       return new Promise((resolve, reject) => {
@@ -45,6 +44,14 @@ jest.doMock('util', () => ({
     });
   }),
 }));
+
+// Dynamically import the module after mocks are set up
+let createServer: typeof import('../../src/mcp/server.js').createServer;
+
+beforeAll(async () => {
+  const module = await import('../../src/mcp/server.js');
+  createServer = module.createServer;
+});
 
 describe('MCP Server E2E tests', () => {
   let server: Server;

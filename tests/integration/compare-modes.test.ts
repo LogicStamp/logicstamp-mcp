@@ -2,7 +2,7 @@
  * Integration tests for compare-modes tool
  */
 
-import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { jest, describe, it, expect, beforeEach, afterEach, beforeAll } from '@jest/globals';
 import {
   createTempDir,
   cleanupTempDir,
@@ -21,15 +21,15 @@ const mockExecImpl = jest.fn((command: string, options: any, callback: any) => {
   return {} as any;
 });
 
-// Mock child_process module using doMock for ESM compatibility
-jest.doMock('child_process', () => ({
+// Mock child_process module using unstable_mockModule for ESM compatibility
+jest.unstable_mockModule('child_process', () => ({
   exec: jest.fn((command: string, options: any, callback: any) => {
     return mockExecImpl(command, options, callback);
   }),
 }));
 
 // Mock util.promisify to wrap our mock exec
-jest.doMock('util', () => ({
+jest.unstable_mockModule('util', () => ({
   promisify: jest.fn((fn: any) => {
     return jest.fn(async (command: string, options?: any) => {
       return new Promise((resolve, reject) => {
@@ -45,8 +45,13 @@ jest.doMock('util', () => ({
   }),
 }));
 
-// Import after mocks are set up
-import { compareModes } from '../../src/mcp/tools/compare-modes.js';
+// Dynamically import the module after mocks are set up
+let compareModes: typeof import('../../src/mcp/tools/compare-modes.js').compareModes;
+
+beforeAll(async () => {
+  const module = await import('../../src/mcp/tools/compare-modes.js');
+  compareModes = module.compareModes;
+});
 
 describe('compareModes integration tests', () => {
   let tempDir: string;
@@ -455,4 +460,3 @@ describe('compareModes integration tests', () => {
     });
   });
 });
-
