@@ -12,6 +12,7 @@ import { tmpdir } from 'os';
 import { writeFile, readFile } from 'fs/promises';
 import { writeFileSync } from 'fs';
 import { join, resolve } from 'path';
+import { realpathSync } from 'fs';
 
 // Create a shared mock exec function
 const mockExecImpl = jest.fn((command: string, options: any, callback: any) => {
@@ -203,7 +204,8 @@ describe('compareModes integration tests', () => {
         const result = await compareModes({});
 
         // Normalize paths to handle macOS symlink resolution (/var -> /private/var)
-        expect(resolve(result.projectPath)).toBe(resolve(tempDir));
+        // Use realpathSync to resolve symlinks so both paths are normalized
+        expect(realpathSync(result.projectPath)).toBe(realpathSync(tempDir));
       } finally {
         process.chdir(originalCwd);
       }
