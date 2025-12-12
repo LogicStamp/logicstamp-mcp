@@ -28,15 +28,31 @@ export async function refreshSnapshot(input: RefreshSnapshotInput): Promise<Refr
     const styleFlag = includeStyle ? ' --include-style' : '';
     const command = `stamp context --profile ${profile} --include-code ${mode}${styleFlag} --skip-gitignore --quiet`;
 
-    await execWithTimeout(command, {
+    const execResult = await execWithTimeout(command, {
       cwd: projectPath,
       maxBuffer: 10 * 1024 * 1024, // 10MB buffer
     });
 
     // Read context_main.json
     const contextMainPath = join(projectPath, 'context_main.json');
+    
+    // Verify file exists before reading
+    let contextMain: LogicStampIndex;
+    try {
     const contextMainContent = await readFile(contextMainPath, 'utf-8');
-    const contextMain: LogicStampIndex = JSON.parse(contextMainContent);
+      contextMain = JSON.parse(contextMainContent);
+    } catch (readError) {
+      // If file read fails, provide helpful error message
+      const readErrorMessage = readError instanceof Error ? readError.message : String(readError);
+      throw new Error(
+        `Failed to read context_main.json after stamp context execution.\n` +
+        `Command completed successfully, but file not found at: ${contextMainPath}\n` +
+        `Working directory: ${projectPath}\n` +
+        `Command output: ${execResult.stdout}\n` +
+        `Command errors: ${execResult.stderr}\n` +
+        `Read error: ${readErrorMessage}`
+      );
+    }
 
     // Store snapshot
     stateManager.setSnapshot({
