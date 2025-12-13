@@ -34,7 +34,7 @@ describe('readLogicStampDocs integration tests', () => {
       const result = await readLogicStampDocs();
 
       expect(result.canonicalDocs).toBeDefined();
-      expect(result.canonicalDocs.landingPage).toBe('https://logicstamp.dev/docs');
+      expect(result.canonicalDocs.landingPage).toBe('https://logicstamp.dev/docs/logicstamp-context/context');
       expect(result.canonicalDocs.cliRepo).toBe('https://github.com/LogicStamp/logicstamp-context');
       
       expect(result.canonicalDocs.usage).toBeDefined();
