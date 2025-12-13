@@ -15,7 +15,7 @@ Thank you for your interest in contributing! This guide will help you get starte
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/LogicStamp/logicstamp-mcp.git
 cd logicstamp-mcp
 
 # Install dependencies
