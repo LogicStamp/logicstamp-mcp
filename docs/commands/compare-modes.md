@@ -30,6 +30,11 @@ Use `logicstamp_compare_modes` when you need to:
 - **Default:** Current working directory (or `PROJECT_PATH` environment variable)
 - **Description:** Absolute path to the project root. If not provided, uses the current directory.
 
+### `cleanCache` (optional)
+- **Type:** `boolean`
+- **Default:** `false`
+- **Description:** Manually force cleanup of `.logicstamp` cache directory. Cache is automatically cleaned if corruption or path mismatches are detected. Only set to `true` if you're experiencing cache-related issues.
+
 ## Output
 
 Returns a `CompareModesOutput` object containing the parsed JSON data from `context_compare_modes.json`:

@@ -148,21 +148,14 @@ describe('refreshSnapshot integration tests', () => {
       expect(result.mode).toBe('full');
     });
 
-    it('should use current directory when no projectPath provided', async () => {
-      const originalCwd = process.cwd();
-      
-      try {
-        process.chdir(tempDir);
-        await createMockIndex(tempDir);
+    it('should use provided projectPath', async () => {
+      await createMockIndex(tempDir);
 
-        const result = await refreshSnapshot({});
+      const result = await refreshSnapshot({ projectPath: tempDir });
 
-        // Normalize paths to handle macOS symlink resolution (/var -> /private/var)
-        // Use realpathSync to resolve symlinks so both paths are normalized
-        expect(realpathSync(result.projectPath)).toBe(realpathSync(tempDir));
-      } finally {
-        process.chdir(originalCwd);
-      }
+      // Normalize paths to handle macOS symlink resolution (/var -> /private/var)
+      // Use realpathSync to resolve symlinks so both paths are normalized
+      expect(realpathSync(result.projectPath)).toBe(realpathSync(tempDir));
     });
 
     it('should include token estimates in summary', async () => {
@@ -361,6 +354,23 @@ describe('refreshSnapshot integration tests', () => {
         const snapshot = stateManager.getCurrentSnapshot();
         expect(snapshot).toBeDefined();
       }
+    });
+  });
+
+  describe('cache cleanup', () => {
+    it('should accept cleanCache parameter', async () => {
+      // This test verifies that cleanCache parameter is accepted
+      // Actual cache cleanup behavior is tested indirectly through integration
+      await createMockIndex(tempDir);
+
+      const result = await refreshSnapshot({ 
+        projectPath: tempDir,
+        cleanCache: true 
+      });
+
+      // Should complete without error
+      expect(result).toBeDefined();
+      expect(result.snapshotId).toBeDefined();
     });
   });
 });

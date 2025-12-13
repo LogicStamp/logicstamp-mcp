@@ -67,6 +67,11 @@ The command returns a structured diff showing:
   - **`'snapshot'`** - Compare against the stored snapshot from `logicstamp_refresh_snapshot`
   - **`'git:<ref>'`** - Compare against a git reference (e.g., `'git:main'`) - **Not yet implemented**
 
+### `cleanCache` (optional)
+- **Type:** `boolean`
+- **Default:** `false`
+- **Description:** Manually force cleanup of `.logicstamp` cache directory before regeneration (only used when `forceRegenerate: true`). Cache is automatically cleaned if corruption or path mismatches are detected. Only set to `true` if you're experiencing cache-related issues.
+
 ## Output
 
 Returns a `CompareResult` object with:

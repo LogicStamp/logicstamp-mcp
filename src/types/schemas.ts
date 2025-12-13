@@ -83,6 +83,7 @@ export interface RefreshSnapshotInput {
   mode?: 'header' | 'full' | 'none';
   includeStyle?: boolean; // Include style metadata (equivalent to stamp context style)
   projectPath?: string;
+  cleanCache?: boolean; // Manually force cache cleanup (default: false, auto-detects corruption)
 }
 
 export interface RefreshSnapshotOutput {
@@ -161,6 +162,7 @@ export interface CompareSnapshotInput {
   forceRegenerate?: boolean; // Force regeneration of context before comparing (default: false, or true if includeStyle is true)
   projectPath?: string;
   baseline?: 'disk' | 'snapshot' | string;
+  cleanCache?: boolean; // Manually force cache cleanup (default: false, auto-detects corruption)
 }
 
 export type CompareSnapshotOutput = CompareResult;
@@ -168,6 +170,7 @@ export type CompareSnapshotOutput = CompareResult;
 // Tool 5: compare_modes
 export interface CompareModesInput {
   projectPath?: string;
+  cleanCache?: boolean; // Manually force cache cleanup (default: false, auto-detects corruption)
 }
 
 export interface CompareModesOutput {

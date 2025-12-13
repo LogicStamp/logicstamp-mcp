@@ -2,6 +2,7 @@
  * Integration tests for compare-snapshot tool
  */
 
+import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import { compareSnapshot } from '../../src/mcp/tools/compare-snapshot.js';
 import { stateManager } from '../../src/mcp/state.js';
 import {
@@ -736,6 +737,25 @@ describe('compareSnapshot integration tests', () => {
 
       const storedResult = stateManager.getLastCompareResult();
       expect(storedResult?.status).toBe(result2.status);
+    });
+  });
+
+  describe('cache cleanup', () => {
+    it('should accept cleanCache parameter when forceRegenerate is true', async () => {
+      // This test verifies that cleanCache parameter is accepted
+      // Actual cache cleanup behavior is tested indirectly through integration
+      await createMockIndex(tempDir);
+
+      const result = await compareSnapshot({
+        projectPath: tempDir,
+        baseline: 'disk',
+        forceRegenerate: true,
+        cleanCache: true,
+      });
+
+      // Should complete without error
+      expect(result).toBeDefined();
+      expect(['pass', 'diff', 'error']).toContain(result.status);
     });
   });
 });

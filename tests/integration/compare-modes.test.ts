@@ -462,4 +462,21 @@ describe('compareModes integration tests', () => {
       expect(result).toBeDefined();
     });
   });
+
+  describe('cache cleanup', () => {
+    it('should accept cleanCache parameter', async () => {
+      // This test verifies that cleanCache parameter is accepted
+      // Actual cache cleanup behavior is tested indirectly through integration
+      await createMockIndex(tempDir);
+
+      const result = await compareModes({ 
+        projectPath: tempDir,
+        cleanCache: true 
+      });
+
+      // Should complete without error
+      expect(result).toBeDefined();
+      expect(result.projectPath).toBe(tempDir);
+    });
+  });
 });

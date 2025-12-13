@@ -81,9 +81,15 @@ export function createServer(): Server {
               },
               projectPath: {
                 type: 'string',
-                description: 'Absolute path to project root (default: current working directory)',
+                description: 'CRITICAL: Absolute path to project root. REQUIRED - must always be provided. When stamp init has been run, MCP clients may omit this, causing hangs. This parameter is REQUIRED for the tool to work correctly.',
+              },
+              cleanCache: {
+                type: 'boolean',
+                description: 'Manually force cleanup of .logicstamp cache folder. Default: false (auto-detects corruption/mismatch). Set to true to force cache reset. Use only when experiencing cache-related issues.',
+                default: false,
               },
             },
+            required: ['projectPath'],
           },
         },
         {
@@ -198,6 +204,11 @@ export function createServer(): Server {
                 description: 'Comparison baseline: "disk" (current snapshot, default), "snapshot" (stored snapshot), or "git:<ref>" (future: git baseline)',
                 default: 'disk',
               },
+              cleanCache: {
+                type: 'boolean',
+                description: 'Manually force cleanup of .logicstamp cache folder. Default: false (auto-detects corruption/mismatch). Set to true to force cache reset. Use only when experiencing cache-related issues.',
+                default: false,
+              },
             },
           },
         },
@@ -217,6 +228,11 @@ export function createServer(): Server {
               projectPath: {
                 type: 'string',
                 description: 'Absolute path to project root (default: current working directory)',
+              },
+              cleanCache: {
+                type: 'boolean',
+                description: 'Manually force cleanup of .logicstamp cache folder. Default: false (auto-detects corruption/mismatch). Set to true to force cache reset. Use only when experiencing cache-related issues.',
+                default: false,
               },
             },
           },

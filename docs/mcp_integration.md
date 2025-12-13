@@ -72,7 +72,9 @@ logicstamp-context/
 **Parameters**:
 - `profile` (optional): `llm-chat` (default) | `llm-safe` | `ci-strict`
 - `mode` (optional): `header` (default) | `full` | `none`
+- `includeStyle` (optional): Include style metadata (default: `false`)
 - `projectPath` (optional): Defaults to current working directory
+- `cleanCache` (optional): Force cache cleanup (default: `false`, auto-detects corruption)
 
 **Behavior**:
 1. Execute: `stamp context --profile llm-chat --include-code header --skip-gitignore --quiet`
@@ -383,6 +385,7 @@ logicstamp-context/
 
 **Parameters**:
 - `projectPath` (optional): Defaults to current working directory
+- `cleanCache` (optional): Force cache cleanup (default: `false`, auto-detects corruption)
 
 **Behavior**:
 1. Execute: `stamp context --compare-modes --stats`
