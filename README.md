@@ -147,12 +147,12 @@ When starting work with a new project, use the [Startup Ritual](docs/startup-rit
 
 | Topic | Primary (Landing Page) | Fallback (GitHub) |
 |-------|----------------------|-------------------|
-| **Usage Guide** | [logicstamp.dev/docs/logicstamp-context/docs/usage](https://logicstamp.dev/docs/logicstamp-context/docs/usage) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/usage.md) |
-| **UIF Contracts** | [logicstamp.dev/docs/logicstamp-context/docs/uif-contracts](https://logicstamp.dev/docs/logicstamp-context/docs/uif-contracts) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/uif_contracts.md) |
-| **Schema Reference** | [logicstamp.dev/docs/logicstamp-context/docs/schema](https://logicstamp.dev/docs/logicstamp-context/docs/schema) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/schema.md) |
-| **CLI Commands** | [logicstamp.dev/docs/logicstamp-context/docs/cli/context](https://logicstamp.dev/docs/logicstamp-context/docs/cli/context) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/cli/context.md) |
-| **Compare Modes** | [logicstamp.dev/docs/logicstamp-context/docs/cli/compare-modes](https://logicstamp.dev/docs/logicstamp-context/docs/cli/compare-modes) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/cli/compare-modes.md) |
-| **Limitations** | [logicstamp.dev/docs/logicstamp-context/docs/limitations](https://logicstamp.dev/docs/logicstamp-context/docs/limitations) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/limitations.md) |
+| **Usage Guide** | [logicstamp.dev/docs/logicstamp-context/usage](https://logicstamp.dev/docs/logicstamp-context/usage) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/usage.md) |
+| **UIF Contracts** | [logicstamp.dev/docs/logicstamp-context/uif-contracts](https://logicstamp.dev/docs/logicstamp-context/uif-contracts) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/uif_contracts.md) |
+| **Schema Reference** | [logicstamp.dev/docs/logicstamp-context/schema](https://logicstamp.dev/docs/logicstamp-context/schema) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/schema.md) |
+| **CLI Commands** | [logicstamp.dev/docs/logicstamp-context/context](https://logicstamp.dev/docs/logicstamp-context/context) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/cli/context.md) |
+| **Compare Modes** | [logicstamp.dev/docs/logicstamp-context/compare-modes](https://logicstamp.dev/docs/logicstamp-context/compare-modes) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/cli/compare-modes.md) |
+| **Limitations** | [logicstamp.dev/docs/complete-reference/known-limitations](https://logicstamp.dev/docs/complete-reference/known-limitations) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/limitations.md) |
 
 **Note:** 
 - Docs are maintained in the CLI repo and synced to the landing page

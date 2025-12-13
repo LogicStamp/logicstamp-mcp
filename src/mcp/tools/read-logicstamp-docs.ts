@@ -23,7 +23,7 @@ export interface ReadLogicStampDocsOutput {
     landingPage: string; // Primary: logicstamp.dev/docs/logicstamp-context/context
     cliRepo: string; // Fallback: github.com/LogicStamp/logicstamp-context
     usage: {
-      primary: string; // logicstamp.dev/docs/logicstamp-context/docs/usage
+      primary: string; // logicstamp.dev/docs/logicstamp-context/usage
       fallback: string; // github.com/LogicStamp/logicstamp-context/blob/main/docs/usage.md
     };
     uifContracts: {
@@ -149,27 +149,27 @@ export async function readLogicStampDocs(): Promise<ReadLogicStampDocsOutput> {
         landingPage: 'https://logicstamp.dev/docs/logicstamp-context/context',
         cliRepo: 'https://github.com/LogicStamp/logicstamp-context',
         usage: {
-          primary: 'https://logicstamp.dev/docs/logicstamp-context/docs/usage',
+          primary: 'https://logicstamp.dev/docs/logicstamp-context/usage',
           fallback: 'https://github.com/LogicStamp/logicstamp-context/blob/main/docs/usage.md',
         },
         uifContracts: {
-          primary: 'https://logicstamp.dev/docs/logicstamp-context/docs/uif-contracts',
+          primary: 'https://logicstamp.dev/docs/logicstamp-context/uif-contracts',
           fallback: 'https://github.com/LogicStamp/logicstamp-context/blob/main/docs/uif_contracts.md',
         },
         schema: {
-          primary: 'https://logicstamp.dev/docs/logicstamp-context/docs/schema',
+          primary: 'https://logicstamp.dev/docs/logicstamp-context/schema',
           fallback: 'https://github.com/LogicStamp/logicstamp-context/blob/main/docs/schema.md',
         },
         context: {
-          primary: 'https://logicstamp.dev/docs/logicstamp-context/docs/cli/context',
+          primary: 'https://logicstamp.dev/docs/logicstamp-context/context',
           fallback: 'https://github.com/LogicStamp/logicstamp-context/blob/main/docs/cli/context.md',
         },
         compareModes: {
-          primary: 'https://logicstamp.dev/docs/logicstamp-context/docs/cli/compare-modes',
+          primary: 'https://logicstamp.dev/docs/logicstamp-context/compare-modes',
           fallback: 'https://github.com/LogicStamp/logicstamp-context/blob/main/docs/cli/compare-modes.md',
         },
         limitations: {
-          primary: 'https://logicstamp.dev/docs/logicstamp-context/docs/limitations',
+          primary: 'https://logicstamp.dev/docs/complete-reference/known-limitations',
           fallback: 'https://github.com/LogicStamp/logicstamp-context/blob/main/docs/limitations.md',
         },
       },

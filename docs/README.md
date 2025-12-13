@@ -65,6 +65,6 @@ docs/
 - **Setting up an MCP client?** → Check [Integration Guides](integrations/)
 - **Understanding the architecture?** → Read [MCP Integration Guide](mcp_integration.md)
 - **Using LogicStamp with AI?** → See [LogicStamp for LLMs](logicstamp-for-llms.md) (embedded snapshot) or [Full Docs](https://logicstamp.dev/docs/logicstamp-context/context)
-- **Looking for CLI commands?** → See [Canonical CLI Docs](https://logicstamp.dev/docs/logicstamp-context/docs/cli/context)
+- **Looking for CLI commands?** → See [Canonical CLI Docs](https://logicstamp.dev/docs/logicstamp-context/context)
 - **Contributing to the project?** → Review [Contributing Guide](../CONTRIBUTING.md) and [MCP Integration Guide](mcp_integration.md)
 
