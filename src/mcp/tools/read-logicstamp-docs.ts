@@ -18,12 +18,12 @@ export interface ReadLogicStampDocsOutput {
   };
   canonicalDocs: {
     // Links to canonical documentation with redundancy
-    // Primary: landing page (logicstamp.dev/docs) - best UX
+    // Primary: landing page (logicstamp.dev/docs/logicstamp-context/context) - best UX
     // Fallback: CLI repo GitHub docs - always available, versioned
-    landingPage: string; // Primary: logicstamp.dev/docs
+    landingPage: string; // Primary: logicstamp.dev/docs/logicstamp-context/context
     cliRepo: string; // Fallback: github.com/LogicStamp/logicstamp-context
     usage: {
-      primary: string; // logicstamp.dev/docs/usage
+      primary: string; // logicstamp.dev/docs/logicstamp-context/docs/usage
       fallback: string; // github.com/LogicStamp/logicstamp-context/blob/main/docs/usage.md
     };
     uifContracts: {
@@ -131,7 +131,7 @@ async function readDocFile(docPath: string): Promise<string> {
 export async function readLogicStampDocs(): Promise<ReadLogicStampDocsOutput> {
   try {
     // Read only the LLM-focused doc bundle (embedded in MCP package)
-    // This is a frozen snapshot for LLMs - full docs live at logicstamp.dev/docs
+    // This is a frozen snapshot for LLMs - full docs live at logicstamp.dev/docs/logicstamp-context/context
     // IMPORTANT: Only reads docs/logicstamp-for-llms.md - does NOT read any CLI docs
     const docPath = 'docs/logicstamp-for-llms.md';
     const forLLMs = await readDocFile(docPath);
@@ -146,30 +146,30 @@ export async function readLogicStampDocs(): Promise<ReadLogicStampDocsOutput> {
         // Links to canonical documentation with redundancy
         // Primary: landing page (best UX, SEO) | Fallback: CLI repo GitHub (always available, versioned)
         // Docs are maintained in CLI repo and synced to landing page - both are canonical
-        landingPage: 'https://logicstamp.dev/docs',
+        landingPage: 'https://logicstamp.dev/docs/logicstamp-context/context',
         cliRepo: 'https://github.com/LogicStamp/logicstamp-context',
         usage: {
-          primary: 'https://logicstamp.dev/docs/usage',
+          primary: 'https://logicstamp.dev/docs/logicstamp-context/docs/usage',
           fallback: 'https://github.com/LogicStamp/logicstamp-context/blob/main/docs/usage.md',
         },
         uifContracts: {
-          primary: 'https://logicstamp.dev/docs/uif-contracts',
+          primary: 'https://logicstamp.dev/docs/logicstamp-context/docs/uif-contracts',
           fallback: 'https://github.com/LogicStamp/logicstamp-context/blob/main/docs/uif_contracts.md',
         },
         schema: {
-          primary: 'https://logicstamp.dev/docs/schema',
+          primary: 'https://logicstamp.dev/docs/logicstamp-context/docs/schema',
           fallback: 'https://github.com/LogicStamp/logicstamp-context/blob/main/docs/schema.md',
         },
         context: {
-          primary: 'https://logicstamp.dev/docs/cli/context',
+          primary: 'https://logicstamp.dev/docs/logicstamp-context/docs/cli/context',
           fallback: 'https://github.com/LogicStamp/logicstamp-context/blob/main/docs/cli/context.md',
         },
         compareModes: {
-          primary: 'https://logicstamp.dev/docs/cli/compare-modes',
+          primary: 'https://logicstamp.dev/docs/logicstamp-context/docs/cli/compare-modes',
           fallback: 'https://github.com/LogicStamp/logicstamp-context/blob/main/docs/cli/compare-modes.md',
         },
         limitations: {
-          primary: 'https://logicstamp.dev/docs/limitations',
+          primary: 'https://logicstamp.dev/docs/logicstamp-context/docs/limitations',
           fallback: 'https://github.com/LogicStamp/logicstamp-context/blob/main/docs/limitations.md',
         },
       },
