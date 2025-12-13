@@ -241,15 +241,15 @@ If you're unsure how LogicStamp works or how to use these tools:
   - Primary: https://logicstamp.dev/docs/logicstamp-context/context
   - Fallback: https://github.com/LogicStamp/logicstamp-context
 - **CLI Commands**: 
-  - Primary: https://logicstamp.dev/docs/logicstamp-context/docs/cli/context
+  - Primary: https://logicstamp.dev/docs/logicstamp-context/context
   - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/cli/context.md
 - **UIF Contracts**: 
-  - Primary: https://logicstamp.dev/docs/logicstamp-context/docs/uif-contracts
+  - Primary: https://logicstamp.dev/docs/logicstamp-context/uif-contracts
   - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/uif_contracts.md
 - **Schema Reference**: 
-  - Primary: https://logicstamp.dev/docs/logicstamp-context/docs/schema
+  - Primary: https://logicstamp.dev/docs/logicstamp-context/schema
   - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/schema.md
 - **Usage Guide**: 
-  - Primary: https://logicstamp.dev/docs/logicstamp-context/docs/usage
+  - Primary: https://logicstamp.dev/docs/logicstamp-context/usage
   - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/usage.md
 
