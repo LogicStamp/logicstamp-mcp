@@ -4,10 +4,91 @@
  * Calls `stamp context --compare-modes --stats` and reads the generated JSON file
  */
 
-import { readFile } from 'fs/promises';
+import { readFile, rm, access } from 'fs/promises';
 import { join, resolve } from 'path';
+import { constants } from 'fs';
 import type { CompareModesInput, CompareModesOutput } from '../../types/schemas.js';
 import { execWithLongTimeout } from '../utils/exec-with-timeout.js';
+
+/**
+ * Check if a file or directory exists
+ */
+async function exists(path: string): Promise<boolean> {
+  try {
+    await access(path, constants.F_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Detect if .logicstamp cache is corrupted or has path mismatch
+ * Returns true if cache should be cleaned
+ */
+async function shouldCleanCache(projectPath: string): Promise<boolean> {
+  const logicstampDir = join(projectPath, '.logicstamp');
+  
+  // If cache doesn't exist, nothing to clean
+  if (!(await exists(logicstampDir))) {
+    return false;
+  }
+  
+  // Check for common corruption indicators:
+  // 1. Check if context_main.json exists but is invalid JSON (corruption)
+  const contextMainPath = join(projectPath, 'context_main.json');
+  if (await exists(contextMainPath)) {
+    try {
+      const content = await readFile(contextMainPath, 'utf-8');
+      JSON.parse(content);
+    } catch {
+      // Invalid JSON = corruption, should clean
+      return true;
+    }
+  }
+  
+  // 2. Check if .logicstamp contains metadata files that might have stale paths
+  try {
+    const { readdir } = await import('fs/promises');
+    const entries = await readdir(logicstampDir, { withFileTypes: true });
+    
+    // Look for config/metadata files that might contain project paths
+    for (const entry of entries) {
+      if (entry.isFile() && (entry.name.includes('config') || entry.name.includes('meta'))) {
+        const configPath = join(logicstampDir, entry.name);
+        try {
+          const content = await readFile(configPath, 'utf-8');
+          const config = JSON.parse(content);
+          // If config has a projectPath that doesn't match current project, it's stale
+          if (config.projectPath && config.projectPath !== projectPath && config.projectPath !== resolve(projectPath)) {
+            return true;
+          }
+        } catch {
+          // Invalid JSON in config = corruption
+          return true;
+        }
+      }
+    }
+  } catch {
+    // Can't read directory = might be corrupted
+    return true;
+  }
+  
+  return false;
+}
+
+/**
+ * Clean LogicStamp cache folder - only use when corruption/mismatch detected or manually requested
+ */
+async function cleanLogicStampCache(projectPath: string): Promise<void> {
+  const logicstampDir = join(projectPath, '.logicstamp');
+  
+  try {
+    await rm(logicstampDir, { recursive: true, force: true });
+  } catch (error) {
+    // Silently ignore - folder might be locked or already deleted
+  }
+}
 
 export async function compareModes(input: CompareModesInput): Promise<CompareModesOutput> {
   const projectPath = input.projectPath 
@@ -15,6 +96,14 @@ export async function compareModes(input: CompareModesInput): Promise<CompareMod
     : (process.env.PROJECT_PATH ? resolve(process.env.PROJECT_PATH) : process.cwd());
 
   try {
+    // Smart cache cleanup: only clean if corruption/mismatch detected or manually requested
+    const cleanCache = input.cleanCache || false;
+    const shouldClean = cleanCache || await shouldCleanCache(projectPath);
+    
+    if (shouldClean) {
+      await cleanLogicStampCache(projectPath);
+    }
+
     // Execute stamp context --compare-modes --stats command
     // This generates context_compare_modes.json in the project directory
     // Note: This operation takes 2-3x longer than normal generation, so we use a longer timeout

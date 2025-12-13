@@ -86,9 +86,10 @@ The MCP server provides 6 tools. For complete API documentation with input/outpu
 ### Quick Reference
 
 **logicstamp_refresh_snapshot** - Create a snapshot of the current codebase state (STEP 1)
-- Parameters: `profile` (optional), `mode` (optional), `includeStyle` (optional), `projectPath` (optional)
+- Parameters: `profile` (optional), `mode` (optional), `includeStyle` (optional), `projectPath` (optional), `cleanCache` (optional)
 - Returns: `snapshotId`, `summary`, `folders`
 - **Always call this first** when analyzing a new repo
+- Cache is automatically cleaned if corruption is detected
 
 **logicstamp_list_bundles** - List available bundles for selective loading (STEP 2)
 - Parameters: `snapshotId` (required), `folderPrefix` (optional)
@@ -108,11 +109,12 @@ The MCP server provides 6 tools. For complete API documentation with input/outpu
   - `forceRegenerate` (optional): Force regeneration of context before comparing. When `false`, reads existing `context_main.json` from disk (fast). When `true`, runs `stamp context` to regenerate (default: `false`)
   - `projectPath` (optional): Project path (defaults to current directory)
   - `baseline` (optional): Comparison baseline: `disk` (default), `snapshot`, or custom path
+  - `cleanCache` (optional): Force cache cleanup (default: `false`, auto-detects corruption)
 - Returns: Comparison result with change details
 - **Note**: By default (`forceRegenerate: false`), reads from disk for fast comparison. Set `forceRegenerate: true` to ensure fresh context or when `context_main.json` is missing.
 
 **logicstamp_compare_modes** - Generate token cost comparison across all modes
-- Parameters: `projectPath` (optional)
+- Parameters: `projectPath` (optional), `cleanCache` (optional)
 - Returns: Token counts for all modes (none/header/header+style/full), savings percentages, file statistics
 - **Use this** to understand token costs before generating context or when user asks about token budgets/optimization
 

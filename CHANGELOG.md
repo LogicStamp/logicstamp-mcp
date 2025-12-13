@@ -53,6 +53,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Example Config Files** - Ready-to-use configuration templates
 - **Flexible Project Paths** - Support for custom project paths
 - **Baseline Comparison** - Compare against disk or snapshot baselines
+- **Smart Cache Cleanup** - Automatic detection and cleanup of corrupted `.logicstamp` cache directories
+  - Detects invalid JSON in `context_main.json`
+  - Detects stale project paths in cache metadata files
+  - Preserves cache when healthy for improved performance
+- **`forceRegenerate` Parameter** - Added to `logicstamp_compare_snapshot` tool
+  - When `false` (default): Fast comparison using existing `context_main.json` from disk
+  - When `true`: Regenerates context before comparing to ensure fresh data
+- **`cleanCache` Parameter** - Added to `logicstamp_refresh_snapshot`, `logicstamp_compare_snapshot`, and `logicstamp_compare_modes` tools
+  - Manual override to force cache cleanup
+  - Works alongside automatic corruption detection
+
+### Changed
+
+- **Improved Error Handling** - Better error messages for missing `context_main.json` files
+  - Clear guidance when context files are missing
+  - Suggests using `forceRegenerate: true` or running `logicstamp_refresh_snapshot` first
+- **Enhanced `logicstamp_compare_snapshot` Tool** - More flexible regeneration control
+  - Independent control over regeneration (`forceRegenerate`) and style inclusion (`includeStyle`)
+  - Better documentation of when each parameter takes effect
+
+### Fixed
+
+- Cache corruption issues that could cause analysis failures
+- Path mismatch detection for projects moved or renamed
 
 ### Technical Details
 

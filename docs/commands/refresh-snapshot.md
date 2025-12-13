@@ -57,6 +57,11 @@
 - **Default:** Current working directory (or `PROJECT_PATH` environment variable)
 - **Description:** Absolute path to the project root. If not provided, uses the current directory.
 
+### `cleanCache` (optional)
+- **Type:** `boolean`
+- **Default:** `false`
+- **Description:** Manually force cleanup of `.logicstamp` cache directory. Cache is automatically cleaned if corruption or path mismatches are detected. Only set to `true` if you're experiencing cache-related issues.
+
 ## Output
 
 Returns a `RefreshSnapshotOutput` object with:
@@ -235,6 +240,7 @@ If the command fails, it will throw an error with a descriptive message. Common 
 - **No components found** - The project doesn't contain any analyzable components
 - **Permission errors** - Insufficient permissions to read project files
 - **Invalid project structure** - The project structure is incompatible with LogicStamp
+- **Cache corruption** - If you encounter cache-related errors, the cache is automatically cleaned. Use `cleanCache: true` to force cleanup if needed
 
 ## See Also
 
