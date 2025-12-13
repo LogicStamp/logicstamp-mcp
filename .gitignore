@@ -23,8 +23,9 @@ Thumbs.db
 .env
 .env.local
 
-# Claude Code configuration (contains user-specific paths)
+# Claude Code and Cursor configuration (contains user-specific paths)
 .claude.json
+.cursor/mcp.json
 
 # Testing
 coverage/
