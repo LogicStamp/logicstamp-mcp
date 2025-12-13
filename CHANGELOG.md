@@ -56,7 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Technical Details
 
-- **Dependencies**: `@modelcontextprotocol/sdk@^1.24.0`, `glob@^11.0.0`
+- **Dependencies**: `@modelcontextprotocol/sdk@^1.24.0`
 - **Node.js Support**: >=18.0.0
 - **License**: MIT
 - **Read-Only Design**: Server never modifies project files directly

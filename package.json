@@ -4,6 +4,13 @@
   "description": "MCP server for LogicStamp Context - analyze React/TypeScript codebases",
   "type": "module",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "bin": {
     "logicstamp-mcp": "./dist/index.js"
   },
@@ -51,8 +58,7 @@
     ".mcp.json.example"
   ],
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.24.0",
-    "glob": "^11.0.0"
+    "@modelcontextprotocol/sdk": "^1.24.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
