@@ -162,7 +162,7 @@ For contributors or if you're developing the MCP server locally:
 
 ```bash
 # Clone and build
-git clone https://github.com/your-org/logicstamp-mcp.git
+git clone https://github.com/LogicStamp/logicstamp-mcp.git
 cd logicstamp-mcp
 npm install
 npm run build
