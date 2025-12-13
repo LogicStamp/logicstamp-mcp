@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "description": "MCP server for LogicStamp Context - analyze React/TypeScript codebases",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -12,7 +12,7 @@
     }
   },
   "bin": {
-    "logicstamp-mcp": "./dist/index.js"
+    "logicstamp-mcp": "dist/index.js"
   },
   "scripts": {
     "build": "tsc",
@@ -42,7 +42,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/LogicStamp/logicstamp-mcp.git"
+    "url": "git+https://github.com/LogicStamp/logicstamp-mcp.git"
   },
   "homepage": "https://github.com/LogicStamp/logicstamp-mcp#readme",
   "bugs": {
@@ -70,5 +70,8 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
