@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2025-12-14
+
+### Fixed
+
+- **Documentation Fix** - Corrected `projectPath` parameter documentation for `logicstamp_refresh_snapshot`
+  - Updated docs to correctly mark `projectPath` as required (was incorrectly marked as optional)
+  - Added explanation of why `projectPath` is required (prevents hangs when `stamp init` has been run)
+  - Updated all examples to include `projectPath` parameter
+  - Fixes issue where users following documentation would encounter errors when omitting `projectPath`
+
 ## [0.1.0] - 2025-12-13
 
 ### Added

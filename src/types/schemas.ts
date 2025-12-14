@@ -82,7 +82,7 @@ export interface RefreshSnapshotInput {
   profile?: 'llm-chat' | 'llm-safe' | 'ci-strict';
   mode?: 'header' | 'full' | 'none';
   includeStyle?: boolean; // Include style metadata (equivalent to stamp context style)
-  projectPath?: string;
+  projectPath: string; // REQUIRED: Absolute path to project root
   cleanCache?: boolean; // Manually force cache cleanup (default: false, auto-detects corruption)
 }
 

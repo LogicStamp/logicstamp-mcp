@@ -18,6 +18,7 @@ import { readBundle } from './tools/read-bundle.js';
 import { compareSnapshot } from './tools/compare-snapshot.js';
 import { compareModes } from './tools/compare-modes.js';
 import { readLogicStampDocs } from './tools/read-logicstamp-docs.js';
+import type { RefreshSnapshotInput } from '../types/schemas.js';
 
 /**
  * Create and configure the MCP server
@@ -264,7 +265,10 @@ export function createServer(): Server {
 
       switch (name) {
         case 'logicstamp_refresh_snapshot': {
-          const result = await refreshSnapshot(args || {});
+          // Type assertion is safe here because:
+          // 1. MCP framework validates JSON schema (which requires projectPath)
+          // 2. refreshSnapshot function validates projectPath at runtime and throws clear error if missing
+          const result = await refreshSnapshot((args || {}) as unknown as RefreshSnapshotInput);
           return {
             content: [
               {

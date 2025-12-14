@@ -4,6 +4,12 @@
   <img src="./assets/logicstamp-fox.svg" alt="LogicStamp Fox Mascot" width="120" height="120">
 </div>
 
+![Version](https://img.shields.io/badge/version-0.1.1-blue.svg)
+![Beta](https://img.shields.io/badge/status-beta-orange.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)
+[![CI](https://github.com/LogicStamp/logicstamp-mcp/workflows/CI/badge.svg)](https://github.com/LogicStamp/logicstamp-mcp/actions)
+
 Model Context Protocol (MCP) server for [LogicStamp Context](https://github.com/LogicStamp/logicstamp-context) - enabling AI assistants to safely analyze and understand React/TypeScript codebases.
 
 ## Overview
@@ -86,9 +92,10 @@ The MCP server provides 6 tools. For complete API documentation with input/outpu
 ### Quick Reference
 
 **logicstamp_refresh_snapshot** - Create a snapshot of the current codebase state (STEP 1)
-- Parameters: `profile` (optional), `mode` (optional), `includeStyle` (optional), `projectPath` (optional), `cleanCache` (optional)
+- Parameters: `profile` (optional), `mode` (optional), `includeStyle` (optional), `projectPath` (required), `cleanCache` (optional)
 - Returns: `snapshotId`, `summary`, `folders`
 - **Always call this first** when analyzing a new repo
+- **Note:** `projectPath` is REQUIRED - must be an absolute path to the project root. Omitting this parameter can cause the server to hang.
 - Cache is automatically cleaned if corruption is detected
 
 **logicstamp_list_bundles** - List available bundles for selective loading (STEP 2)
@@ -105,7 +112,7 @@ The MCP server provides 6 tools. For complete API documentation with input/outpu
 - Parameters: 
   - `profile` (optional): Analysis profile (default: `llm-chat`)
   - `mode` (optional): Code inclusion mode (default: `header`)
-  - `includeStyle` (optional): Include style metadata in comparison. Only takes effect when `forceRegenerate` is `true`. When `forceRegenerate` is `false`, compares whatever style metadata exists on disk (may be incomplete) (default: `false`)
+  - `includeStyle` (optional): Include style metadata in comparison. Only takes effect when `forceRegenerate` is `true` (default: `false`)
   - `forceRegenerate` (optional): Force regeneration of context before comparing. When `false`, reads existing `context_main.json` from disk (fast). When `true`, runs `stamp context` to regenerate (default: `false`)
   - `projectPath` (optional): Project path (defaults to current directory)
   - `baseline` (optional): Comparison baseline: `disk` (default), `snapshot`, or custom path
