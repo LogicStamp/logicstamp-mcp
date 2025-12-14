@@ -101,5 +101,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Requires `logicstamp-context` CLI to be installed globally (`npm install -g logicstamp-context`)
 - All tools are read-only - they analyze but never modify your codebase
 
+[0.1.1]: https://github.com/LogicStamp/logicstamp-mcp/releases/tag/v0.1.1
+
 [0.1.0]: https://github.com/LogicStamp/logicstamp-mcp/releases/tag/v0.1.0
 
