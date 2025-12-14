@@ -4,6 +4,12 @@
   <img src="./assets/logicstamp-fox.svg" alt="LogicStamp Fox Mascot" width="120" height="120">
 </div>
 
+![Version](https://img.shields.io/badge/version-0.1.1-blue.svg)
+![Beta](https://img.shields.io/badge/status-beta-orange.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)
+[![CI](https://github.com/LogicStamp/logicstamp-mcp/workflows/CI/badge.svg)](https://github.com/LogicStamp/logicstamp-mcp/actions)
+
 Model Context Protocol (MCP) server for [LogicStamp Context](https://github.com/LogicStamp/logicstamp-context) - enabling AI assistants to safely analyze and understand React/TypeScript codebases.
 
 ## Overview
@@ -86,9 +92,10 @@ The MCP server provides 6 tools. For complete API documentation with input/outpu
 ### Quick Reference
 
 **logicstamp_refresh_snapshot** - Create a snapshot of the current codebase state (STEP 1)
-- Parameters: `profile` (optional), `mode` (optional), `includeStyle` (optional), `projectPath` (optional), `cleanCache` (optional)
+- Parameters: `profile` (optional), `mode` (optional), `includeStyle` (optional), `projectPath` (required), `cleanCache` (optional)
 - Returns: `snapshotId`, `summary`, `folders`
 - **Always call this first** when analyzing a new repo
+- **Note:** `projectPath` is REQUIRED - must be an absolute path to the project root. When `stamp init` has been run, omitting this parameter can cause hangs.
 - Cache is automatically cleaned if corruption is detected
 
 **logicstamp_list_bundles** - List available bundles for selective loading (STEP 2)

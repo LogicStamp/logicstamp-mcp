@@ -188,6 +188,12 @@ describe('refreshSnapshot integration tests', () => {
   });
 
   describe('error handling', () => {
+    it('should throw error when projectPath is missing', async () => {
+      await expect(
+        refreshSnapshot({} as any)
+      ).rejects.toThrow('projectPath is REQUIRED');
+    });
+
     it('should throw error when stamp command fails', async () => {
       mockExecImpl.mockImplementation((command: string, options: any, callback: any) => {
         if (callback) {
