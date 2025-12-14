@@ -95,7 +95,7 @@ The MCP server provides 6 tools. For complete API documentation with input/outpu
 - Parameters: `profile` (optional), `mode` (optional), `includeStyle` (optional), `projectPath` (required), `cleanCache` (optional)
 - Returns: `snapshotId`, `summary`, `folders`
 - **Always call this first** when analyzing a new repo
-- **Note:** `projectPath` is REQUIRED - must be an absolute path to the project root. When `stamp init` has been run, omitting this parameter can cause hangs.
+- **Note:** `projectPath` is REQUIRED - must be an absolute path to the project root. Omitting this parameter can cause the server to hang.
 - Cache is automatically cleaned if corruption is detected
 
 **logicstamp_list_bundles** - List available bundles for selective loading (STEP 2)
@@ -112,7 +112,7 @@ The MCP server provides 6 tools. For complete API documentation with input/outpu
 - Parameters: 
   - `profile` (optional): Analysis profile (default: `llm-chat`)
   - `mode` (optional): Code inclusion mode (default: `header`)
-  - `includeStyle` (optional): Include style metadata in comparison. Only takes effect when `forceRegenerate` is `true`. When `forceRegenerate` is `false`, compares whatever style metadata exists on disk (may be incomplete) (default: `false`)
+  - `includeStyle` (optional): Include style metadata in comparison. Only takes effect when `forceRegenerate` is `true` (default: `false`)
   - `forceRegenerate` (optional): Force regeneration of context before comparing. When `false`, reads existing `context_main.json` from disk (fast). When `true`, runs `stamp context` to regenerate (default: `false`)
   - `projectPath` (optional): Project path (defaults to current directory)
   - `baseline` (optional): Comparison baseline: `disk` (default), `snapshot`, or custom path
