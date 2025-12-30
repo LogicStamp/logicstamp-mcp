@@ -97,10 +97,8 @@ describe('execWithTimeout', () => {
 
   describe('maxBuffer option', () => {
     it('should respect maxBuffer option', async () => {
-      // Generate large output
-      const largeOutputCommand = process.platform === 'win32'
-        ? 'cmd /c "for /L %i in (1,1,1000) do @echo line %i"'
-        : 'for i in {1..1000}; do echo "line $i"; done';
+      // Generate large output using Node.js for cross-platform compatibility
+      const largeOutputCommand = `node -e "for(let i=1;i<=1000;i++) console.log('line ' + i)"`;
 
       const result = await execWithTimeout(
         largeOutputCommand,
