@@ -6,15 +6,7 @@
 
   <br/>
 
-  ![Version](https://img.shields.io/badge/version-0.1.2-blue.svg)
-
-  ![Beta](https://img.shields.io/badge/status-beta-orange.svg)
-
-  ![License](https://img.shields.io/badge/license-MIT-green.svg)
-
-  ![Node](https://img.shields.io/badge/node-%3E%3D18.18.0-brightgreen.svg)
-
-  [![CI](https://github.com/LogicStamp/logicstamp-mcp/workflows/CI/badge.svg)](https://github.com/LogicStamp/logicstamp-mcp/actions)
+  ![Version](https://img.shields.io/badge/version-0.1.2-blue.svg) ![Beta](https://img.shields.io/badge/status-beta-orange.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg) ![Node](https://img.shields.io/badge/node-%3E%3D18.18.0-brightgreen.svg) [![CI](https://github.com/LogicStamp/logicstamp-mcp/workflows/CI/badge.svg)](https://github.com/LogicStamp/logicstamp-mcp/actions)
 
   <br/>
 
