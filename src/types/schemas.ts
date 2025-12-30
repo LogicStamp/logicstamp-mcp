@@ -14,6 +14,7 @@ export interface Snapshot {
   profile: 'llm-chat' | 'llm-safe' | 'ci-strict';
   mode: 'header' | 'full' | 'none';
   includeStyle?: boolean; // Whether style metadata was included
+  depth?: number; // Dependency traversal depth (default: profile default, typically 1)
   contextDir: string; // Where context_main.json + folders live
 }
 
@@ -82,6 +83,7 @@ export interface RefreshSnapshotInput {
   profile?: 'llm-chat' | 'llm-safe' | 'ci-strict';
   mode?: 'header' | 'full' | 'none';
   includeStyle?: boolean; // Include style metadata (equivalent to stamp context style)
+  depth?: number; // Dependency traversal depth (default: profile default, typically 1)
   projectPath: string; // REQUIRED: Absolute path to project root
   cleanCache?: boolean; // Manually force cache cleanup (default: false, auto-detects corruption)
 }
@@ -92,6 +94,7 @@ export interface RefreshSnapshotOutput {
   profile: string;
   mode: string;
   includeStyle?: boolean; // Whether style metadata was included
+  depth?: number; // Dependency traversal depth used
   summary: {
     totalComponents: number;
     totalBundles: number;
@@ -159,6 +162,7 @@ export interface CompareSnapshotInput {
   profile?: 'llm-chat' | 'llm-safe' | 'ci-strict';
   mode?: 'header' | 'full' | 'none';
   includeStyle?: boolean; // Include style metadata in comparison. When true, also forces regeneration.
+  depth?: number; // Dependency traversal depth (default: profile default, typically 1). Only used when forceRegenerate is true.
   forceRegenerate?: boolean; // Force regeneration of context before comparing (default: false, or true if includeStyle is true)
   projectPath?: string;
   baseline?: 'disk' | 'snapshot' | string;

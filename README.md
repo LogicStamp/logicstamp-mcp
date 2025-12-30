@@ -1,16 +1,34 @@
 # LogicStamp MCP Server
 
 <div align="center">
-  <img src="./assets/logicstamp-fox.svg" alt="LogicStamp Fox Mascot" width="120" height="120">
+
+  <img src="./assets/logicstamp-fox.svg" alt="LogicStamp Fox Mascot" width="120">
+
+
+
+  <br/>
+
+
+
+  ![Version](https://img.shields.io/badge/version-0.1.2-blue.svg)
+
+  ![Beta](https://img.shields.io/badge/status-beta-orange.svg)
+
+  ![License](https://img.shields.io/badge/license-MIT-green.svg)
+
+  ![Node](https://img.shields.io/badge/node-%3E%3D18.18.0-brightgreen.svg)
+
+  [![CI](https://github.com/LogicStamp/logicstamp-mcp/workflows/CI/badge.svg)](https://github.com/LogicStamp/logicstamp-mcp/actions)
+
+
+
+  <br/>
+
+
+
+  **Model Context Protocol (MCP) server for [LogicStamp Context](https://github.com/LogicStamp/logicstamp-context) - enabling AI assistants to safely analyze and understand React/TypeScript codebases.**
+
 </div>
-
-![Version](https://img.shields.io/badge/version-0.1.1-blue.svg)
-![Beta](https://img.shields.io/badge/status-beta-orange.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
-![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)
-[![CI](https://github.com/LogicStamp/logicstamp-mcp/workflows/CI/badge.svg)](https://github.com/LogicStamp/logicstamp-mcp/actions)
-
-Model Context Protocol (MCP) server for [LogicStamp Context](https://github.com/LogicStamp/logicstamp-context) - enabling AI assistants to safely analyze and understand React/TypeScript codebases.
 
 ## Overview
 
@@ -43,7 +61,7 @@ This MCP server provides AI assistants with structured access to your codebase t
 
 ## Prerequisites
 
-1. **Node.js** 18.0.0 or higher
+1. **Node.js** >= 18.18.0 (Node 20+ recommended for best performance and features)
 2. **LogicStamp Context CLI** - The `stamp` command must be installed and available in PATH
    ```bash
    npm install -g logicstamp-context
@@ -51,17 +69,42 @@ This MCP server provides AI assistants with structured access to your codebase t
 
 ## Quick Start
 
-1. **Install the MCP server:**
+**Setup is done once** - After configuring the MCP server, it will be available in all your projects. The MCP client automatically starts the server when needed - you don't need to start it manually.
+
+1. **Install prerequisites** (if not already installed):
    ```bash
-   npm install -g logicstamp-mcp
+   npm install -g logicstamp-context  # Required: LogicStamp CLI
+   npm install -g logicstamp-mcp       # MCP server
    ```
 
-2. **Configure your MCP client** - See [integration guides](docs/integrations/) for platform-specific instructions:
+2. **Configure your MCP client** (one-time setup) - Create a config file for your platform:
+
+   **For Cursor:** Create `~/.cursor/mcp.json` (macOS/Linux) or `%USERPROFILE%\.cursor\mcp.json` (Windows)
+   
+   **For Claude CLI:** Create `~/.claude.json` (macOS/Linux) or `%USERPROFILE%\.claude.json` (Windows)
+   
+   **For Claude Desktop:** Create `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows)
+
+   Add this configuration:
+   ```json
+   {
+     "mcpServers": {
+       "logicstamp": {
+         "command": "npx",
+         "args": ["logicstamp-mcp"]
+       }
+     }
+   }
+   ```
+   
+   **Note:** Some clients may require `"type": "stdio"` - if the above doesn't work, add it to the config. See [integration guides](docs/integrations/) for platform-specific details:
    - [Claude CLI Integration](docs/integrations/claude-cli.md) - For Claude Code users
    - [Claude Desktop Integration](docs/integrations/claude-desktop.md) - For Claude Desktop users
    - [Cursor Integration](docs/integrations/cursor.md) - For Cursor IDE users
 
-3. **Start using LogicStamp:**
+3. **Restart your MCP client** (Cursor/Claude Desktop) or verify with `claude mcp list` (Claude CLI)
+
+4. **Start using LogicStamp:**
    ```bash
    cd /path/to/your/react-project
    claude  # or open Cursor
@@ -92,10 +135,11 @@ The MCP server provides 6 tools. For complete API documentation with input/outpu
 ### Quick Reference
 
 **logicstamp_refresh_snapshot** - Create a snapshot of the current codebase state (STEP 1)
-- Parameters: `profile` (optional), `mode` (optional), `includeStyle` (optional), `projectPath` (required), `cleanCache` (optional)
+- Parameters: `profile` (optional), `mode` (optional), `includeStyle` (optional), `depth` (optional), `projectPath` (required), `cleanCache` (optional)
 - Returns: `snapshotId`, `summary`, `folders`
 - **Always call this first** when analyzing a new repo
 - **Note:** `projectPath` is REQUIRED - must be an absolute path to the project root. Omitting this parameter can cause the server to hang.
+- **Depth Parameter:** By default, dependency graphs only include direct dependencies (depth=1). To include nested components, explicitly set `depth: 2` or higher. The LLM does NOT automatically detect when depth=2 is needed.
 - Cache is automatically cleaned if corruption is detected
 
 **logicstamp_list_bundles** - List available bundles for selective loading (STEP 2)
@@ -113,6 +157,7 @@ The MCP server provides 6 tools. For complete API documentation with input/outpu
   - `profile` (optional): Analysis profile (default: `llm-chat`)
   - `mode` (optional): Code inclusion mode (default: `header`)
   - `includeStyle` (optional): Include style metadata in comparison. Only takes effect when `forceRegenerate` is `true` (default: `false`)
+  - `depth` (optional): Dependency traversal depth. Only used when `forceRegenerate` is `true`. **IMPORTANT**: By default, dependency graphs only include direct dependencies (depth=1). To include nested components, you MUST explicitly set `depth: 2` or higher. The LLM does NOT automatically detect when depth=2 is needed - it must be explicitly requested.
   - `forceRegenerate` (optional): Force regeneration of context before comparing. When `false`, reads existing `context_main.json` from disk (fast). When `true`, runs `stamp context` to regenerate (default: `false`)
   - `projectPath` (optional): Project path (defaults to current directory)
   - `baseline` (optional): Comparison baseline: `disk` (default), `snapshot`, or custom path
@@ -200,7 +245,9 @@ npm run build
 
 ### Run the Server
 
-The MCP server can be run in several ways:
+**Important:** You don't need to start the MCP server manually. Once configured, your MCP client (Cursor, Claude Desktop, etc.) automatically starts the server when needed. The commands below are only for testing/debugging.
+
+**For testing/debugging only:**
 
 **After building from source:**
 ```bash
