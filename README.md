@@ -4,11 +4,7 @@
 
   <img src="./assets/logicstamp-fox.svg" alt="LogicStamp Fox Mascot" width="120">
 
-
-
   <br/>
-
-
 
   ![Version](https://img.shields.io/badge/version-0.1.2-blue.svg)
 
@@ -20,11 +16,7 @@
 
   [![CI](https://github.com/LogicStamp/logicstamp-mcp/workflows/CI/badge.svg)](https://github.com/LogicStamp/logicstamp-mcp/actions)
 
-
-
   <br/>
-
-
 
   **Model Context Protocol (MCP) server for [LogicStamp Context](https://github.com/LogicStamp/logicstamp-context) - enabling AI assistants to safely analyze and understand React/TypeScript codebases.**
 
