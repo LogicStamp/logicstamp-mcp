@@ -5,6 +5,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2025-12-30
+
+### Changed
+
+- **Node.js Requirement Update** - Updated minimum Node.js version requirement from >=18.0.0 to >=18.18.0 to align with `logicstamp-context` CLI requirements
+  - Node 20+ is now recommended for best performance and features
+  - Updated all documentation, prerequisites, and integration guides
+  - Updated `package.json` engines field
+
+### Added
+
+- **Depth Parameter Documentation** - Added comprehensive recommendations for using `depth: 2` with React/TypeScript projects
+  - **README.md** - Added depth parameter guidance emphasizing `depth: 2` recommendation for React projects (line 121)
+    - Clarifies that LLM does NOT automatically detect when depth=2 is needed
+    - Explains that default depth=1 only includes direct dependencies
+  - **docs/mcp_integration.md** - Enhanced depth parameter documentation with React-specific recommendations (lines 76, 85)
+    - Added **RECOMMENDED** guidance to start with `depth: 2` for React/TypeScript projects
+    - Included example usage: `{ "projectPath": "...", "depth": 2 }`
+    - Explained that depth=2 captures nested components (e.g., App → Hero → Button)
+    - Added note that LLM must explicitly request depth=2 upfront
+  - **docs/logicstamp-for-llms.md** - Added critical depth parameter guidance (lines 44, 158-179)
+    - Added **CRITICAL** section recommending `depth: 2` for React/TypeScript projects
+    - Explained when depth=1 is insufficient (missing components, incomplete graphs)
+    - Added example code showing recommended usage pattern
+    - Clarified that LLM does NOT automatically detect when depth=2 is needed
+  - **docs/startup-ritual.md** - Updated startup ritual with depth=2 recommendations (lines 12-14, 51-55)
+    - Added **RECOMMENDED** guidance in startup workflow
+    - Included examples and when to use depth=2
+    - Explained difference between depth=1 (direct dependencies) and depth=2 (nested components)
+  - **src/mcp/server.ts** - Enhanced tool descriptions with depth=2 recommendations (lines 61-63, 88)
+    - Updated `logicstamp_refresh_snapshot` description to recommend depth=2 for React projects
+    - Added guidance about nested component hierarchies
+    - Clarified that depth=2 ensures nested components are included with contracts and styles
+
+### Fixed
+
+- **Version Consistency** - Fixed version mismatches across codebase to ensure all version references match `package.json`
+  - **README.md** - Updated version badge from `0.1.1` to `0.1.2` (line 13)
+    - Badge now correctly displays current package version
+  - **src/mcp/server.ts** - Updated server version from `0.1.0` to `0.1.2` (line 30)
+    - MCP server now reports correct version to clients
+    - Fixes discrepancy where server reported older version than package
+  - **docs/mcp_integration.md** - Updated example config version from `0.1.0` to `0.1.2` (line 852)
+    - Example MCP server configuration now shows correct version
+    - Ensures documentation examples match actual implementation
+  - All version references now consistently match `package.json` version `0.1.2`
+  - Prevents confusion when users check version information across different sources
+
 ## [0.1.1] - 2025-12-14
 
 ### Fixed
@@ -91,7 +139,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Technical Details
 
 - **Dependencies**: `@modelcontextprotocol/sdk@^1.24.0`
-- **Node.js Support**: >=18.0.0
+- **Node.js Support**: >=18.18.0 (Node 20+ recommended)
 - **License**: MIT
 - **Read-Only Design**: Server never modifies project files directly
 
@@ -100,6 +148,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - This is the initial public release
 - Requires `logicstamp-context` CLI to be installed globally (`npm install -g logicstamp-context`)
 - All tools are read-only - they analyze but never modify your codebase
+
+[0.1.2]: https://github.com/LogicStamp/logicstamp-mcp/releases/tag/v0.1.2
 
 [0.1.1]: https://github.com/LogicStamp/logicstamp-mcp/releases/tag/v0.1.1
 

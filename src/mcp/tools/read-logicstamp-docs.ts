@@ -189,6 +189,7 @@ export async function readLogicStampDocs(): Promise<ReadLogicStampDocsOutput> {
           'Bundles contain contracts (props, state, hooks), dependency graphs, and optional style metadata',
           'Use header mode (default) for most cases - provides contracts + signatures at ~70% token savings',
           'Missing micro-details in bundles is normal - they are intentionally compressed',
+          'IMPORTANT: By default, dependency graphs only include direct dependencies (depth=1). To include nested components, explicitly set depth: 2 when calling refresh_snapshot. The LLM does NOT automatically detect when depth=2 is needed.',
         ],
       },
     };

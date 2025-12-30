@@ -6,7 +6,7 @@ Thank you for your interest in contributing! This guide will help you get starte
 
 ### Prerequisites
 
-- Node.js 18.0.0 or higher
+- Node.js >= 18.18.0 (Node 20+ recommended for best performance and features)
 - npm or yarn
 - Git
 - LogicStamp Context CLI (`npm install -g logicstamp-context`)
@@ -23,7 +23,17 @@ npm install
 
 # Build the project
 npm run build
+
+# Link the package globally for local testing (optional but recommended)
+npm link
 ```
+
+**Note:** 
+- After running `npm link`, your local development version will be available globally
+- If you already have `logicstamp-mcp` installed globally (`npm install -g logicstamp-mcp`), `npm link` will replace it with your local version
+- MCP clients (Cursor, Claude CLI, Claude Desktop) configured to use `npx logicstamp-mcp` will automatically use your local version
+- This makes testing changes much easier than configuring absolute paths
+- **You don't need to install the published package first** - `npm link` creates a symlink to your local development version
 
 ### Development Workflow
 
@@ -36,6 +46,24 @@ npm start
 
 # Build for production
 npm run build
+```
+
+**Testing Your Changes:**
+
+If you've run `npm link` (see [Installation](#installation) above), your changes will be immediately available to MCP clients. After making changes:
+
+1. **Rebuild:** Run `npm run build` (or use `npm run dev` for watch mode to auto-rebuild)
+2. **Restart your MCP client** (Cursor/Claude CLI/Claude Desktop) to pick up the rebuilt changes
+3. **Test your changes** in a React/TypeScript project
+
+**When done developing:**
+
+```bash
+# Unlink to remove the local symlink
+npm unlink -g logicstamp-mcp
+
+# If you want the published version back, reinstall it:
+npm install -g logicstamp-mcp
 ```
 
 ## Project Architecture
@@ -159,12 +187,31 @@ Update README.md with tool documentation.
 
 ### Manual Testing with Claude Code
 
+**Option 1: Using npm link (Recommended)**
+
+If you already ran `npm link` during installation (see [Installation](#installation) above), you can skip to step 2.
+
+1. **Link the package globally:**
+   ```bash
+   npm link
+   ```
+
+2. **Verify it's linked:**
+   ```bash
+   npm list -g logicstamp-mcp
+   # Should show: logicstamp-mcp@0.1.2 -> /path/to/logicstamp-mcp
+   ```
+
+3. **Your MCP clients will automatically use the local version** if they're configured with `npx logicstamp-mcp` (which is the standard configuration). No additional configuration needed!
+
+**Option 2: Using absolute path**
+
 1. **Build the project:**
    ```bash
    npm run build
    ```
 
-2. **Configure Claude Code:**
+2. **Configure Claude Code with absolute path:**
    ```bash
    # Add your local build (replace with your actual path)
    claude mcp add --scope user --transport stdio logicstamp-dev -- node /absolute/path/to/dist/index.js

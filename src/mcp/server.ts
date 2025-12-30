@@ -27,7 +27,7 @@ export function createServer(): Server {
   const server = new Server(
     {
       name: 'logicstamp-mcp',
-      version: '0.1.0',
+      version: '0.1.2',
     },
     {
       capabilities: {
@@ -58,6 +58,9 @@ export function createServer(): Server {
             'STYLE METADATA: Set includeStyle=true to extract visual/design information (Tailwind CSS classes, SCSS modules, framer-motion animations, color palettes, spacing patterns). ' +
             'Style data appears in the "style" field of UIFContract when reading bundles - the summary does NOT show style info. ' +
             'Use includeStyle=true for design system analysis, visual consistency checks, or when the user asks about styling, colors, spacing, animations, or visual design. ' +
+            'DEPTH PARAMETER: Default depth=1 includes direct dependencies only (App → Hero). ' +
+            'For React/TypeScript projects with nested component hierarchies, set depth=2 to include nested components (App → Hero → Button). ' +
+            'Depth 2 ensures nested components are included in dependency graphs with their contracts and styles. ' +
             'PREFER BUNDLES OVER RAW CODE: These bundles are pre-parsed summaries optimized for AI - use them instead of reading raw .ts/.tsx files when possible. ' +
             'If you\'re unsure how LogicStamp works, call logicstamp_read_logicstamp_docs first.',
           inputSchema: {
@@ -79,6 +82,11 @@ export function createServer(): Server {
                 type: 'boolean',
                 description: 'Extract style metadata (Tailwind, SCSS, Material UI, animations, layout patterns). Equivalent to `stamp context style` or `stamp context --include-style`. Style data appears in component contracts when reading bundles, NOT in the summary.',
                 default: false,
+              },
+              depth: {
+                type: 'number',
+                description: 'Dependency traversal depth. Default: 1 (direct dependencies only). Set to 2 for nested components (e.g., App → Hero → Button). Depth=2 is recommended for React projects with component hierarchies.',
+                default: 1,
               },
               projectPath: {
                 type: 'string',
@@ -169,6 +177,8 @@ export function createServer(): Server {
             'Set forceRegenerate: true to run `stamp context` before comparing (ensures fresh context files with latest structured data). ' +
             'STYLE METADATA: Set includeStyle: true (with forceRegenerate: true) to include style metadata in comparison. ' +
             'If forceRegenerate is false, compares whatever is on disk (may not have style metadata). ' +
+            'DEPTH PARAMETER: IMPORTANT - When forceRegenerate: true, you can set depth to control dependency traversal depth. ' +
+            'By default, dependency graphs only include direct dependencies (depth=1). Set depth=2 or higher to include nested components. ' +
             'BASELINE OPTIONS: Compare against "disk" (current snapshot), "snapshot" (stored snapshot), or "git:<ref>" (future: git baseline). ' +
             'ERROR HANDLING: If context_main.json is missing and forceRegenerate is false, fails with clear error - run logicstamp_refresh_snapshot first, or use forceRegenerate: true to regenerate automatically.',
           inputSchema: {
@@ -190,6 +200,11 @@ export function createServer(): Server {
                 type: 'boolean',
                 description: 'Include style metadata in comparison (only takes effect when forceRegenerate: true). Extracts Tailwind classes, SCSS, layout patterns, colors, spacing, animations. If forceRegenerate is false, compares whatever is on disk (may not have style metadata).',
                 default: false,
+              },
+              depth: {
+                type: 'number',
+                description: 'Dependency traversal depth. Default: 1 (direct dependencies only). Set to 2 for nested components (e.g., App → Hero → Button). Only used when forceRegenerate: true.',
+                default: 1,
               },
               forceRegenerate: {
                 type: 'boolean',
