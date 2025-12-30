@@ -99,7 +99,7 @@ describe('execWithTimeout', () => {
     it('should respect maxBuffer option', async () => {
       // Generate large output
       const largeOutputCommand = process.platform === 'win32'
-        ? 'for /L %i in (1,1,1000) do @echo line %i'
+        ? 'cmd /c "for /L %i in (1,1,1000) do @echo line %i"'
         : 'for i in {1..1000}; do echo "line $i"; done';
 
       const result = await execWithTimeout(
