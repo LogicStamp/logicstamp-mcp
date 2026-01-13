@@ -58,8 +58,8 @@ export function createServer(): Server {
             'STYLE METADATA: Set includeStyle=true to extract visual/design information (Tailwind CSS classes, SCSS modules, framer-motion animations, color palettes, spacing patterns). ' +
             'Style data appears in the "style" field of UIFContract when reading bundles - the summary does NOT show style info. ' +
             'Use includeStyle=true for design system analysis, visual consistency checks, or when the user asks about styling, colors, spacing, animations, or visual design. ' +
-            'DEPTH PARAMETER: Default depth=1 includes direct dependencies only (App → Hero). ' +
-            'For React/TypeScript projects with nested component hierarchies, set depth=2 to include nested components (App → Hero → Button). ' +
+            'DEPTH PARAMETER: Default depth=2 includes nested components (App → Hero → Button). ' +
+            'For projects that only need direct dependencies, set depth=1 to include direct dependencies only (App → Hero). ' +
             'Depth 2 ensures nested components are included in dependency graphs with their contracts and styles. ' +
             'PREFER BUNDLES OVER RAW CODE: These bundles are pre-parsed summaries optimized for AI - use them instead of reading raw .ts/.tsx files when possible. ' +
             'If you\'re unsure how LogicStamp works, call logicstamp_read_logicstamp_docs first.',
@@ -85,8 +85,8 @@ export function createServer(): Server {
               },
               depth: {
                 type: 'number',
-                description: 'Dependency traversal depth. Default: 1 (direct dependencies only). Set to 2 for nested components (e.g., App → Hero → Button). Depth=2 is recommended for React projects with component hierarchies.',
-                default: 1,
+                description: 'Dependency traversal depth. Default: 2 (includes nested components, e.g., App → Hero → Button). Set to 1 for direct dependencies only (e.g., App → Hero). Depth=2 is recommended for React projects with component hierarchies.',
+                default: 2,
               },
               projectPath: {
                 type: 'string',
@@ -132,15 +132,16 @@ export function createServer(): Server {
         {
           name: 'logicstamp_read_bundle',
           description:
-            'STEP 3: Read a LogicStamp bundle (e.g., context_main.json or a per-folder context file). ' +
-            'WHAT IT DOES: Reads a folder\'s `context.json` file (which contains a LogicStampBundle[] array) and returns the complete bundle with full component contracts. ' +
-            'These `context.json` files are STRUCTURED DATA sources containing AI-ready documentation of your codebase architecture - pre-parsed summaries optimized for AI consumption. ' +
-            'WHAT YOU GET: Complete LogicStampBundle containing: (1) entryId - root component path, (2) graph.nodes[] - Array of components, each with entryId and contract (UIFContract), (3) graph.edges[] - Array of dependency tuples [sourceEntryId, targetEntryId] showing relationships, (4) meta.missing[] - Unresolved dependencies. ' +
+            'STEP 3: Read a LogicStamp bundle or index file (e.g., context_main.json or a per-folder context file). ' +
+            'WHAT IT DOES: Reads either (1) `context_main.json` (LogicStampIndex) for project overview, or (2) a folder\'s `context.json` file (LogicStampBundle[] array) for component contracts. ' +
+            'These files are STRUCTURED DATA sources containing AI-ready documentation of your codebase architecture - pre-parsed summaries optimized for AI consumption. ' +
+            'WHEN READING context_main.json: Returns LogicStampIndex with summary statistics, folder metadata, and project structure. Use this to get an overview of the entire codebase. ' +
+            'WHEN READING bundle files: Returns LogicStampBundle containing: (1) entryId - root component path, (2) graph.nodes[] - Array of components, each with entryId and contract (UIFContract), (3) graph.edges[] - Array of dependency tuples [sourceEntryId, targetEntryId] showing relationships, (4) meta.missing[] - Unresolved dependencies. ' +
             'Each UIFContract in graph.nodes includes: kind, description, version (variables, hooks, components, functions, imports), logicSignature.props (complete prop signatures with types, optional flags, descriptions), logicSignature.emits (event/callback signatures), logicSignature.state (useState variables with types), exports, semanticHash, fileHash, and optionally style metadata (if includeStyle=true). ' +
             'VALUE OF BUNDLE DATA: Each bundle contains a root component and its COMPLETE dependency graph - all components it uses, up to configured depth. This structured data captures the full architecture: component APIs, relationships, dependencies, and behavioral patterns. ' +
             'PREFER THIS OVER RAW CODE: These bundles are pre-parsed summaries optimized for AI. Use this tool over reading raw .ts/.tsx files when you want to understand structure, behavior, or relationships. ' +
-            'WHEN TO USE: Call this AFTER logicstamp_list_bundles to get detailed information about specific components. ' +
-            'TYPICAL FLOW: (1) Call read_bundle on context_main to get the project overview, (2) Follow links in that file to more specific bundles as needed. ' +
+            'WHEN TO USE: Call this AFTER logicstamp_list_bundles to get detailed information about specific components, or call with bundlePath="context_main.json" to get project overview. ' +
+            'TYPICAL FLOW: (1) Call read_bundle with bundlePath="context_main.json" to get the project overview (returns LogicStampIndex), (2) Follow links in that file to more specific bundles as needed (returns LogicStampBundle). ' +
             'REQUIRED BEFORE: You MUST call logicstamp_refresh_snapshot first, then logicstamp_list_bundles to get bundlePath values. ' +
             'THIS IS THE ONLY WAY: To see component contracts (UIFContract), dependency graphs (graph.nodes and graph.edges), and style information - the refresh_snapshot summary does NOT include this detailed data. ' +
             'BUNDLE STRUCTURE: Each bundle represents a root component and its complete dependency graph. graph.nodes[] contains all components in the bundle (each with entryId and UIFContract). graph.edges[] contains dependency tuples [sourceEntryId, targetEntryId] showing relationships.',
@@ -153,7 +154,7 @@ export function createServer(): Server {
               },
               bundlePath: {
                 type: 'string',
-                description: 'Relative path to context.json file from project root. Get this from the "bundlePath" field in logicstamp_list_bundles output. Example: "src/components/context.json" or "src/components/HeroVisualization/context.json"',
+                description: 'Relative path to context.json file or context_main.json from project root. Get this from the "bundlePath" field in logicstamp_list_bundles output. Use "context_main.json" to read the project index (returns LogicStampIndex), or use a folder path like "src/components/context.json" to read bundles (returns LogicStampBundle). Example: "context_main.json" or "src/components/context.json"',
               },
               rootComponent: {
                 type: 'string',
@@ -178,7 +179,7 @@ export function createServer(): Server {
             'STYLE METADATA: Set includeStyle: true (with forceRegenerate: true) to include style metadata in comparison. ' +
             'If forceRegenerate is false, compares whatever is on disk (may not have style metadata). ' +
             'DEPTH PARAMETER: IMPORTANT - When forceRegenerate: true, you can set depth to control dependency traversal depth. ' +
-            'By default, dependency graphs only include direct dependencies (depth=1). Set depth=2 or higher to include nested components. ' +
+            'By default, dependency graphs include nested components (depth=2). Set depth=1 for direct dependencies only. ' +
             'BASELINE OPTIONS: Compare against "disk" (current snapshot), "snapshot" (stored snapshot), or "git:<ref>" (future: git baseline). ' +
             'ERROR HANDLING: If context_main.json is missing and forceRegenerate is false, fails with clear error - run logicstamp_refresh_snapshot first, or use forceRegenerate: true to regenerate automatically.',
           inputSchema: {
@@ -203,8 +204,8 @@ export function createServer(): Server {
               },
               depth: {
                 type: 'number',
-                description: 'Dependency traversal depth. Default: 1 (direct dependencies only). Set to 2 for nested components (e.g., App → Hero → Button). Only used when forceRegenerate: true.',
-                default: 1,
+                description: 'Dependency traversal depth. Default: 2 (includes nested components, e.g., App → Hero → Button). Set to 1 for direct dependencies only (e.g., App → Hero). Only used when forceRegenerate: true.',
+                default: 2,
               },
               forceRegenerate: {
                 type: 'boolean',

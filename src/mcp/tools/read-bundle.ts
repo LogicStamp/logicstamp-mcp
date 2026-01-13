@@ -9,6 +9,7 @@ import type {
   ReadBundleInput,
   ReadBundleOutput,
   LogicStampBundle,
+  LogicStampIndex,
 } from '../../types/schemas.js';
 import { stateManager } from '../state.js';
 
@@ -33,6 +34,31 @@ export async function readBundle(input: ReadBundleInput): Promise<ReadBundleOutp
       );
     }
     
+    // Check if this is context_main.json (LogicStampIndex) or a bundle file (LogicStampBundle[])
+    const isIndexFile = input.bundlePath === 'context_main.json' || 
+                        input.bundlePath.endsWith('/context_main.json') ||
+                        input.bundlePath.endsWith('\\context_main.json');
+    
+    if (isIndexFile) {
+      // Parse as LogicStampIndex
+      const index: LogicStampIndex = JSON.parse(contextContent);
+      
+      // Validate it's actually an index file
+      if (index.type !== 'LogicStampIndex') {
+        throw new Error(
+          `File ${input.bundlePath} does not appear to be a valid LogicStampIndex file. ` +
+          `Expected type: "LogicStampIndex", got: ${(index as any).type || 'undefined'}`
+        );
+      }
+      
+      return {
+        snapshotId: input.snapshotId,
+        bundlePath: input.bundlePath,
+        index: index,
+      };
+    }
+    
+    // Parse as LogicStampBundle[] array
     const bundleArray: LogicStampBundle[] = JSON.parse(contextContent);
 
     // If rootComponent is specified, find matching bundle

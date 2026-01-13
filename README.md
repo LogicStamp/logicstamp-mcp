@@ -14,6 +14,14 @@
 
 </div>
 
+---
+
+![LogicStamp in action](./assets/logicstamp-workflow.gif)
+
+*MCP server calling the CLI to generate and consume context bundles*
+
+---
+
 ## Overview
 
 This MCP server provides AI assistants with structured access to your codebase through LogicStamp Context's analysis engine. It acts as a thin wrapper around the `stamp` CLI, offering:
@@ -123,7 +131,7 @@ The MCP server provides 6 tools. For complete API documentation with input/outpu
 - Returns: `snapshotId`, `summary`, `folders`
 - **Always call this first** when analyzing a new repo
 - **Note:** `projectPath` is REQUIRED - must be an absolute path to the project root. Omitting this parameter can cause the server to hang.
-- **Depth Parameter:** By default, dependency graphs only include direct dependencies (depth=1). To include nested components, explicitly set `depth: 2` or higher. The LLM does NOT automatically detect when depth=2 is needed.
+- **Depth Parameter:** By default, dependency graphs include nested components (depth=2). To include only direct dependencies, explicitly set `depth: 1`. The default depth=2 ensures nested components are included in dependency graphs.
 - Cache is automatically cleaned if corruption is detected
 
 **logicstamp_list_bundles** - List available bundles for selective loading (STEP 2)
@@ -141,7 +149,7 @@ The MCP server provides 6 tools. For complete API documentation with input/outpu
   - `profile` (optional): Analysis profile (default: `llm-chat`)
   - `mode` (optional): Code inclusion mode (default: `header`)
   - `includeStyle` (optional): Include style metadata in comparison. Only takes effect when `forceRegenerate` is `true` (default: `false`)
-  - `depth` (optional): Dependency traversal depth. Only used when `forceRegenerate` is `true`. **IMPORTANT**: By default, dependency graphs only include direct dependencies (depth=1). To include nested components, you MUST explicitly set `depth: 2` or higher. The LLM does NOT automatically detect when depth=2 is needed - it must be explicitly requested.
+  - `depth` (optional): Dependency traversal depth. Only used when `forceRegenerate` is `true`. **IMPORTANT**: By default, dependency graphs include nested components (depth=2). To include only direct dependencies, set `depth: 1`. The default depth=2 ensures nested components are included in dependency graphs.
   - `forceRegenerate` (optional): Force regeneration of context before comparing. When `false`, reads existing `context_main.json` from disk (fast). When `true`, runs `stamp context` to regenerate (default: `false`)
   - `projectPath` (optional): Project path (defaults to current directory)
   - `baseline` (optional): Comparison baseline: `disk` (default), `snapshot`, or custom path
@@ -298,5 +306,6 @@ See [CHANGELOG.md](CHANGELOG.md) for a detailed list of changes and version hist
 
 ## Links
 
-- [LogicStamp Context](https://github.com/LogicStamp/logicstamp-context)
-- [Model Context Protocol](https://modelcontextprotocol.io/)
+- [LogicStamp](https://logicstamp.dev) - Official website and documentation
+- [LogicStamp Context](https://github.com/LogicStamp/logicstamp-context) - CLI repository
+- [Model Context Protocol](https://modelcontextprotocol.io/) - MCP specification

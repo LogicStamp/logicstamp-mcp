@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.3] - 2026-01-13
+
+### Changed
+
+- **Default Depth Parameter** - Changed default dependency traversal depth from `1` to `2` across all tools
+  - Default depth now includes nested components (e.g., App → Hero → Button) instead of only direct dependencies
+  - Applies to `logicstamp_refresh_snapshot`, `logicstamp_compare_snapshot`, and all analysis profiles (`llm-chat`, `llm-safe`, `ci-strict`)
+  - Ensures full component trees are captured by default, including contracts and styles for nested components
+  - Set `depth: 1` explicitly if you only need direct dependencies
+  - Updated all documentation, tool descriptions, and examples to reflect the new default
+  - This change ensures React projects with component hierarchies get complete dependency graphs without requiring explicit depth configuration
+
+### Fixed
+
+- **`logicstamp_read_bundle` context_main.json Support** - Fixed issue where reading `context_main.json` returned incomplete data
+  - Now correctly detects and parses `context_main.json` as `LogicStampIndex` instead of `LogicStampBundle[]`
+  - Returns full index content including `summary`, `folders` array, and all metadata
+  - Updated output schema to support both `bundle` (for bundle files) and `index` (for `context_main.json`)
+  - Updated documentation to clarify the difference between reading index files vs bundle files
+  - Added test coverage for reading `context_main.json`
+
 ## [0.1.2] - 2025-12-30
 
 ### Changed
@@ -148,6 +169,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - This is the initial public release
 - Requires `logicstamp-context` CLI to be installed globally (`npm install -g logicstamp-context`)
 - All tools are read-only - they analyze but never modify your codebase
+
+[0.1.3]: https://github.com/LogicStamp/logicstamp-mcp/releases/tag/v0.1.3
 
 [0.1.2]: https://github.com/LogicStamp/logicstamp-mcp/releases/tag/v0.1.2
 

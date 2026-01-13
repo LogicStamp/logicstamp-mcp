@@ -40,6 +40,32 @@ describe('readBundle integration tests', () => {
   });
 
   describe('successful bundle reading', () => {
+    it('should read context_main.json as LogicStampIndex', async () => {
+      const mockIndex = await createMockIndex(tempDir, {
+        folders: [
+          {
+            path: 'src/components',
+            bundles: 1,
+            components: ['Button'],
+          },
+        ],
+      });
+
+      const result = await readBundle({
+        snapshotId,
+        bundlePath: 'context_main.json',
+      });
+
+      expect(result.snapshotId).toBe(snapshotId);
+      expect(result.bundlePath).toBe('context_main.json');
+      expect(result.index).toBeDefined();
+      expect(result.index?.type).toBe('LogicStampIndex');
+      expect(result.index?.summary).toBeDefined();
+      expect(result.index?.folders).toBeDefined();
+      expect(result.index?.folders).toHaveLength(1);
+      expect(result.bundle).toBeUndefined();
+    });
+
     it('should read bundle by bundlePath', async () => {
       await createMockIndex(tempDir, {
         folders: [
@@ -62,7 +88,8 @@ describe('readBundle integration tests', () => {
       expect(result.snapshotId).toBe(snapshotId);
       expect(result.bundlePath).toBe('src/components/context.json');
       expect(result.bundle).toBeDefined();
-      expect(result.bundle.type).toBe('LogicStampBundle');
+      expect(result.bundle!).toBeDefined();
+      expect(result.bundle!.type).toBe('LogicStampBundle');
     });
 
     it('should read specific component by name', async () => {
@@ -80,7 +107,8 @@ describe('readBundle integration tests', () => {
         rootComponent: 'Input',
       });
 
-      expect(result.bundle.graph.nodes[0].contract.description).toContain('Input');
+      expect(result.bundle).toBeDefined();
+      expect(result.bundle!.graph.nodes[0].contract.description).toContain('Input');
       expect(result.rootComponent).toBe('Input');
     });
 
@@ -99,7 +127,8 @@ describe('readBundle integration tests', () => {
         bundlePath: 'src/components/context.json',
       });
 
-      expect(result.bundle).toEqual(bundles[0]);
+      expect(result.bundle).toBeDefined();
+      expect(result.bundle!).toEqual(bundles[0]);
     });
 
     it('should include full bundle structure', async () => {
@@ -113,13 +142,14 @@ describe('readBundle integration tests', () => {
         bundlePath: 'src/components/context.json',
       });
 
-      expect(result.bundle).toHaveProperty('type');
-      expect(result.bundle).toHaveProperty('schemaVersion');
-      expect(result.bundle).toHaveProperty('bundleHash');
-      expect(result.bundle).toHaveProperty('graph');
-      expect(result.bundle).toHaveProperty('meta');
-      expect(result.bundle.graph).toHaveProperty('nodes');
-      expect(result.bundle.graph).toHaveProperty('edges');
+      expect(result.bundle).toBeDefined();
+      expect(result.bundle!).toHaveProperty('type');
+      expect(result.bundle!).toHaveProperty('schemaVersion');
+      expect(result.bundle!).toHaveProperty('bundleHash');
+      expect(result.bundle!).toHaveProperty('graph');
+      expect(result.bundle!).toHaveProperty('meta');
+      expect(result.bundle!.graph).toHaveProperty('nodes');
+      expect(result.bundle!.graph).toHaveProperty('edges');
     });
 
     it('should include contract details', async () => {
@@ -133,7 +163,8 @@ describe('readBundle integration tests', () => {
         bundlePath: 'src/components/context.json',
       });
 
-      const contract = result.bundle.graph.nodes[0].contract;
+      expect(result.bundle).toBeDefined();
+      const contract = result.bundle!.graph.nodes[0].contract;
       expect(contract).toHaveProperty('type', 'UIFContract');
       expect(contract).toHaveProperty('kind');
       expect(contract).toHaveProperty('logicSignature');
@@ -154,8 +185,9 @@ describe('readBundle integration tests', () => {
         bundlePath: 'src/components/context.json',
       });
 
-      expect(result.bundle.graph.nodes[0].codeHeader).toBeDefined();
-      expect(typeof result.bundle.graph.nodes[0].codeHeader).toBe('string');
+      expect(result.bundle).toBeDefined();
+      expect(result.bundle!.graph.nodes[0].codeHeader).toBeDefined();
+      expect(typeof result.bundle!.graph.nodes[0].codeHeader).toBe('string');
     });
 
     it('should include full code when available', async () => {
@@ -169,8 +201,9 @@ describe('readBundle integration tests', () => {
         bundlePath: 'src/components/context.json',
       });
 
-      expect(result.bundle.graph.nodes[0].fullCode).toBeDefined();
-      expect(typeof result.bundle.graph.nodes[0].fullCode).toBe('string');
+      expect(result.bundle).toBeDefined();
+      expect(result.bundle!.graph.nodes[0].fullCode).toBeDefined();
+      expect(typeof result.bundle!.graph.nodes[0].fullCode).toBe('string');
     });
   });
 
@@ -350,8 +383,9 @@ describe('readBundle integration tests', () => {
         bundlePath: 'src/components/context.json',
       });
 
-      expect(result.bundle.graph.nodes).toHaveLength(2);
-      expect(result.bundle.graph.edges).toHaveLength(1);
+      expect(result.bundle).toBeDefined();
+      expect(result.bundle!.graph.nodes).toHaveLength(2);
+      expect(result.bundle!.graph.edges).toHaveLength(1);
     });
 
     it('should preserve bundle metadata', async () => {
@@ -369,9 +403,10 @@ describe('readBundle integration tests', () => {
         bundlePath: 'src/components/context.json',
       });
 
-      expect(result.bundle.depth).toBe(3);
-      expect(result.bundle.meta.missing).toEqual(['@types/react', 'lodash']);
-      expect(result.bundle.meta.source).toBe('custom-analyzer');
+      expect(result.bundle).toBeDefined();
+      expect(result.bundle!.depth).toBe(3);
+      expect(result.bundle!.meta.missing).toEqual(['@types/react', 'lodash']);
+      expect(result.bundle!.meta.source).toBe('custom-analyzer');
     });
 
     it('should handle bundles with complex props and state', async () => {
@@ -397,7 +432,8 @@ describe('readBundle integration tests', () => {
         bundlePath: 'src/components/context.json',
       });
 
-      const contract = result.bundle.graph.nodes[0].contract;
+      expect(result.bundle).toBeDefined();
+      const contract = result.bundle!.graph.nodes[0].contract;
       expect(Object.keys(contract.logicSignature.props)).toHaveLength(4);
       expect(Object.keys(contract.logicSignature.state || {})).toHaveLength(3);
     });
@@ -418,7 +454,8 @@ describe('readBundle integration tests', () => {
         bundlePath: 'src/components/context.json',
       });
 
-      const exports = result.bundle.graph.nodes[0].contract.exports;
+      expect(result.bundle).toBeDefined();
+      const exports = result.bundle!.graph.nodes[0].contract.exports;
       expect(exports?.default).toBe('Component');
       expect(exports?.named).toHaveLength(3);
     });
@@ -439,7 +476,8 @@ describe('readBundle integration tests', () => {
         bundlePath: 'app/context.json',
       });
 
-      const nextjs = result.bundle.graph.nodes[0].contract.nextjs;
+      expect(result.bundle).toBeDefined();
+      const nextjs = result.bundle!.graph.nodes[0].contract.nextjs;
       expect(nextjs?.directive).toBe('client');
       expect(nextjs?.isInAppDir).toBe(true);
     });
@@ -462,7 +500,8 @@ describe('readBundle integration tests', () => {
         rootComponent: 'Button',
       });
 
-      expect(result.bundle.position).toBe('2/3');
+      expect(result.bundle).toBeDefined();
+      expect(result.bundle!.position).toBe('2/3');
     });
 
     it('should handle case-sensitive component names', async () => {
@@ -482,7 +521,8 @@ describe('readBundle integration tests', () => {
         rootComponent: 'Button',
       });
 
-      expect(result.bundle.position).toBe('2/2');
+      expect(result.bundle).toBeDefined();
+      expect(result.bundle!.position).toBe('2/2');
     });
   });
 });
