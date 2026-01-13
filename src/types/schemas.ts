@@ -14,7 +14,7 @@ export interface Snapshot {
   profile: 'llm-chat' | 'llm-safe' | 'ci-strict';
   mode: 'header' | 'full' | 'none';
   includeStyle?: boolean; // Whether style metadata was included
-  depth?: number; // Dependency traversal depth (default: profile default, typically 1)
+  depth?: number; // Dependency traversal depth (default: profile default, typically 2)
   contextDir: string; // Where context_main.json + folders live
 }
 
@@ -83,7 +83,7 @@ export interface RefreshSnapshotInput {
   profile?: 'llm-chat' | 'llm-safe' | 'ci-strict';
   mode?: 'header' | 'full' | 'none';
   includeStyle?: boolean; // Include style metadata (equivalent to stamp context style)
-  depth?: number; // Dependency traversal depth (default: profile default, typically 1)
+  depth?: number; // Dependency traversal depth (default: profile default, typically 2)
   projectPath: string; // REQUIRED: Absolute path to project root
   cleanCache?: boolean; // Manually force cache cleanup (default: false, auto-detects corruption)
 }
@@ -154,7 +154,8 @@ export interface ReadBundleOutput {
   snapshotId: string;
   bundlePath: string;
   rootComponent?: string;
-  bundle: LogicStampBundle;
+  bundle?: LogicStampBundle; // Present when reading a bundle file
+  index?: LogicStampIndex; // Present when reading context_main.json
 }
 
 // Tool 4: compare_snapshot
@@ -162,7 +163,7 @@ export interface CompareSnapshotInput {
   profile?: 'llm-chat' | 'llm-safe' | 'ci-strict';
   mode?: 'header' | 'full' | 'none';
   includeStyle?: boolean; // Include style metadata in comparison. When true, also forces regeneration.
-  depth?: number; // Dependency traversal depth (default: profile default, typically 1). Only used when forceRegenerate is true.
+  depth?: number; // Dependency traversal depth (default: profile default, typically 2). Only used when forceRegenerate is true.
   forceRegenerate?: boolean; // Force regeneration of context before comparing (default: false, or true if includeStyle is true)
   projectPath?: string;
   baseline?: 'disk' | 'snapshot' | string;

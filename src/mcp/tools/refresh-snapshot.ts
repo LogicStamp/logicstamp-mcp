@@ -96,10 +96,10 @@ export async function refreshSnapshot(input: RefreshSnapshotInput): Promise<Refr
   const profile = input.profile || 'llm-chat';
   const mode = input.mode || 'header';
   const includeStyle = input.includeStyle || false;
-  // Default depth to 1 (schema default), but allow override
+  // Default depth to 2 (schema default), but allow override
   // Ensure depth is a number if provided (MCP may send it as string or null)
-  // Handle both undefined and null as "not provided" - default to 1
-  const depth = (input.depth !== undefined && input.depth !== null) ? Number(input.depth) : 1; // Default to 1
+  // Handle both undefined and null as "not provided" - default to 2
+  const depth = (input.depth !== undefined && input.depth !== null) ? Number(input.depth) : 2; // Default to 2
   // Validate depth is a positive integer
   if (!Number.isInteger(depth) || depth < 1) {
     throw new Error(`Invalid depth parameter: ${input.depth}. Depth must be a positive integer (1 or higher).`);
@@ -135,23 +135,23 @@ export async function refreshSnapshot(input: RefreshSnapshotInput): Promise<Refr
     // Use --skip-gitignore to ensure non-interactive operation and prevent .gitignore modifications
     // Use --quiet to suppress verbose output since MCP reads JSON files directly
     // Add --include-style flag if includeStyle is true (equivalent to stamp context style)
-    // IMPORTANT: Since depth defaults to 1 (same as profiles), we can use profile when depth=1
-    // But when depth is explicitly set to 2 or higher, set flags individually to avoid profile conflicts
-    // Profile settings: llm-chat = depth=1, header mode, max-nodes=100
-    // llm-safe = depth=1, header mode, max-nodes=30
-    // ci-strict = depth=1, none mode, strict-missing
+    // IMPORTANT: Since depth defaults to 2 (same as profiles), we can use profile when depth=2
+    // But when depth is explicitly set to a different value, set flags individually to avoid profile conflicts
+    // Profile settings: llm-chat = depth=2, header mode, max-nodes=100
+    // llm-safe = depth=2, header mode, max-nodes=30
+    // ci-strict = depth=2, none mode, strict-missing
     const styleFlag = includeStyle ? ' --include-style' : '';
     const maxNodes = profile === 'llm-safe' ? '30' : '100';
     const strictFlag = profile === 'ci-strict' ? ' --strict-missing' : '';
     // Use the explicitly provided mode (or default), not profile's mode
     const effectiveMode = mode || (profile === 'ci-strict' ? 'none' : 'header');
-    // When depth=1 (default), use profile for convenience. When depth>1, set flags individually
+    // When depth=2 (default), use profile for convenience. When depth differs, set flags individually
     let command: string;
-    if (depth === 1) {
+    if (depth === 2) {
       // Default depth matches profile default - use profile for convenience
       command = `stamp context --profile ${profile} --include-code ${effectiveMode}${styleFlag} --skip-gitignore --quiet`;
     } else {
-      // Depth explicitly set to 2+ - set flags individually to avoid profile overriding depth
+      // Depth explicitly set to a different value - set flags individually to avoid profile overriding depth
       command = `stamp context --depth ${depth} --include-code ${effectiveMode} --max-nodes ${maxNodes}${styleFlag}${strictFlag} --skip-gitignore --quiet`;
     }
 

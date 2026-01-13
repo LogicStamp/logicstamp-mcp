@@ -1,6 +1,6 @@
 {
   "name": "logicstamp-mcp",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "MCP server for LogicStamp Context - analyze React/TypeScript codebases",
   "type": "module",
   "main": "./dist/index.js",
@@ -35,7 +35,7 @@
     "codebase-analysis",
     "ai-tools"
   ],
-  "author": "Amit Levi <amit23082@gmail.com> (https://amitlevi.dev)",
+  "author": "Amit Levi <logicstamp.dev@gmail.com> (https://amitlevi.dev)",
   "contributors": [
     "LogicStamp Contributors"
   ],

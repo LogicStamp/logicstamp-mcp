@@ -105,9 +105,9 @@ export async function compareSnapshot(input: CompareSnapshotInput): Promise<Comp
   const profile = input.profile || 'llm-chat';
   const mode = input.mode || 'header';
   const includeStyle = input.includeStyle || false;
-  // Default depth to 1 if not provided (same as profile default)
+  // Default depth to 2 if not provided (same as profile default)
   // Ensure depth is a number if provided (MCP may send it as string)
-  const depth = input.depth !== undefined && input.depth !== null ? Number(input.depth) : 1;
+  const depth = input.depth !== undefined && input.depth !== null ? Number(input.depth) : 2;
   // Validate depth is a positive integer
   if (!Number.isInteger(depth) || depth < 1) {
     throw new Error(`Invalid depth parameter: ${input.depth}. Depth must be a positive integer (1 or higher).`);
@@ -167,22 +167,22 @@ export async function compareSnapshot(input: CompareSnapshotInput): Promise<Comp
       }
 
       // Force regeneration: run stamp context before comparing
-      // IMPORTANT: When depth=1 (default), use profile for convenience. When depth>1, set flags individually
-      // Profiles (like llm-chat) set depth=1 by default, so when depth=1 we can use profile
-      // When depth is explicitly set to 2+, set flags individually to avoid profile overriding depth
+      // IMPORTANT: When depth=2 (default), use profile for convenience. When depth differs, set flags individually
+      // Profiles (like llm-chat) set depth=2 by default, so when depth=2 we can use profile
+      // When depth is explicitly set to a different value, set flags individually to avoid profile overriding depth
       const styleFlag = includeStyle ? ' --include-style' : '';
       
-      // Build command: if depth=1 (default), use profile for convenience. If depth>1, set flags individually
+      // Build command: if depth=2 (default), use profile for convenience. If depth differs, set flags individually
       let command: string;
-      if (depth === 1) {
+      if (depth === 2) {
         // Default depth matches profile default - use profile for convenience
         const effectiveMode = mode || (profile === 'ci-strict' ? 'none' : 'header');
         command = `stamp context --profile ${profile} --include-code ${effectiveMode}${styleFlag} --skip-gitignore --quiet`;
       } else {
-        // Depth explicitly set to 2+ - set flags individually to avoid profile overriding depth
-        // Profile settings: llm-chat = depth=1, header mode, max-nodes=100
-        // llm-safe = depth=1, header mode, max-nodes=30
-        // ci-strict = depth=1, none mode, strict-missing
+        // Depth explicitly set to a different value - set flags individually to avoid profile overriding depth
+        // Profile settings: llm-chat = depth=2, header mode, max-nodes=100
+        // llm-safe = depth=2, header mode, max-nodes=30
+        // ci-strict = depth=2, none mode, strict-missing
         const maxNodes = profile === 'llm-safe' ? '30' : '100';
         const strictFlag = profile === 'ci-strict' ? ' --strict-missing' : '';
         // Use the explicitly provided mode (or default), not profile's mode
