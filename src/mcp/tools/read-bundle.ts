@@ -17,7 +17,11 @@ export async function readBundle(input: ReadBundleInput): Promise<ReadBundleOutp
   const snapshot = stateManager.getSnapshot(input.snapshotId);
 
   if (!snapshot) {
-    throw new Error(`Snapshot not found: ${input.snapshotId}`);
+    throw new Error(
+      `Snapshot not found: ${input.snapshotId}. ` +
+      `The snapshot may have expired (snapshots expire after 1 hour) or was never created. ` +
+      `Run logicstamp_refresh_snapshot first to create a new snapshot, then use the returned snapshotId.`
+    );
   }
 
   try {
@@ -30,7 +34,9 @@ export async function readBundle(input: ReadBundleInput): Promise<ReadBundleOutp
     if (trimmedContent.startsWith('import ') || trimmedContent.startsWith('export ')) {
       throw new Error(
         `Invalid bundle file: ${contextPath} appears to be a TypeScript file, not JSON. ` +
-        `Expected a JSON file (context.json). Check that bundlePath is correct.`
+        `The bundlePath should point to a context.json file, not a source file. ` +
+        `Use logicstamp_list_bundles to get the correct bundlePath for a component, ` +
+        `or check that the bundlePath format is correct (e.g., "src/components/context.json").`
       );
     }
     
@@ -47,7 +53,9 @@ export async function readBundle(input: ReadBundleInput): Promise<ReadBundleOutp
       if (index.type !== 'LogicStampIndex') {
         throw new Error(
           `File ${input.bundlePath} does not appear to be a valid LogicStampIndex file. ` +
-          `Expected type: "LogicStampIndex", got: ${(index as any).type || 'undefined'}`
+          `Expected type: "LogicStampIndex", but got: ${(index as any).type || 'undefined'}. ` +
+          `This may indicate the file is corrupted or is not a LogicStamp context file. ` +
+          `Ensure you're reading context_main.json from a valid LogicStamp snapshot.`
         );
       }
       
@@ -75,7 +83,10 @@ export async function readBundle(input: ReadBundleInput): Promise<ReadBundleOutp
 
       if (!found) {
         throw new Error(
-          `Bundle not found for component: ${input.rootComponent} in ${input.bundlePath}`
+          `Bundle not found for component "${input.rootComponent}" in ${input.bundlePath}. ` +
+          `The component may not exist in this bundle file, or the component name may be incorrect. ` +
+          `Use logicstamp_list_bundles to see all available components in this snapshot, ` +
+          `or omit rootComponent to read the first bundle in the file.`
         );
       }
 
@@ -83,7 +94,12 @@ export async function readBundle(input: ReadBundleInput): Promise<ReadBundleOutp
     } else {
       // If no rootComponent specified, return the first bundle
       if (bundleArray.length === 0) {
-        throw new Error(`No bundles found in ${input.bundlePath}`);
+        throw new Error(
+          `No bundles found in ${input.bundlePath}. ` +
+          `This bundle file is empty or invalid. ` +
+          `Ensure the bundlePath is correct (use logicstamp_list_bundles to see available bundles), ` +
+          `or the folder may not contain any components.`
+        );
       }
       targetBundle = bundleArray[0];
     }
@@ -95,8 +111,12 @@ export async function readBundle(input: ReadBundleInput): Promise<ReadBundleOutp
       bundle: targetBundle,
     };
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     throw new Error(
-      `Failed to read bundle: ${error instanceof Error ? error.message : String(error)}`
+      `Failed to read bundle from snapshot ${input.snapshotId} at ${input.bundlePath}. ` +
+      `Error: ${errorMessage}. ` +
+      `Ensure the snapshot exists, the bundlePath is correct (use logicstamp_list_bundles to verify), ` +
+      `and the file is readable. If the snapshot expired, run logicstamp_refresh_snapshot to create a new one.`
     );
   }
 }

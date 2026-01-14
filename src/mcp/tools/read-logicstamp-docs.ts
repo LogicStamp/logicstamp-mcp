@@ -80,7 +80,11 @@ async function findPackageRoot(startPath: string): Promise<string> {
     current = parent;
   }
   
-  throw new Error('Could not find logicstamp-mcp package root');
+  throw new Error(
+    'Could not find logicstamp-mcp package root. ' +
+    'This tool searches for package.json starting from the current directory and walking up the directory tree. ' +
+    'Ensure you are running this from within the logicstamp-mcp package directory or that the package is properly installed.'
+  );
 }
 
 async function readDocFile(docPath: string): Promise<string> {
@@ -88,7 +92,8 @@ async function readDocFile(docPath: string): Promise<string> {
   if (docPath !== 'docs/logicstamp-for-llms.md') {
     throw new Error(
       `Invalid documentation path requested: ${docPath}. ` +
-      `This tool only reads docs/logicstamp-for-llms.md`
+      `This tool only reads docs/logicstamp-for-llms.md. ` +
+      `The documentation file must be included in the package.json files array to be accessible.`
     );
   }
 
@@ -117,11 +122,14 @@ async function readDocFile(docPath: string): Promise<string> {
       } catch (error3) {
         // Include __dirname and process.cwd() in error for debugging
         throw new Error(
-          `Could not find documentation file: ${docPath}\n` +
-          `__dirname: ${__dirname}\n` +
-          `process.cwd(): ${process.cwd()}\n` +
-          `Tried paths:\n${triedPaths.map(p => `  - ${p}`).join('\n')}\n` +
-          `Make sure docs/logicstamp-for-llms.md is included in the package.json files array.`
+          `Could not find documentation file: ${docPath}\n\n` +
+          `This tool tried multiple strategies to locate the file:\n` +
+          `1. From compiled dist directory: ${triedPaths[0]}\n` +
+          `2. By searching for package root: ${triedPaths[1] || 'not attempted'}\n` +
+          `3. From current working directory: ${triedPaths[2] || 'not attempted'}\n\n` +
+          `Current location: __dirname=${__dirname}, process.cwd()=${process.cwd()}\n\n` +
+          `Solution: Ensure docs/logicstamp-for-llms.md exists and is included in package.json files array. ` +
+          `The file should be at the package root level in the docs/ directory.`
         );
       }
     }
@@ -198,8 +206,14 @@ export async function readLogicStampDocs(): Promise<ReadLogicStampDocsOutput> {
       },
     };
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     throw new Error(
-      `Failed to read LogicStamp documentation: ${error instanceof Error ? error.message : String(error)}`
+      `Failed to read LogicStamp documentation. ` +
+      `This tool reads docs/logicstamp-for-llms.md from the logicstamp-mcp package. ` +
+      `Error: ${errorMessage}. ` +
+      `Ensure the documentation file exists and is accessible. ` +
+      `If running from source, ensure you're in the package root directory. ` +
+      `If installed via npm, ensure the package was installed correctly and includes the docs/ directory.`
     );
   }
 }

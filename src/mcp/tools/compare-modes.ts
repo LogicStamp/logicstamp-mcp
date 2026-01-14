@@ -127,8 +127,25 @@ export async function compareModes(input: CompareModesInput): Promise<CompareMod
   } catch (error) {
     // Preserve original error information
     const errorMessage = error instanceof Error ? error.message : String(error);
+    const nodeError = error as NodeJS.ErrnoException;
+    
+    // Check for specific error types
+    if (nodeError && nodeError.code === 'ENOENT' && errorMessage.includes('context_compare_modes.json')) {
+      throw new Error(
+        `Failed to read context_compare_modes.json at ${join(projectPath, 'context_compare_modes.json')}. ` +
+        `The stamp CLI command completed, but the expected output file was not found. ` +
+        `This may indicate the CLI failed silently or encountered an error. ` +
+        `Try running 'stamp context --compare-modes --stats' manually from ${projectPath} to diagnose the issue. ` +
+        `Ensure the stamp CLI is installed and up to date: npm install -g logicstamp-context`
+      );
+    }
+    
     const enhancedError = new Error(
-      `Failed to generate compare modes data: ${errorMessage}`
+      `Failed to generate compare modes data for project at ${projectPath}. ` +
+      `This operation compares token costs across different context generation modes (none, header, header+style, full). ` +
+      `Error: ${errorMessage}. ` +
+      `Ensure the stamp CLI is installed (npm install -g logicstamp-context) and the project path is correct. ` +
+      `This operation takes 2-3x longer than normal context generation.`
     );
     
     // Preserve error code and other properties if available

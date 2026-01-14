@@ -191,7 +191,7 @@ describe('refreshSnapshot integration tests', () => {
     it('should throw error when projectPath is missing', async () => {
       await expect(
         refreshSnapshot({} as any)
-      ).rejects.toThrow('projectPath is REQUIRED');
+      ).rejects.toThrow('projectPath parameter is REQUIRED');
     });
 
     it('should throw error when stamp command fails', async () => {
@@ -377,6 +377,255 @@ describe('refreshSnapshot integration tests', () => {
       // Should complete without error
       expect(result).toBeDefined();
       expect(result.snapshotId).toBeDefined();
+    });
+
+    it('should detect corrupted cache when context_main.json is invalid JSON', async () => {
+      const { writeFile, mkdir } = await import('fs/promises');
+      const { join } = await import('path');
+      
+      // Create corrupted context_main.json
+      const logicstampDir = join(tempDir, '.logicstamp');
+      await mkdir(logicstampDir, { recursive: true });
+      await writeFile(join(tempDir, 'context_main.json'), 'invalid json {');
+      
+      // Create a mock index after cache cleanup would occur
+      await createMockIndex(tempDir);
+
+      // Should detect corruption and clean cache
+      const result = await refreshSnapshot({ projectPath: tempDir });
+      
+      expect(result).toBeDefined();
+      expect(result.snapshotId).toBeDefined();
+    });
+
+    it('should detect stale cache when config has mismatched projectPath', async () => {
+      const { writeFile, mkdir } = await import('fs/promises');
+      const { join } = await import('path');
+      
+      // Create .logicstamp directory with stale config
+      const logicstampDir = join(tempDir, '.logicstamp');
+      await mkdir(logicstampDir, { recursive: true });
+      
+      // Create a config file with stale projectPath
+      const staleConfig = {
+        projectPath: '/some/other/path',
+        version: '1.0.0',
+      };
+      await writeFile(join(logicstampDir, 'config.json'), JSON.stringify(staleConfig));
+      
+      await createMockIndex(tempDir);
+
+      // Should detect stale path and clean cache
+      const result = await refreshSnapshot({ projectPath: tempDir });
+      
+      expect(result).toBeDefined();
+      expect(result.snapshotId).toBeDefined();
+    });
+
+    it('should not clean cache when cache is valid', async () => {
+      const { writeFile, mkdir } = await import('fs/promises');
+      const { join } = await import('path');
+      
+      // Create valid cache
+      const logicstampDir = join(tempDir, '.logicstamp');
+      await mkdir(logicstampDir, { recursive: true });
+      
+      const validConfig = {
+        projectPath: tempDir,
+        version: '1.0.0',
+      };
+      await writeFile(join(logicstampDir, 'config.json'), JSON.stringify(validConfig));
+      
+      await createMockIndex(tempDir);
+
+      // Should not clean valid cache
+      const result = await refreshSnapshot({ projectPath: tempDir });
+      
+      expect(result).toBeDefined();
+      expect(result.snapshotId).toBeDefined();
+    });
+
+    it('should clean cache when cleanCache is explicitly true', async () => {
+      const { writeFile, mkdir } = await import('fs/promises');
+      const { join } = await import('path');
+      
+      // Create cache directory
+      const logicstampDir = join(tempDir, '.logicstamp');
+      await mkdir(logicstampDir, { recursive: true });
+      await writeFile(join(logicstampDir, 'some-file.txt'), 'cache content');
+      
+      await createMockIndex(tempDir);
+
+      // Should clean cache when explicitly requested
+      const result = await refreshSnapshot({ 
+        projectPath: tempDir,
+        cleanCache: true 
+      });
+      
+      expect(result).toBeDefined();
+      expect(result.snapshotId).toBeDefined();
+    });
+  });
+
+  describe('parameter validation', () => {
+    it('should throw error for invalid depth (non-integer)', async () => {
+      await createMockIndex(tempDir);
+
+      await expect(
+        refreshSnapshot({
+          projectPath: tempDir,
+          depth: 1.5 as any,
+        })
+      ).rejects.toThrow('Invalid depth parameter');
+    });
+
+    it('should throw error for invalid depth (zero)', async () => {
+      await createMockIndex(tempDir);
+
+      await expect(
+        refreshSnapshot({
+          projectPath: tempDir,
+          depth: 0,
+        })
+      ).rejects.toThrow('Invalid depth parameter');
+    });
+
+    it('should throw error for invalid depth (negative)', async () => {
+      await createMockIndex(tempDir);
+
+      await expect(
+        refreshSnapshot({
+          projectPath: tempDir,
+          depth: -1,
+        })
+      ).rejects.toThrow('Invalid depth parameter');
+    });
+
+    it('should accept valid depth value of 1', async () => {
+      mockExecImpl.mockImplementation((command: string, options: any, callback: any) => {
+        expect(command).toContain('--depth 1');
+        if (callback) {
+          callback(null, { stdout: '', stderr: '' });
+        }
+        return {} as any;
+      });
+
+      await createMockIndex(tempDir);
+
+      const result = await refreshSnapshot({
+        projectPath: tempDir,
+        depth: 1,
+      });
+
+      expect(result.depth).toBe(1);
+    });
+
+    it('should accept valid depth value of 3', async () => {
+      mockExecImpl.mockImplementation((command: string, options: any, callback: any) => {
+        expect(command).toContain('--depth 3');
+        if (callback) {
+          callback(null, { stdout: '', stderr: '' });
+        }
+        return {} as any;
+      });
+
+      await createMockIndex(tempDir);
+
+      const result = await refreshSnapshot({
+        projectPath: tempDir,
+        depth: 3,
+      });
+
+      expect(result.depth).toBe(3);
+    });
+
+    it('should use default depth of 2 when not provided', async () => {
+      mockExecImpl.mockImplementation((command: string, options: any, callback: any) => {
+        // When depth=2, should use profile (which defaults to depth=2)
+        expect(command).toContain('--profile');
+        if (callback) {
+          callback(null, { stdout: '', stderr: '' });
+        }
+        return {} as any;
+      });
+
+      await createMockIndex(tempDir);
+
+      const result = await refreshSnapshot({
+        projectPath: tempDir,
+      });
+
+      expect(result.depth).toBe(2);
+    });
+
+    it('should handle depth as string and convert to number', async () => {
+      mockExecImpl.mockImplementation((command: string, options: any, callback: any) => {
+        expect(command).toContain('--depth 1');
+        if (callback) {
+          callback(null, { stdout: '', stderr: '' });
+        }
+        return {} as any;
+      });
+
+      await createMockIndex(tempDir);
+
+      const result = await refreshSnapshot({
+        projectPath: tempDir,
+        depth: '1' as any,
+      });
+
+      expect(result.depth).toBe(1);
+    });
+  });
+
+  describe('error code preservation', () => {
+    it('should preserve error code from exec errors', async () => {
+      const testError: any = new Error('Command failed');
+      testError.code = 'ENOENT';
+
+      mockExecImpl.mockImplementation((command: string, options: any, callback: any) => {
+        if (callback) {
+          // exec callback signature: (error, stdout, stderr)
+          callback(testError, 'stdout content', 'stderr content');
+        }
+        return {} as any;
+      });
+
+      await createMockIndex(tempDir);
+
+      try {
+        await refreshSnapshot({ projectPath: tempDir });
+        fail('Should have thrown error');
+      } catch (error: any) {
+        expect(error.message).toContain('Failed to refresh snapshot');
+        // Error code should be preserved
+        expect(error.code).toBe('ENOENT');
+        // stdout and stderr are preserved as strings by execWithTimeout
+        expect(error.stdout).toBe('stdout content');
+        expect(error.stderr).toBe('stderr content');
+      }
+    });
+
+    it('should preserve stdout and stderr from exec errors', async () => {
+      const testError: any = new Error('Command failed');
+
+      mockExecImpl.mockImplementation((command: string, options: any, callback: any) => {
+        if (callback) {
+          // exec callback signature: (error, stdout, stderr)
+          callback(testError, 'command output', 'command errors');
+        }
+        return {} as any;
+      });
+
+      await createMockIndex(tempDir);
+
+      try {
+        await refreshSnapshot({ projectPath: tempDir });
+        fail('Should have thrown error');
+      } catch (error: any) {
+        expect(error.stdout).toBe('command output');
+        expect(error.stderr).toBe('command errors');
+      }
     });
   });
 });
