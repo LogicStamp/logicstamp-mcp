@@ -2,6 +2,10 @@
 
 Thank you for your interest in contributing! This guide will help you get started.
 
+## Code of Conduct
+
+This project adheres to a [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to logicstamp.dev@gmail.com.
+
 ## Development Setup
 
 ### Prerequisites
@@ -199,7 +203,7 @@ If you already ran `npm link` during installation (see [Installation](#installat
 2. **Verify it's linked:**
    ```bash
    npm list -g logicstamp-mcp
-   # Should show: logicstamp-mcp@0.1.2 -> /path/to/logicstamp-mcp
+   # Should show: logicstamp-mcp@0.1.4 -> /path/to/logicstamp-mcp
    ```
 
 3. **Your MCP clients will automatically use the local version** if they're configured with `npx logicstamp-mcp` (which is the standard configuration). No additional configuration needed!
@@ -415,9 +419,6 @@ When adding features, update:
 - Configuration file support
 - Multiple project support
 
-## Code of Conduct
-
-Be respectful, inclusive, and constructive in all interactions.
 
 ## License
 

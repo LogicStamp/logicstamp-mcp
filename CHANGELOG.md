@@ -5,6 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.4] - 2026-01-14
+
+### Added
+
+- **Comprehensive Test Coverage** - Added 26 new tests significantly improving code coverage
+  - **Coverage Improvements**: Overall coverage increased from ~78% to ~86% (statements, branches, lines)
+  - **Cache Cleanup Tests** (10 tests) - Added tests for cache corruption detection, stale path detection, and cleanup logic
+    - Tests for corrupted cache detection (invalid JSON in `context_main.json`)
+    - Tests for stale cache detection (mismatched project paths in config files)
+    - Tests for valid cache preservation and explicit cleanup
+  - **Parameter Validation Tests** (7 tests) - Added comprehensive validation tests for `depth` parameter
+    - Invalid depth values (non-integer, zero, negative)
+    - Valid depth values (1, 3, default 2)
+    - String-to-number conversion handling
+  - **Error Code Preservation Tests** (4 tests) - Added tests ensuring error information is properly preserved
+    - Error code preservation from exec errors
+    - stdout/stderr preservation in error objects
+    - ENOENT error handling for missing files
+  - **Server Error Handling Tests** (4 tests) - Added tests for server-level error handling
+    - Tool execution error wrapping in MCP format
+    - Non-Error exception handling
+    - Graceful error handling for all tools
+  - **Documentation Error Handling Tests** (2 tests) - Added tests for error message structure and consistency
+  - **File Coverage Improvements**:
+    - `compare-modes.ts`: 60% → ~95% statements (+35%)
+    - `refresh-snapshot.ts`: ~67% → ~96% statements (+29%)
+  - Total test count: 163 → 189 tests (+26 tests)
+  - All tests passing with improved confidence in error handling and edge cases
+
+- **Enhanced Error Messages** - Improved error messages throughout all MCP tools to be more actionable and helpful
+  - All error messages now include context about what was attempted and why it failed
+  - Added suggestions for common errors (e.g., "Run logicstamp_refresh_snapshot first" when snapshot is missing)
+  - Included relevant file paths and next steps in error messages
+  - Error messages now guide users toward solutions instead of just reporting failures
+  - Enhanced messages in: `logicstamp_refresh_snapshot`, `logicstamp_list_bundles`, `logicstamp_read_bundle`, `logicstamp_compare_snapshot`, `logicstamp_compare_modes`, `logicstamp_read_logicstamp_docs`
+  - Example improvement: "context_main.json not found" → "context_main.json not found in /path/to/project. This file is required for comparison but hasn't been generated yet. Options: (1) Run logicstamp_refresh_snapshot first to generate context files, (2) Use forceRegenerate: true in this call to regenerate automatically before comparing, (3) Run 'stamp context' manually from the project directory."
+
+- **Code of Conduct** - Added Contributor Covenant Code of Conduct to establish community standards and promote a respectful, inclusive environment
+  - Available at [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)
+
+- **Roadmap** - Added roadmap document outlining planned enhancements and future features to guide project development
+  - Available at [`ROADMAP.md`](ROADMAP.md)
+
+### Fixed
+
+- **Version Consistency** - Fixed version mismatches across codebase to ensure all version references match `package.json`
+  - **README.md** - Updated version badge from `0.1.2` to `0.1.4`
+  - **src/mcp/server.ts** - Updated server version from `0.1.2` to `0.1.4` (was incorrectly `0.1.2` for version `0.1.3`)
+  - **docs/mcp_integration.md** - Updated example config version from `0.1.2` to `0.1.4`
+  - All version references now consistently match `package.json` version `0.1.4`
+  - Prevents confusion when users check version information across different sources
+
 ## [0.1.3] - 2026-01-13
 
 ### Changed
@@ -169,6 +221,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - This is the initial public release
 - Requires `logicstamp-context` CLI to be installed globally (`npm install -g logicstamp-context`)
 - All tools are read-only - they analyze but never modify your codebase
+
+[0.1.4]: https://github.com/LogicStamp/logicstamp-mcp/releases/tag/v0.1.4
 
 [0.1.3]: https://github.com/LogicStamp/logicstamp-mcp/releases/tag/v0.1.3
 

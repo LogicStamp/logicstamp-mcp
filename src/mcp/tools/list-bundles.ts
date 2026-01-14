@@ -17,7 +17,11 @@ export async function listBundles(input: ListBundlesInput): Promise<ListBundlesO
   const snapshot = stateManager.getSnapshot(input.snapshotId);
 
   if (!snapshot) {
-    throw new Error(`Snapshot not found: ${input.snapshotId}`);
+    throw new Error(
+      `Snapshot not found: ${input.snapshotId}. ` +
+      `The snapshot may have expired (snapshots expire after 1 hour) or was never created. ` +
+      `Run logicstamp_refresh_snapshot first to create a new snapshot, then use the returned snapshotId.`
+    );
   }
 
   try {
@@ -74,8 +78,12 @@ export async function listBundles(input: ListBundlesInput): Promise<ListBundlesO
       bundles,
     };
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     throw new Error(
-      `Failed to list bundles: ${error instanceof Error ? error.message : String(error)}`
+      `Failed to list bundles for snapshot ${input.snapshotId}. ` +
+      `Error: ${errorMessage}. ` +
+      `Ensure the snapshot exists and context_main.json is readable at ${snapshot?.contextDir || 'unknown path'}. ` +
+      `If the snapshot expired, run logicstamp_refresh_snapshot to create a new one.`
     );
   }
 }

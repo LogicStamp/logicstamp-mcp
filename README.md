@@ -6,7 +6,7 @@
 
   <br/>
 
-  ![Version](https://img.shields.io/badge/version-0.1.2-blue.svg) ![Beta](https://img.shields.io/badge/status-beta-orange.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg) ![Node](https://img.shields.io/badge/node-%3E%3D18.18.0-brightgreen.svg) [![CI](https://github.com/LogicStamp/logicstamp-mcp/workflows/CI/badge.svg)](https://github.com/LogicStamp/logicstamp-mcp/actions)
+  ![Version](https://img.shields.io/badge/version-0.1.4-blue.svg) ![Beta](https://img.shields.io/badge/status-beta-orange.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg) ![Node](https://img.shields.io/badge/node-%3E%3D18.18.0-brightgreen.svg) [![CI](https://github.com/LogicStamp/logicstamp-mcp/workflows/CI/badge.svg)](https://github.com/LogicStamp/logicstamp-mcp/actions)
 
   <br/>
 
@@ -300,9 +300,17 @@ These assets may not be used for third-party branding, logos, or commercial iden
 
 Contributions welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
+## Community
+
+This project follows a [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you agree to uphold it.
+
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for a detailed list of changes and version history.
+
+## Roadmap
+
+See [ROADMAP.md](ROADMAP.md) for planned enhancements and future features.
 
 ## Links
 

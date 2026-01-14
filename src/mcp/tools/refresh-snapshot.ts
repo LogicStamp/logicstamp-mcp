@@ -102,16 +102,23 @@ export async function refreshSnapshot(input: RefreshSnapshotInput): Promise<Refr
   const depth = (input.depth !== undefined && input.depth !== null) ? Number(input.depth) : 2; // Default to 2
   // Validate depth is a positive integer
   if (!Number.isInteger(depth) || depth < 1) {
-    throw new Error(`Invalid depth parameter: ${input.depth}. Depth must be a positive integer (1 or higher).`);
+    throw new Error(
+      `Invalid depth parameter: ${input.depth}. ` +
+      `Depth must be a positive integer (1 or higher). ` +
+      `Depth controls dependency traversal: depth=1 includes only direct dependencies, ` +
+      `depth=2 includes nested components (recommended for React projects).`
+    );
   }
   
   // CRITICAL: projectPath is now REQUIRED in the schema
   // If it's missing, throw a clear error instead of hanging
   if (!input.projectPath) {
     throw new Error(
-      'projectPath is REQUIRED. The MCP client must provide the absolute path to the project root. ' +
+      'projectPath parameter is REQUIRED but was not provided. ' +
+      'The MCP client must provide the absolute path to the project root. ' +
       'When stamp init has been run, some MCP clients may omit this parameter, causing hangs. ' +
-      'Please ensure your MCP client is configured to always send projectPath.'
+      'Please ensure your MCP client is configured to always send projectPath. ' +
+      'Example: { "projectPath": "/absolute/path/to/project" }'
     );
   }
   
@@ -171,12 +178,18 @@ export async function refreshSnapshot(input: RefreshSnapshotInput): Promise<Refr
       // If file read fails, provide helpful error message
       const readErrorMessage = readError instanceof Error ? readError.message : String(readError);
       throw new Error(
-        `Failed to read context_main.json after stamp context execution.\n` +
-        `Command completed successfully, but file not found at: ${contextMainPath}\n` +
+        `Failed to read context_main.json after stamp context execution. ` +
+        `The command completed successfully, but the expected file was not found.\n\n` +
+        `File path: ${contextMainPath}\n` +
         `Working directory: ${projectPath}\n` +
-        `Command output: ${execResult.stdout}\n` +
-        `Command errors: ${execResult.stderr}\n` +
-        `Read error: ${readErrorMessage}`
+        `Read error: ${readErrorMessage}\n\n` +
+        `Possible causes: ` +
+        `(1) The stamp CLI may have failed silently - check command output below, ` +
+        `(2) File permissions issue - ensure the directory is writable, ` +
+        `(3) The CLI may have written to a different location.\n\n` +
+        `Command stdout: ${execResult.stdout || '(empty)'}\n` +
+        `Command stderr: ${execResult.stderr || '(empty)'}\n\n` +
+        `Try running 'stamp context' manually from ${projectPath} to diagnose the issue.`
       );
     }
 

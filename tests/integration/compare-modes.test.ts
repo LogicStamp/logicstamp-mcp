@@ -478,5 +478,172 @@ describe('compareModes integration tests', () => {
       expect(result).toBeDefined();
       expect(result.projectPath).toBe(tempDir);
     });
+
+    it('should detect corrupted cache when context_main.json is invalid JSON', async () => {
+      const { writeFile, mkdir } = await import('fs/promises');
+      const { join } = await import('path');
+      
+      // Create corrupted context_main.json
+      const logicstampDir = join(tempDir, '.logicstamp');
+      await mkdir(logicstampDir, { recursive: true });
+      await writeFile(join(tempDir, 'context_main.json'), 'invalid json {');
+      
+      // Create a mock index after cache cleanup would occur
+      await createMockIndex(tempDir);
+
+      // Should detect corruption and clean cache
+      const result = await compareModes({ projectPath: tempDir });
+      
+      expect(result).toBeDefined();
+      expect(result.projectPath).toBe(tempDir);
+    });
+
+    it('should detect stale cache when config has mismatched projectPath', async () => {
+      const { writeFile, mkdir } = await import('fs/promises');
+      const { join } = await import('path');
+      
+      // Create .logicstamp directory with stale config
+      const logicstampDir = join(tempDir, '.logicstamp');
+      await mkdir(logicstampDir, { recursive: true });
+      
+      // Create a config file with stale projectPath
+      const staleConfig = {
+        projectPath: '/some/other/path',
+        version: '1.0.0',
+      };
+      await writeFile(join(logicstampDir, 'config.json'), JSON.stringify(staleConfig));
+      
+      await createMockIndex(tempDir);
+
+      // Should detect stale path and clean cache
+      const result = await compareModes({ projectPath: tempDir });
+      
+      expect(result).toBeDefined();
+      expect(result.projectPath).toBe(tempDir);
+    });
+
+    it('should not clean cache when cache is valid', async () => {
+      const { writeFile, mkdir } = await import('fs/promises');
+      const { join } = await import('path');
+      
+      // Create valid cache
+      const logicstampDir = join(tempDir, '.logicstamp');
+      await mkdir(logicstampDir, { recursive: true });
+      
+      const validConfig = {
+        projectPath: tempDir,
+        version: '1.0.0',
+      };
+      await writeFile(join(logicstampDir, 'config.json'), JSON.stringify(validConfig));
+      
+      await createMockIndex(tempDir);
+
+      // Should not clean valid cache
+      const result = await compareModes({ projectPath: tempDir });
+      
+      expect(result).toBeDefined();
+      expect(result.projectPath).toBe(tempDir);
+    });
+
+    it('should clean cache when cleanCache is explicitly true', async () => {
+      const { writeFile, mkdir } = await import('fs/promises');
+      const { join } = await import('path');
+      
+      // Create cache directory
+      const logicstampDir = join(tempDir, '.logicstamp');
+      await mkdir(logicstampDir, { recursive: true });
+      await writeFile(join(logicstampDir, 'some-file.txt'), 'cache content');
+      
+      await createMockIndex(tempDir);
+
+      // Should clean cache when explicitly requested
+      const result = await compareModes({ 
+        projectPath: tempDir,
+        cleanCache: true 
+      });
+      
+      expect(result).toBeDefined();
+      expect(result.projectPath).toBe(tempDir);
+    });
+  });
+
+  describe('error code preservation', () => {
+    it('should preserve error code from exec errors', async () => {
+      const testError: any = new Error('Command failed');
+      testError.code = 'ENOENT';
+
+      mockExecImpl.mockImplementation((command: string, options: any, callback: any) => {
+        if (callback) {
+          // exec callback signature: (error, stdout, stderr)
+          callback(testError, 'stdout content', 'stderr content');
+        }
+        return {} as any;
+      });
+
+      await createMockIndex(tempDir);
+
+      try {
+        await compareModes({ projectPath: tempDir });
+        fail('Should have thrown error');
+      } catch (error: any) {
+        expect(error.message).toContain('Failed to generate compare modes data');
+        // Error code should be preserved
+        expect(error.code).toBe('ENOENT');
+        // stdout and stderr are preserved as strings by execWithTimeout
+        expect(error.stdout).toBe('stdout content');
+        expect(error.stderr).toBe('stderr content');
+      }
+    });
+
+    it('should preserve stdout and stderr from exec errors', async () => {
+      const testError: any = new Error('Command failed');
+
+      mockExecImpl.mockImplementation((command: string, options: any, callback: any) => {
+        if (callback) {
+          // exec callback signature: (error, stdout, stderr)
+          callback(testError, 'command output', 'command errors');
+        }
+        return {} as any;
+      });
+
+      await createMockIndex(tempDir);
+
+      try {
+        await compareModes({ projectPath: tempDir });
+        fail('Should have thrown error');
+      } catch (error: any) {
+        expect(error.stdout).toBe('command output');
+        expect(error.stderr).toBe('command errors');
+      }
+    });
+
+    it('should handle ENOENT errors for missing context_compare_modes.json specifically', async () => {
+      const testError: any = new Error('ENOENT: no such file or directory, open \'context_compare_modes.json\'');
+      testError.code = 'ENOENT';
+
+      mockExecImpl.mockImplementation((command: string, options: any, callback: any) => {
+        if (command.includes('--compare-modes --stats')) {
+          // Don't create the file - simulate it missing
+          if (callback) {
+            callback(null, { stdout: '', stderr: '' });
+          }
+        } else {
+          if (callback) {
+            callback(null, { stdout: '', stderr: '' });
+          }
+        }
+        return {} as any;
+      });
+
+      await createMockIndex(tempDir);
+
+      try {
+        await compareModes({ projectPath: tempDir });
+        fail('Should have thrown error');
+      } catch (error: any) {
+        expect(error.message).toContain('context_compare_modes.json');
+        expect(error.message).toContain('not found');
+      }
+    });
   });
 });

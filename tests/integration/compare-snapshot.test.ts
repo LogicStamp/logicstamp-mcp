@@ -342,7 +342,7 @@ describe('compareSnapshot integration tests', () => {
       });
 
       expect(result.status).toBe('error');
-      expect(result.error).toContain('Git baseline not yet implemented');
+      expect(result.error).toContain('Git baseline comparison is not yet implemented');
     });
   });
 
@@ -452,7 +452,7 @@ describe('compareSnapshot integration tests', () => {
 
       expect(result.status).toBe('error');
       expect(result.error).toMatch(/context_main\.json not found/);
-      expect(result.error).toMatch(/Run.*stamp context.*or.*refresh_snapshot/);
+      expect(result.error).toMatch(/Run.*logicstamp_refresh_snapshot|stamp context/);
       expect(result.error).toMatch(/forceRegenerate.*true/);
     });
 

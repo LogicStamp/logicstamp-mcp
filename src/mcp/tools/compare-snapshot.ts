@@ -110,7 +110,12 @@ export async function compareSnapshot(input: CompareSnapshotInput): Promise<Comp
   const depth = input.depth !== undefined && input.depth !== null ? Number(input.depth) : 2;
   // Validate depth is a positive integer
   if (!Number.isInteger(depth) || depth < 1) {
-    throw new Error(`Invalid depth parameter: ${input.depth}. Depth must be a positive integer (1 or higher).`);
+    throw new Error(
+      `Invalid depth parameter: ${input.depth}. ` +
+      `Depth must be a positive integer (1 or higher). ` +
+      `Depth controls dependency traversal: depth=1 includes only direct dependencies, ` +
+      `depth=2 includes nested components (recommended for React projects).`
+    );
   }
   // Completely independent: includeStyle only affects CLI flag, forceRegenerate controls regeneration
   const forceRegenerate = input.forceRegenerate || false;
@@ -127,7 +132,11 @@ export async function compareSnapshot(input: CompareSnapshotInput): Promise<Comp
     if (baseline === 'snapshot') {
       const snapshot = stateManager.getCurrentSnapshot();
       if (!snapshot) {
-        throw new Error('No snapshot found. Run logicstamp_refresh_snapshot first.');
+        throw new Error(
+          'No snapshot found for comparison. ' +
+          'Run logicstamp_refresh_snapshot first to create a baseline snapshot, ' +
+          'or use baseline: "disk" to compare against the current disk state.'
+        );
       }
       baselinePath = snapshot.contextDir;
     } else if (baseline === 'disk') {
@@ -136,13 +145,21 @@ export async function compareSnapshot(input: CompareSnapshotInput): Promise<Comp
       const snapshot = stateManager.getCurrentSnapshot();
       if (!snapshot) {
         throw new Error(
-          'No snapshot found for disk comparison. Run logicstamp_refresh_snapshot first to create a baseline.'
+          'No snapshot found for disk comparison. ' +
+          'Run logicstamp_refresh_snapshot first to create a baseline snapshot. ' +
+          'The snapshot is required to compare the current disk state against a previous state.'
         );
       }
       baselinePath = snapshot.contextDir;
     } else if (baseline.startsWith('git:')) {
       // Future: support git baselines
-      throw new Error(`Git baseline not yet implemented: ${baseline}`);
+      const gitRef = baseline.replace('git:', '');
+      throw new Error(
+        `Git baseline comparison is not yet implemented. ` +
+        `Requested git reference: ${gitRef}. ` +
+        `Please use baseline: "disk" or baseline: "snapshot" instead. ` +
+        `See ROADMAP.md for planned git baseline support.`
+      );
     } else {
       // Assume it's a path
       baselinePath = resolve(baseline);
@@ -206,7 +223,14 @@ export async function compareSnapshot(input: CompareSnapshotInput): Promise<Comp
           currentIndex = JSON.parse(currentContextMainContent);
         } catch (parseError) {
           // Invalid JSON - return error
-          throw new Error(`Invalid JSON in ${currentContextMainPath}: ${parseError instanceof Error ? parseError.message : String(parseError)}`);
+          const parseErrorMessage = parseError instanceof Error ? parseError.message : String(parseError);
+          throw new Error(
+            `Invalid JSON in context_main.json at ${currentContextMainPath}. ` +
+            `The file may be corrupted or incomplete. ` +
+            `Error: ${parseErrorMessage}. ` +
+            `Try running logicstamp_refresh_snapshot with cleanCache: true to regenerate the context files, ` +
+            `or use forceRegenerate: true in this call to regenerate automatically.`
+          );
         }
       } catch (error) {
         // Check if it's a file not found error
@@ -216,8 +240,11 @@ export async function compareSnapshot(input: CompareSnapshotInput): Promise<Comp
           // Fail loudly with a clear error message rather than assuming "all folders removed"
           throw new Error(
             `context_main.json not found in ${projectPath}. ` +
-            `Run 'stamp context' or 'logicstamp_refresh_snapshot' first to generate context files, ` +
-            `or use forceRegenerate: true to regenerate automatically.`
+            `This file is required for comparison but hasn't been generated yet. ` +
+            `Options: ` +
+            `(1) Run logicstamp_refresh_snapshot first to generate context files, ` +
+            `(2) Use forceRegenerate: true in this call to regenerate automatically before comparing, ` +
+            `(3) Run 'stamp context' manually from the project directory.`
           );
         }
         // Other errors should be re-thrown

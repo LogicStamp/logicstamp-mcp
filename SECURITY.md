@@ -114,7 +114,7 @@ The server validates project paths, but users should:
 ### Security Updates
 
 Security updates will be:
-- Released as patch versions (e.g., 0.1.1, 0.1.2)
+- Released as patch versions (e.g., 0.1.x)
 - Documented in CHANGELOG.md (if applicable)
 - Announced via GitHub releases
 - Prioritized over feature updates

@@ -27,7 +27,7 @@ export function createServer(): Server {
   const server = new Server(
     {
       name: 'logicstamp-mcp',
-      version: '0.1.2',
+      version: '0.1.4',
     },
     {
       capabilities: {

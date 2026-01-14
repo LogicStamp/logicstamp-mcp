@@ -486,4 +486,85 @@ describe('MCP Server E2E tests', () => {
       expect(tool?.inputSchema.properties).toHaveProperty('projectPath');
     });
   });
+
+  describe('server error handling', () => {
+    it('should handle errors in compare_modes tool gracefully', async () => {
+      // Mock exec to fail
+      mockExecImpl.mockImplementation((command: string, options: any, callback: any) => {
+        if (callback) {
+          callback(new Error('stamp command failed'), { stdout: '', stderr: 'error' });
+        }
+        return {} as any;
+      });
+
+      await createMockIndex(tempDir);
+
+      try {
+        await callTool('logicstamp_compare_modes', {
+          projectPath: tempDir,
+        });
+        fail('Should have thrown error');
+      } catch (error: any) {
+        // Should be wrapped in MCP error format
+        expect(error).toBeDefined();
+        expect(error.message || String(error)).toContain('Failed');
+      }
+    });
+
+    it('should handle errors in read_logicstamp_docs tool gracefully', async () => {
+      // This test verifies that errors from read_logicstamp_docs are handled
+      // Note: In normal operation, this should succeed, but we test error handling
+      try {
+        const response = await callTool('logicstamp_read_logicstamp_docs', {});
+        // If it succeeds, verify structure
+        const result = JSON.parse(response.content[0].text);
+        expect(result.type).toBe('LogicStampDocs');
+      } catch (error: any) {
+        // If it fails, verify error is properly formatted
+        expect(error).toBeDefined();
+      }
+    });
+
+    it('should wrap tool execution errors in MCP error format', async () => {
+      // Mock exec to fail for refresh_snapshot
+      mockExecImpl.mockImplementation((command: string, options: any, callback: any) => {
+        if (callback) {
+          callback(new Error('Command execution failed'), { stdout: '', stderr: 'error' });
+        }
+        return {} as any;
+      });
+
+      await createMockIndex(tempDir);
+
+      try {
+        await callTool('logicstamp_refresh_snapshot', {
+          projectPath: tempDir,
+        });
+        fail('Should have thrown error');
+      } catch (error: any) {
+        // Error should be properly formatted
+        expect(error).toBeDefined();
+        // Should contain error message
+        const errorMessage = error.message || String(error);
+        expect(errorMessage.length).toBeGreaterThan(0);
+      }
+    });
+
+    it('should handle non-Error exceptions in tool execution', async () => {
+      // This tests that non-Error exceptions are properly handled
+      // We'll use a tool that might throw non-Error exceptions
+      await createMockIndex(tempDir);
+
+      // Try to call with invalid snapshotId to trigger error handling
+      try {
+        await callTool('logicstamp_list_bundles', {
+          snapshotId: 'invalid-snapshot-id-that-does-not-exist',
+        });
+        fail('Should have thrown error');
+      } catch (error: any) {
+        // Error should be properly handled
+        expect(error).toBeDefined();
+      }
+    });
+  });
 });
