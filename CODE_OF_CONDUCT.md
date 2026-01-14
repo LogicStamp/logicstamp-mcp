@@ -1,4 +1,4 @@
-# Contributor Covenant Code of Conduct
+# Code of Conduct
 
 ## Our Pledge
 
@@ -8,26 +8,27 @@ We commit to acting in ways that contribute to an open, welcoming, diverse, incl
 
 ## Scope
 
-This Code of Conduct applies to all community spaces (GitHub issues, pull requests, discussions) and when officially representing the community in public spaces.
+This Code of Conduct applies to all official community spaces (GitHub issues, pull requests, discussions) and when officially representing the community in public spaces.
 
 ## Enforcement
 
-The project maintainer(s) are responsible for enforcing these standards. They may remove, edit, or reject contributions that violate this Code of Conduct and will communicate moderation decisions when appropriate.
+The project maintainer(s) are responsible for enforcing these standards, and additional moderators may be designated as the project grows.
+They may remove, edit, or reject contributions that violate this Code of Conduct and will communicate moderation decisions when appropriate.
 
 **Reporting:** Report violations to logicstamp.dev@gmail.com. All complaints will be reviewed promptly and fairly. Reporter privacy will be respected.
 
 **Enforcement Guidelines:**
 
-1. **Correction** — Inappropriate language or unprofessional behavior
+1. **Correction** - Inappropriate language or unprofessional behavior
    - Private written warning with explanation; public apology may be requested
 
-2. **Warning** — Single incident or series of violations
+2. **Warning** - Single incident or series of violations
    - Warning with consequences; no interaction with involved parties for a specified period; violation may lead to ban
 
-3. **Temporary Ban** — Serious or sustained violations
+3. **Temporary Ban** - Serious or sustained violations
    - Temporary ban from all community interaction; no contact with involved parties; violation may lead to permanent ban
 
-4. **Permanent Ban** — Pattern of violations, harassment, or aggression toward individuals or groups
+4. **Permanent Ban** - Pattern of violations, harassment, or aggression toward individuals or groups
    - Permanent ban from all community interaction
 
 ## Attribution
