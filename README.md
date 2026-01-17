@@ -8,7 +8,7 @@
     </picture>
   </a>
 
-  <img src="./assets/logicstamp-fox.svg" alt="LogicStamp Fox Mascot" width="100" style="min-width: 80px;>
+  <img src="./assets/logicstamp-fox.svg" alt="LogicStamp Fox Mascot" width="100" style="min-width: 80px;">
 
   <br/>
 
