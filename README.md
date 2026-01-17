@@ -10,11 +10,6 @@
 
   <br/>
 
-  **Model Context Protocol (MCP) server for [LogicStamp Context](https://github.com/LogicStamp/logicstamp-context) - enabling AI assistants to safely analyze and understand React/TypeScript codebases.**
-
-  <br/>
-  <br/>
-
   <a href="https://github.com/LogicStamp">
     <img src="./assets/logicstamp-fox.svg" alt="LogicStamp Fox Mascot" width="100" style="min-width: 80px;">
   </a>
@@ -22,6 +17,8 @@
   ![Version](https://img.shields.io/badge/version-0.1.4-blue.svg) ![Beta](https://img.shields.io/badge/status-beta-orange.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg) ![Node](https://img.shields.io/badge/node-%3E%3D18.18.0-brightgreen.svg) [![CI](https://github.com/LogicStamp/logicstamp-mcp/workflows/CI/badge.svg)](https://github.com/LogicStamp/logicstamp-mcp/actions)
 
   <br/>
+
+  **Model Context Protocol (MCP) server for [LogicStamp Context](https://github.com/LogicStamp/logicstamp-context) - enabling AI assistants to safely analyze and understand React/TypeScript codebases.**
 
 </div>
 
