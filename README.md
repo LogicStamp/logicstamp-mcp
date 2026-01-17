@@ -8,7 +8,9 @@
     </picture>
   </a>
 
-  <img src="./assets/logicstamp-fox.svg" alt="LogicStamp Fox Mascot" width="100" style="min-width: 80px;">
+  <a href="https://github.com/LogicStamp">
+    <img src="./assets/logicstamp-fox.svg" alt="LogicStamp Fox Mascot" width="100" style="min-width: 80px;">
+  </a>
 
   <br/>
 
