@@ -1,8 +1,14 @@
-# LogicStamp MCP Server
-
 <div align="center">
 
-  <img src="./assets/logicstamp-fox.svg" alt="LogicStamp Fox Mascot" width="120">
+  <a href="https://logicstamp.dev">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="assets/logicstamp-woodmark-dark.png">
+      <source media="(prefers-color-scheme: light)" srcset="assets/logicstamp-woodmark-light.png">
+      <img src="assets/logicstamp-woodmark-light.png" alt="LogicStamp" width="400" height="auto">
+    </picture>
+  </a>
+
+  <img src="./assets/logicstamp-fox.svg" alt="LogicStamp Fox Mascot" width="100" style="min-width: 80px;>
 
   <br/>
 
