@@ -290,7 +290,7 @@ npm uninstall -g logicstamp-context
 
 ### Manual Testing Checklist
 
-- [ ] All 6 tools work correctly
+- [ ] All 7 tools work correctly
 - [ ] Error messages are helpful
 - [ ] Snapshot cache works across multiple calls
 - [ ] Performance is acceptable for large projects

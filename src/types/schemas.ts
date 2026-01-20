@@ -86,6 +86,7 @@ export interface RefreshSnapshotInput {
   depth?: number; // Dependency traversal depth (default: profile default, typically 2)
   projectPath: string; // REQUIRED: Absolute path to project root
   cleanCache?: boolean; // Manually force cache cleanup (default: false, auto-detects corruption)
+  skipIfWatchActive?: boolean; // Skip regeneration if watch mode is active (default: false). When true and watch mode is running, just reads existing context files.
 }
 
 export interface RefreshSnapshotOutput {
@@ -109,6 +110,12 @@ export interface RefreshSnapshotOutput {
     missingDependencies: string[];
   };
   folders: FolderMetadata[];
+  watchMode?: {
+    active: boolean;
+    message: string;
+    pid?: number;
+    startedAt?: string;
+  };
 }
 
 export interface FolderMetadata {
@@ -122,14 +129,17 @@ export interface FolderMetadata {
 
 // Tool 2: list_bundles
 export interface ListBundlesInput {
-  snapshotId: string;
+  snapshotId?: string; // Optional when watch mode is active
+  projectPath?: string; // Required when snapshotId is not provided (for watch mode direct access)
   folderPrefix?: string;
 }
 
 export interface ListBundlesOutput {
-  snapshotId: string;
+  snapshotId?: string; // May be undefined when using watch mode direct access
+  projectPath: string; // Always present
   totalBundles: number;
   bundles: BundleDescriptor[];
+  watchMode?: boolean; // True when accessed via watch mode direct access
 }
 
 export interface BundleDescriptor {
@@ -145,17 +155,20 @@ export interface BundleDescriptor {
 
 // Tool 3: read_bundle
 export interface ReadBundleInput {
-  snapshotId: string;
+  snapshotId?: string; // Optional when watch mode is active
+  projectPath?: string; // Required when snapshotId is not provided (for watch mode direct access)
   bundlePath: string;
   rootComponent?: string;
 }
 
 export interface ReadBundleOutput {
-  snapshotId: string;
+  snapshotId?: string; // May be undefined when using watch mode direct access
+  projectPath: string; // Always present
   bundlePath: string;
   rootComponent?: string;
   bundle?: LogicStampBundle; // Present when reading a bundle file
   index?: LogicStampIndex; // Present when reading context_main.json
+  watchMode?: boolean; // True when accessed via watch mode direct access
 }
 
 // Tool 4: compare_snapshot
@@ -289,4 +302,60 @@ export interface EventType {
 export interface ExportMetadata {
   default?: string;
   named?: string[];
+}
+
+// ============================================================================
+// Watch Mode Types
+// ============================================================================
+
+/**
+ * Watch mode status file structure (.logicstamp/context_watch-status.json)
+ * Created when watch mode starts, deleted when it stops
+ */
+export interface WatchStatus {
+  active: boolean;
+  projectRoot: string;
+  pid: number;
+  startedAt: string; // ISO timestamp
+  outputDir: string;
+}
+
+/**
+ * Watch mode log entry structure (.logicstamp/context_watch-mode-logs.json)
+ * Each entry represents one regeneration event
+ */
+export interface WatchLogEntry {
+  timestamp: string; // ISO timestamp
+  changedFiles: string[];
+  fileCount: number;
+  durationMs: number;
+  modifiedContracts?: Array<{
+    entryId: string;
+    changes?: string[];
+  }>;
+  modifiedBundles?: Array<{
+    entryId: string;
+    changes?: string[];
+  }>;
+  summary: {
+    modifiedContractsCount: number;
+    modifiedBundlesCount: number;
+    addedContractsCount: number;
+    removedContractsCount: number;
+  };
+}
+
+// Tool: watch_status
+export interface WatchStatusInput {
+  projectPath: string; // REQUIRED: Absolute path to project root
+  includeRecentLogs?: boolean; // Include recent watch log entries (default: false)
+  logLimit?: number; // Max number of recent log entries to return (default: 5)
+}
+
+export interface WatchStatusOutput {
+  projectPath: string;
+  watchModeActive: boolean;
+  status?: WatchStatus; // Only present if watch mode is active
+  recentLogs?: WatchLogEntry[]; // Only present if includeRecentLogs is true and logs exist
+  message: string; // Human-readable status message
 }

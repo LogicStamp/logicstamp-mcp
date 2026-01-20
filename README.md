@@ -14,11 +14,11 @@
     <img src="./assets/logicstamp-fox.svg" alt="LogicStamp Fox Mascot" width="100" style="min-width: 80px;">
   </a>
 
-  ![Version](https://img.shields.io/badge/version-0.1.4-8b5cf6.svg) ![Beta](https://img.shields.io/badge/status-beta-orange.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg) ![Node](https://img.shields.io/badge/node-%3E%3D18.18.0-brightgreen.svg) [![CI](https://github.com/LogicStamp/logicstamp-mcp/workflows/CI/badge.svg)](https://github.com/LogicStamp/logicstamp-mcp/actions)
+  ![Version](https://img.shields.io/badge/version-0.1.5-8b5cf6.svg) ![Beta](https://img.shields.io/badge/status-beta-orange.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg) ![Node](https://img.shields.io/badge/node-%3E%3D18.18.0-brightgreen.svg) [![CI](https://github.com/LogicStamp/logicstamp-mcp/workflows/CI/badge.svg)](https://github.com/LogicStamp/logicstamp-mcp/actions)
 
   <br/>
 
-  **Model Context Protocol (MCP) server for [LogicStamp Context](https://github.com/LogicStamp/logicstamp-context) - enabling AI assistants to safely analyze and understand React/TypeScript codebases.**
+  **Model Context Protocol (MCP) server for [LogicStamp Context](https://github.com/LogicStamp/logicstamp-context) - enabling AI assistants to safely analyze and understand React/TypeScript codebases and Node.js backend applications (Express.js, NestJS).**
 
 </div>
 
@@ -43,7 +43,7 @@ This MCP server provides AI assistants with structured access to your codebase t
 
 ## Features
 
-### 6 Tools
+### 7 Tools
 
 1. **`logicstamp_refresh_snapshot`** - Analyze project and create snapshot
 2. **`logicstamp_list_bundles`** - List available component bundles
@@ -51,6 +51,7 @@ This MCP server provides AI assistants with structured access to your codebase t
 4. **`logicstamp_compare_snapshot`** - Detect changes after edits
 5. **`logicstamp_compare_modes`** - Generate token cost comparison across all modes
 6. **`logicstamp_read_logicstamp_docs`** - Read LogicStamp documentation
+7. **`logicstamp_watch_status`** - Check if watch mode is active (for incremental rebuilds)
 
 ### Key Benefits
 
@@ -58,6 +59,7 @@ This MCP server provides AI assistants with structured access to your codebase t
 - **Self-Verification** - AI verifies its own changes via drift detection
 - **Token-Efficient** - Only load bundles relevant to the task
 - **Safe by Default** - Changes must pass drift check before approval
+- **Watch Mode Aware** - Detects when `stamp context --watch` is running and skips regeneration (context is already fresh)
 
 ## Prerequisites
 
@@ -130,15 +132,16 @@ For more examples and workflows, see [Usage Examples](docs/mcp_integration.md#ll
 
 ## Tool Reference
 
-The MCP server provides 6 tools. For complete API documentation with input/output examples, see the [MCP Integration Guide](docs/mcp_integration.md#mcp-tools-mvp).
+The MCP server provides 7 tools. For complete API documentation with input/output examples, see the [MCP Integration Guide](docs/mcp_integration.md#mcp-tools-mvp).
 
 ### Quick Reference
 
 **logicstamp_refresh_snapshot** - Create a snapshot of the current codebase state (STEP 1)
-- Parameters: `profile` (optional), `mode` (optional), `includeStyle` (optional), `depth` (optional), `projectPath` (required), `cleanCache` (optional)
-- Returns: `snapshotId`, `summary`, `folders`
+- Parameters: `profile` (optional), `mode` (optional), `includeStyle` (optional), `depth` (optional), `projectPath` (required), `cleanCache` (optional), `skipIfWatchActive` (optional)
+- Returns: `snapshotId`, `summary`, `folders`, `watchMode` (if active)
 - **Always call this first** when analyzing a new repo
 - **Note:** `projectPath` is REQUIRED - must be an absolute path to the project root. Omitting this parameter can cause the server to hang.
+- **Watch Mode Optimization:** Set `skipIfWatchActive: true` to skip regeneration when watch mode is running. When watch mode (`stamp context --watch`) is active, context is already being kept fresh - no need to regenerate
 - **Depth Parameter:** By default, dependency graphs include nested components (depth=2). To include only direct dependencies, explicitly set `depth: 1`. The default depth=2 ensures nested components are included in dependency graphs.
 - Cache is automatically cleaned if corruption is detected
 
@@ -174,6 +177,12 @@ The MCP server provides 6 tools. For complete API documentation with input/outpu
 - Parameters: None
 - Returns: Complete LogicStamp documentation bundle
 - **Use this when confused** - explains LogicStamp, workflow, and best practices
+
+**logicstamp_watch_status** - Check if watch mode is active
+- Parameters: `projectPath` (required), `includeRecentLogs` (optional), `logLimit` (optional)
+- Returns: `watchModeActive`, `status` (if active), `recentLogs` (if requested), `message`
+- **Use this** to check if `stamp context --watch` is running before calling refresh_snapshot
+- **When watch mode is active:** Context is being kept fresh automatically via incremental rebuilds - you can skip regeneration and just read existing bundles
 
 ## Startup Ritual
 

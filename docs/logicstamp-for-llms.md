@@ -85,16 +85,49 @@ LogicStamp bundles are **pre-parsed, structured summaries** optimized for AI con
 - Debugging specific logic issues
 - The bundle doesn't contain enough detail for your task
 
+## Watch Mode Awareness
+
+**LogicStamp supports incremental watch mode** (`stamp context --watch`) which automatically regenerates context bundles when files change. The MCP server detects when watch mode is active and can skip expensive regeneration.
+
+### How Watch Mode Works
+
+1. **Watch mode runs in background** - User starts `stamp context --watch` in their terminal
+2. **Incremental rebuilds** - Only affected bundles are regenerated when files change (not entire project)
+3. **Context stays fresh** - Context files are always up-to-date
+
+### Using Watch Mode with MCP
+
+**Check if watch mode is active:**
+```typescript
+// Use logicstamp_watch_status to check
+watch_status({ projectPath: "..." })
+// Returns: { watchModeActive: true/false, status: {...}, message: "..." }
+```
+
+**Skip regeneration when watch mode is active:**
+```typescript
+// Set skipIfWatchActive=true to avoid redundant regeneration
+refresh_snapshot({ projectPath: "...", skipIfWatchActive: true })
+// If watch mode is active: Skips regeneration, reads existing context (fast)
+// If watch mode is NOT active: Normal regeneration (slow)
+```
+
+**Benefits:**
+- **Faster** - Skip expensive regeneration when context is already fresh
+- **Efficient** - Watch mode only rebuilds affected bundles, not entire project
+- **Smart** - MCP detects watch mode automatically and guides you
+
 ## The LogicStamp Workflow
 
 **Always follow this workflow when working with a new project:**
 
-1. **Start with `logicstamp_refresh_snapshot`**
+1. **Start with `logicstamp_refresh_snapshot`** (or check watch mode first)
+   - Use `skipIfWatchActive: true` if watch mode might be running (skips regeneration if context is already fresh)
    - This scans the project and generates all context files
    - Creates `context_main.json` (the main index) and `context/*.context.json` files (per-folder bundles)
    - Returns a `snapshotId` you'll use for subsequent calls
    - **Default:** The default depth=2 includes nested components (e.g., App → Hero → Button), ensuring you see the full component tree with contracts and styles for all nested components. This is recommended for most React/TypeScript projects with component hierarchies.
-   - **Example:** `{ "projectPath": "..." }` - Uses default depth=2. Set `depth: 1` if you only need direct dependencies (e.g., App → Hero but not Hero → Button).
+   - **Example:** `{ "projectPath": "...", "skipIfWatchActive": true }` - Uses default depth=2, skips regeneration if watch mode is active. Set `depth: 1` if you only need direct dependencies (e.g., App → Hero but not Hero → Button).
 
 2. **Discover bundles with `logicstamp_list_bundles`**
    - Lists all available bundles with their locations
@@ -315,16 +348,17 @@ LogicStamp Context automatically protects sensitive data in generated context fi
 
 ## Best Practices
 
-1. **Always start with `refresh_snapshot`** - Don't assume context files exist
-2. **Read `context_main.json` first** - Understand project structure before diving into bundles
-3. **Prefer bundles over raw code** - Use bundles for structure, raw code for implementation details
-4. **Use `list_bundles` before `read_bundle`** - Discover what's available first
-5. **Check token estimates** - Be aware of context size, especially for large projects
-6. **Use appropriate mode** - `header` for most cases, `full` only when needed
-7. **Understand missing dependencies** - External packages are normal, "file not found" needs fixing
-8. **Explicitly set `depth: 2` when needed** - If nested components are missing from bundles, regenerate with `depth: 2`. The LLM does NOT automatically detect this need.
-9. **Be aware of security** - If you see `"PRIVATE_DATA"` in bundles, secrets were detected and sanitized
-10. **Use `compare_modes` for optimization** - Understand token costs before generating large context files
+1. **Use `skipIfWatchActive: true`** - When calling `refresh_snapshot`, use this to skip regeneration if watch mode is keeping context fresh
+2. **Always start with `refresh_snapshot`** - Don't assume context files exist (but skip regeneration if watch mode is active)
+3. **Read `context_main.json` first** - Understand project structure before diving into bundles
+4. **Prefer bundles over raw code** - Use bundles for structure, raw code for implementation details
+5. **Use `list_bundles` before `read_bundle`** - Discover what's available first
+6. **Check token estimates** - Be aware of context size, especially for large projects
+7. **Use appropriate mode** - `header` for most cases, `full` only when needed
+8. **Understand missing dependencies** - External packages are normal, "file not found" needs fixing
+9. **Explicitly set `depth: 2` when needed** - If nested components are missing from bundles, regenerate with `depth: 2`. The LLM does NOT automatically detect this need.
+10. **Be aware of security** - If you see `"PRIVATE_DATA"` in bundles, secrets were detected and sanitized
+11. **Use `compare_modes` for optimization** - Understand token costs before generating large context files
 
 ## When You're Confused
 

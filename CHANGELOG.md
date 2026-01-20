@@ -5,6 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.5] - 2026-01-21
+
+### Added
+
+- **Watch Mode Awareness** - MCP server now detects and integrates with `stamp context --watch` incremental rebuild mode
+  - **New Tool: `logicstamp_watch_status`** - Check if watch mode is active for a project
+    - Returns watch status including PID, start time, and whether context is being kept fresh
+    - Optionally includes recent watch logs showing what files changed and what contracts/bundles were modified
+    - Helps AI assistants decide whether to skip regeneration
+  - **New Parameter: `skipIfWatchActive`** - Added to `logicstamp_refresh_snapshot`
+    - When `true` and watch mode is running, skips expensive regeneration and just reads existing context files
+    - Returns `watchMode` info in response indicating context is already fresh
+    - Recommended approach when watch mode is keeping context up-to-date via incremental rebuilds
+  - **Watch Mode Detection** - `logicstamp_refresh_snapshot` now detects active watch mode and includes status in response
+    - Reports `watchMode.active`, `watchMode.pid`, `watchMode.startedAt`, and helpful message
+    - Guides AI assistants to skip future regeneration calls when watch mode is active
+
+- **New Types** - Added TypeScript types for watch mode integration
+  - `WatchStatus` - Structure of `.logicstamp/context_watch-status.json`
+  - `WatchLogEntry` - Structure of watch log entries
+  - `WatchStatusInput` / `WatchStatusOutput` - Input/output types for the new tool
+
+- **Watch Mode Direct Access** - `logicstamp_list_bundles` and `logicstamp_read_bundle` now support direct disk access without a snapshotId
+  - **New Parameter: `projectPath`** - Provide project path instead of snapshotId for instant access when watch mode is active
+  - **snapshotId Now Optional** - When watch mode is active, LLMs can skip `refresh_snapshot` entirely and go directly to `list_bundles`/`read_bundle` with just `projectPath`
+  - **Zero-Cost Context Access** - When watch mode keeps context fresh, no regeneration or snapshot creation needed
+  - **Automatic Watch Mode Detection** - Tools detect watch mode status and indicate it in response with `watchMode: true`
+  - This enables the optimal workflow: `watch_status → list_bundles(projectPath) → read_bundle(projectPath)` without any regeneration step
+
+### Changed
+
+- **Tool Count** - Increased from 6 to 7 tools with addition of `logicstamp_watch_status`
+- **`skipIfWatchActive` Default Changed to `true`** - When watch mode is active, `logicstamp_refresh_snapshot` now automatically skips regeneration by default
+  - Previously defaulted to `false`, requiring explicit opt-in
+  - Now defaults to `true` for zero-cost instant context access when watch mode is running
+  - Set `skipIfWatchActive: false` to force regeneration even when watch mode is active
+- **Tool Descriptions Rewritten for Watch Mode Workflow** - All tool descriptions now prominently guide LLMs to check watch status first
+  - **`logicstamp_watch_status`** - Now marked as "⚠️ CALL THIS FIRST before any other LogicStamp tool!" with clear decision tree
+  - **`logicstamp_refresh_snapshot`** - Now warns "⚠️ FIRST: Call logicstamp_watch_status" and lists when to skip this tool
+  - **`logicstamp_list_bundles`** and **`logicstamp_read_bundle`** - Updated with unified workflow showing watch_status decision point
+  - All tools now show the optimal flow: `watch_status → (if active) list_bundles → read_bundle | (if inactive) refresh_snapshot → list_bundles → read_bundle`
+- **Documentation** - Updated README with watch mode features and new tool reference
+
 ## [0.1.4] - 2026-01-14
 
 ### Added
@@ -221,6 +264,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - This is the initial public release
 - Requires `logicstamp-context` CLI to be installed globally (`npm install -g logicstamp-context`)
 - All tools are read-only - they analyze but never modify your codebase
+
+[0.1.5]: https://github.com/LogicStamp/logicstamp-mcp/releases/tag/v0.1.5
 
 [0.1.4]: https://github.com/LogicStamp/logicstamp-mcp/releases/tag/v0.1.4
 
