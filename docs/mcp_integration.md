@@ -201,10 +201,10 @@ logicstamp-context/
   "bundlePath": "src/cli/commands/context.json",
   "rootComponent": "clean",
   "bundle": {
-    "$schema": "https://logicstamp.dev/schemas/context/v0.1.json",
+    "$schema": "https://logicstamp.dev/schemas/context/v0.3.json",
     "position": "1/5",
     "type": "LogicStampBundle",
-    "schemaVersion": "0.1",
+    "schemaVersion": "0.3",
     "entryId": "c:/Users/River/Desktop/logicstamp-context/src/cli/commands/clean.ts",
     "depth": 1,
     "createdAt": "2025-11-25T01:13:14.387Z",

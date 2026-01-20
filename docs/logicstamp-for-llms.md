@@ -2,6 +2,17 @@
 
 **This document explains LogicStamp from an LLM's perspective. Read this first if you're unsure how LogicStamp works or how to use these tools effectively.**
 
+> **⚠️ Important: Authoritative Source**
+> 
+> **When using LogicStamp MCP tools, trust `logicstamp_read_logicstamp_docs` output over this file.**
+> 
+> - **MCP Tool (`logicstamp_read_logicstamp_docs`)**: Reads from the installed package and is the authoritative source for current capabilities
+> - **This Repo File**: May be outdated or out of sync with the published package
+> 
+> The MCP tool embeds this documentation in the published package (v0.1.5+), ensuring it matches the tool's actual capabilities. If you notice discrepancies between this file and the MCP tool output, the MCP tool is correct.
+> 
+> **Best Practice**: Always use `logicstamp_read_logicstamp_docs` when you need accurate, up-to-date documentation about LogicStamp capabilities.
+
 ## What is LogicStamp?
 
 LogicStamp Context is a CLI tool + MCP server that statically analyzes TypeScript codebases and produces **structured, AI-ready context bundles**. Instead of reading raw `.ts/.tsx` files, LogicStamp generates JSON bundles that capture:
@@ -14,14 +25,19 @@ LogicStamp Context is a CLI tool + MCP server that statically analyzes TypeScrip
 ### Framework Support
 
 - **React** - Full support (components, hooks, props, styles)
-- **Next.js** - Partial support (App / Pages Router analysis)
+- **Next.js** - Full support (App Router with route roles, segment paths, metadata exports)
 - **Vue 3** - Partial support (Composition API, `<script setup>`) - *Note: Works with `.ts`/`.tsx` files only, not `.vue` SFC files*
+- **Backend frameworks** - Full support (Express.js, NestJS) (v0.4.0)
+  - Express.js: Route extraction (`app.get()`, `router.post()`, etc.)
+  - NestJS: Controller extraction (`@Controller`, `@Get`, `@Post`, etc.)
+  - HTTP methods, route paths, API signatures, framework metadata
 - **UI frameworks** - Material UI, ShadCN/UI, Radix UI, Tailwind CSS, Styled Components, SCSS/CSS Modules
 
 ### Key Features
 
 - **AI-ready bundles** - Predictable, structured, deterministic
 - **React/Next.js/Vue/TypeScript awareness** - Props, hooks/composables, state, dependencies
+- **Backend framework support** - Express.js and NestJS routes, controllers, API signatures
 - **Style metadata** - Tailwind, SCSS, MUI, shadcn
 - **Next.js App Router detection** - Client/server, layout/page analysis
 - **Vue 3 Composition API** - ref, reactive, computed, composables

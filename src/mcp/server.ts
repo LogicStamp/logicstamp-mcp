@@ -47,7 +47,7 @@ export function createServer(): Server {
           description:
             'STEP 1: Scan the current project using LogicStamp Context and regenerate all AI-ready bundles. ' +
             'ALWAYS CALL THIS FIRST when analyzing a new repo or after large code changes. ' +
-            'WHAT IT DOES: Runs `stamp context` which analyzes your React/TypeScript codebase and generates structured context files optimized for AI consumption: ' +
+            'WHAT IT DOES: Runs `stamp context` which analyzes your React/TypeScript codebase and Node.js backend applications (Express.js, NestJS) and generates structured context files optimized for AI consumption: ' +
             '(1) `context_main.json` - Main index with folder metadata, summary statistics, and folder entries. This is your entry point to discover all components. ' +
             '(2) Multiple `context.json` files - One per folder containing component bundles with contracts, dependency graphs, and relationships. ' +
             'These files are STRUCTURED DATA, not raw source - they capture the complete architecture and relationships in your codebase. ' +
