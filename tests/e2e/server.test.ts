@@ -105,7 +105,7 @@ describe('MCP Server E2E tests', () => {
     it('should list all available tools', async () => {
       const response = await listTools();
 
-      expect(response.tools).toHaveLength(6);
+      expect(response.tools).toHaveLength(7);
       expect(response.tools.map((t: any) => t.name)).toEqual([
         'logicstamp_refresh_snapshot',
         'logicstamp_list_bundles',
@@ -113,6 +113,7 @@ describe('MCP Server E2E tests', () => {
         'logicstamp_compare_snapshot',
         'logicstamp_compare_modes',
         'logicstamp_read_logicstamp_docs',
+        'logicstamp_watch_status',
       ]);
     });
 
@@ -255,13 +256,13 @@ describe('MCP Server E2E tests', () => {
     it('should validate required parameters for list_bundles', async () => {
       await expect(
         callTool('logicstamp_list_bundles', {})
-      ).rejects.toThrow('snapshotId is required');
+      ).rejects.toThrow('Either snapshotId or projectPath is required');
     });
 
     it('should validate required parameters for read_bundle', async () => {
       await expect(
         callTool('logicstamp_read_bundle', { snapshotId: 'test' })
-      ).rejects.toThrow('bundlePath are required');
+      ).rejects.toThrow('bundlePath is required');
     });
 
     it('should handle tool execution errors gracefully', async () => {
@@ -449,8 +450,10 @@ describe('MCP Server E2E tests', () => {
       );
 
       expect(tool?.inputSchema.properties).toHaveProperty('snapshotId');
+      expect(tool?.inputSchema.properties).toHaveProperty('projectPath');
       expect(tool?.inputSchema.properties).toHaveProperty('folderPrefix');
-      expect(tool?.inputSchema.required).toContain('snapshotId');
+      // snapshotId is now optional - projectPath can be used instead for watch mode
+      expect(tool?.inputSchema.required).toBeUndefined();
     });
 
     it('should expose correct schema for read_bundle', async () => {
@@ -459,9 +462,11 @@ describe('MCP Server E2E tests', () => {
       const tool = response.tools.find((t: any) => t.name === 'logicstamp_read_bundle');
 
       expect(tool?.inputSchema.properties).toHaveProperty('snapshotId');
+      expect(tool?.inputSchema.properties).toHaveProperty('projectPath');
       expect(tool?.inputSchema.properties).toHaveProperty('bundlePath');
       expect(tool?.inputSchema.properties).toHaveProperty('rootComponent');
-      expect(tool?.inputSchema.required).toEqual(['snapshotId', 'bundlePath']);
+      // Only bundlePath is required - snapshotId or projectPath can be provided
+      expect(tool?.inputSchema.required).toEqual(['bundlePath']);
     });
 
     it('should expose correct schema for compare_snapshot', async () => {

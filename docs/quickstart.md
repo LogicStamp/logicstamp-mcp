@@ -135,7 +135,7 @@ The AI will automatically use the LogicStamp tools to analyze your codebase.
 
 ## 5. Available Tools
 
-The MCP server provides 6 tools for analyzing codebases:
+The MCP server provides 7 tools for analyzing codebases:
 
 1. **`logicstamp_refresh_snapshot`** - Generate context files and create snapshot (STEP 1)
 2. **`logicstamp_list_bundles`** - List available bundles (STEP 2)
@@ -143,6 +143,7 @@ The MCP server provides 6 tools for analyzing codebases:
 4. **`logicstamp_compare_snapshot`** - Detect changes after edits
 5. **`logicstamp_compare_modes`** - Generate token cost comparison across all modes
 6. **`logicstamp_read_logicstamp_docs`** - Read LogicStamp documentation (use when confused)
+7. **`logicstamp_watch_status`** - Check if watch mode is active (skip regeneration when context is fresh)
 
 See the [Tool Reference](../README.md#tool-reference) in the main README for complete API documentation.
 

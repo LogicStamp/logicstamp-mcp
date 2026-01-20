@@ -578,6 +578,235 @@ describe('refreshSnapshot integration tests', () => {
     });
   });
 
+  describe('watch mode integration', () => {
+    it('should skip regeneration when skipIfWatchActive is true and watch mode is active', async () => {
+      const { writeFile, mkdir } = await import('fs/promises');
+      const { join } = await import('path');
+
+      // Create watch status file with current process PID
+      const logicstampDir = join(tempDir, '.logicstamp');
+      await mkdir(logicstampDir, { recursive: true });
+
+      const watchStatus = {
+        active: true,
+        projectRoot: tempDir,
+        pid: process.pid, // Current process is definitely running
+        startedAt: new Date().toISOString(),
+        outputDir: tempDir,
+      };
+      await writeFile(
+        join(logicstampDir, 'context_watch-status.json'),
+        JSON.stringify(watchStatus)
+      );
+
+      // Create existing context_main.json
+      await createMockIndex(tempDir);
+
+      // Track if exec was called
+      let execWasCalled = false;
+      mockExecImpl.mockImplementation((command: string, options: any, callback: any) => {
+        execWasCalled = true;
+        if (callback) {
+          callback(null, { stdout: '', stderr: '' });
+        }
+        return {} as any;
+      });
+
+      const result = await refreshSnapshot({
+        projectPath: tempDir,
+        skipIfWatchActive: true,
+      });
+
+      // Should NOT have called exec (skipped regeneration)
+      expect(execWasCalled).toBe(false);
+
+      // Should return valid result with watch mode info
+      expect(result.snapshotId).toBeDefined();
+      expect(result.watchMode).toBeDefined();
+      expect(result.watchMode?.active).toBe(true);
+      expect(result.watchMode?.message).toContain('skipped regeneration');
+    });
+
+    it('should proceed with regeneration when skipIfWatchActive is true but watch mode is NOT active', async () => {
+      // No watch status file = watch mode not active
+      await createMockIndex(tempDir);
+
+      let execWasCalled = false;
+      mockExecImpl.mockImplementation((command: string, options: any, callback: any) => {
+        execWasCalled = true;
+        if (callback) {
+          callback(null, { stdout: '', stderr: '' });
+        }
+        return {} as any;
+      });
+
+      const result = await refreshSnapshot({
+        projectPath: tempDir,
+        skipIfWatchActive: true,
+      });
+
+      // Should have called exec (regeneration occurred)
+      expect(execWasCalled).toBe(true);
+      expect(result.snapshotId).toBeDefined();
+    });
+
+    it('should always regenerate when skipIfWatchActive is false even if watch mode is active', async () => {
+      const { writeFile, mkdir } = await import('fs/promises');
+      const { join } = await import('path');
+
+      // Create watch status file
+      const logicstampDir = join(tempDir, '.logicstamp');
+      await mkdir(logicstampDir, { recursive: true });
+
+      const watchStatus = {
+        active: true,
+        projectRoot: tempDir,
+        pid: process.pid,
+        startedAt: new Date().toISOString(),
+        outputDir: tempDir,
+      };
+      await writeFile(
+        join(logicstampDir, 'context_watch-status.json'),
+        JSON.stringify(watchStatus)
+      );
+
+      await createMockIndex(tempDir);
+
+      let execWasCalled = false;
+      mockExecImpl.mockImplementation((command: string, options: any, callback: any) => {
+        execWasCalled = true;
+        if (callback) {
+          callback(null, { stdout: '', stderr: '' });
+        }
+        return {} as any;
+      });
+
+      const result = await refreshSnapshot({
+        projectPath: tempDir,
+        skipIfWatchActive: false, // Explicitly false
+      });
+
+      // Should have called exec (regeneration occurred even though watch mode is active)
+      expect(execWasCalled).toBe(true);
+      expect(result.snapshotId).toBeDefined();
+    });
+
+    it('should throw error when skipIfWatchActive is true, watch mode is active, but context_main.json does not exist', async () => {
+      const { writeFile, mkdir } = await import('fs/promises');
+      const { join } = await import('path');
+
+      // Create watch status file
+      const logicstampDir = join(tempDir, '.logicstamp');
+      await mkdir(logicstampDir, { recursive: true });
+
+      const watchStatus = {
+        active: true,
+        projectRoot: tempDir,
+        pid: process.pid,
+        startedAt: new Date().toISOString(),
+        outputDir: tempDir,
+      };
+      await writeFile(
+        join(logicstampDir, 'context_watch-status.json'),
+        JSON.stringify(watchStatus)
+      );
+
+      // Do NOT create context_main.json
+
+      await expect(
+        refreshSnapshot({
+          projectPath: tempDir,
+          skipIfWatchActive: true,
+        })
+      ).rejects.toThrow('context_main.json does not exist');
+    });
+
+    it('should include watchMode info in output when watch mode is detected after regeneration', async () => {
+      const { writeFile, mkdir } = await import('fs/promises');
+      const { join } = await import('path');
+
+      await createMockIndex(tempDir);
+
+      // Create watch status file (simulating watch mode starting)
+      const logicstampDir = join(tempDir, '.logicstamp');
+      await mkdir(logicstampDir, { recursive: true });
+
+      const watchStatus = {
+        active: true,
+        projectRoot: tempDir,
+        pid: process.pid,
+        startedAt: new Date().toISOString(),
+        outputDir: tempDir,
+      };
+      await writeFile(
+        join(logicstampDir, 'context_watch-status.json'),
+        JSON.stringify(watchStatus)
+      );
+
+      const result = await refreshSnapshot({
+        projectPath: tempDir,
+        // skipIfWatchActive not set or false - will regenerate but should still detect watch mode
+      });
+
+      // Should include watch mode info even though regeneration occurred
+      expect(result.watchMode).toBeDefined();
+      expect(result.watchMode?.active).toBe(true);
+      expect(result.watchMode?.message).toContain('ACTIVE');
+    });
+
+    it('should not include watchMode info when watch mode is not active', async () => {
+      await createMockIndex(tempDir);
+
+      const result = await refreshSnapshot({
+        projectPath: tempDir,
+      });
+
+      // Should not have watchMode field when watch mode is not active
+      expect(result.watchMode).toBeUndefined();
+    });
+
+    it('should detect stale watch status (process dead) and proceed with regeneration', async () => {
+      const { writeFile, mkdir } = await import('fs/promises');
+      const { join } = await import('path');
+
+      // Create watch status file with non-existent PID
+      const logicstampDir = join(tempDir, '.logicstamp');
+      await mkdir(logicstampDir, { recursive: true });
+
+      const watchStatus = {
+        active: true,
+        projectRoot: tempDir,
+        pid: 9999999, // This PID should not exist
+        startedAt: new Date().toISOString(),
+        outputDir: tempDir,
+      };
+      await writeFile(
+        join(logicstampDir, 'context_watch-status.json'),
+        JSON.stringify(watchStatus)
+      );
+
+      await createMockIndex(tempDir);
+
+      let execWasCalled = false;
+      mockExecImpl.mockImplementation((command: string, options: any, callback: any) => {
+        execWasCalled = true;
+        if (callback) {
+          callback(null, { stdout: '', stderr: '' });
+        }
+        return {} as any;
+      });
+
+      const result = await refreshSnapshot({
+        projectPath: tempDir,
+        skipIfWatchActive: true,
+      });
+
+      // Should have called exec (process is dead, so watch mode is not really active)
+      expect(execWasCalled).toBe(true);
+      expect(result.snapshotId).toBeDefined();
+    });
+  });
+
   describe('error code preservation', () => {
     it('should preserve error code from exec errors', async () => {
       const testError: any = new Error('Command failed');

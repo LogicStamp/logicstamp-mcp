@@ -23,6 +23,54 @@ async function exists(path: string): Promise<boolean> {
 }
 
 /**
+ * Check if a process is still running by PID
+ */
+function isProcessRunning(pid: number): boolean {
+  try {
+    // Sending signal 0 tests if process exists without killing it
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Check if watch mode is active for the project
+ * Returns watch status info if active, null otherwise
+ */
+async function checkWatchMode(projectPath: string): Promise<{
+  active: boolean;
+  pid?: number;
+  startedAt?: string;
+} | null> {
+  const statusPath = join(projectPath, '.logicstamp', 'context_watch-status.json');
+
+  if (!(await exists(statusPath))) {
+    return null;
+  }
+
+  try {
+    const content = await readFile(statusPath, 'utf-8');
+    const status = JSON.parse(content);
+
+    // Verify the process is still running
+    if (status.pid && !isProcessRunning(status.pid)) {
+      // Status file exists but process is dead - stale status
+      return null;
+    }
+
+    return {
+      active: status.active === true,
+      pid: status.pid,
+      startedAt: status.startedAt,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Detect if .logicstamp cache is corrupted or has path mismatch
  * Returns true if cache should be cleaned
  */
@@ -128,6 +176,82 @@ export async function refreshSnapshot(input: RefreshSnapshotInput): Promise<Refr
   // Generate snapshot ID
   const snapshotId = stateManager.generateSnapshotId();
 
+  // Check if we should skip regeneration when watch mode is active
+  // Default to true - watch mode means context is fresh, no need to regenerate
+  const skipIfWatchActive = input.skipIfWatchActive ?? true;
+
+  if (skipIfWatchActive) {
+    const watchStatus = await checkWatchMode(projectPath);
+
+    if (watchStatus?.active) {
+      // Watch mode is active - skip regeneration, just read existing context
+      const contextMainPath = join(projectPath, 'context_main.json');
+
+      if (!(await exists(contextMainPath))) {
+        throw new Error(
+          'skipIfWatchActive is true and watch mode is active, but context_main.json does not exist. ' +
+          'This may happen if watch mode just started and hasn\'t completed its initial build yet. ' +
+          'Either wait for watch mode to complete its initial build, or call refresh_snapshot with skipIfWatchActive=false.'
+        );
+      }
+
+      try {
+        const contextMainContent = await readFile(contextMainPath, 'utf-8');
+        const contextMain: LogicStampIndex = JSON.parse(contextMainContent);
+
+        // Store snapshot (even though we didn't regenerate)
+        stateManager.setSnapshot({
+          id: snapshotId,
+          createdAt: new Date().toISOString(),
+          projectPath,
+          profile,
+          mode,
+          includeStyle,
+          depth,
+          contextDir: projectPath,
+        });
+
+        // Build output - no regeneration occurred
+        const output: RefreshSnapshotOutput = {
+          snapshotId,
+          projectPath,
+          profile,
+          mode,
+          includeStyle,
+          depth,
+          summary: {
+            totalComponents: contextMain.summary.totalComponents,
+            totalBundles: contextMain.summary.totalBundles,
+            totalFolders: contextMain.summary.totalFolders,
+            totalTokenEstimate: contextMain.summary.totalTokenEstimate,
+            tokenEstimates: contextMain.summary.tokenEstimates || {
+              gpt4oMini: 0,
+              gpt4oMiniFullCode: 0,
+              claude: 0,
+              claudeFullCode: 0,
+            },
+            missingDependencies: contextMain.summary.missingDependencies || [],
+          },
+          folders: contextMain.folders,
+          watchMode: {
+            active: true,
+            message: 'Watch mode is ACTIVE - skipped regeneration. Context files are being kept fresh automatically via incremental rebuilds. Using existing context_main.json.',
+            pid: watchStatus.pid,
+            startedAt: watchStatus.startedAt,
+          },
+        };
+
+        return output;
+      } catch (readError) {
+        const readErrorMessage = readError instanceof Error ? readError.message : String(readError);
+        throw new Error(
+          `skipIfWatchActive is true and watch mode is active, but failed to read context_main.json: ${readErrorMessage}`
+        );
+      }
+    }
+    // Watch mode is not active - fall through to normal regeneration
+  }
+
   try {
     // Smart cache cleanup: only clean if corruption/mismatch detected or manually requested
     // This preserves cache benefits (speed + stability) while handling real issues
@@ -205,6 +329,9 @@ export async function refreshSnapshot(input: RefreshSnapshotInput): Promise<Refr
       contextDir: projectPath,
     });
 
+    // Check if watch mode is active
+    const watchStatus = await checkWatchMode(projectPath);
+
     // Build output
     const output: RefreshSnapshotOutput = {
       snapshotId,
@@ -228,6 +355,16 @@ export async function refreshSnapshot(input: RefreshSnapshotInput): Promise<Refr
       },
       folders: contextMain.folders,
     };
+
+    // Add watch mode info if active
+    if (watchStatus?.active) {
+      output.watchMode = {
+        active: true,
+        message: 'Watch mode is ACTIVE. Context bundles are being kept fresh automatically via incremental rebuilds. Future refresh_snapshot calls may be unnecessary - the context files are already up-to-date.',
+        pid: watchStatus.pid,
+        startedAt: watchStatus.startedAt,
+      };
+    }
 
     return output;
   } catch (error) {
