@@ -2,6 +2,7 @@
  * Integration tests for read-logicstamp-docs tool
  */
 
+import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import { readLogicStampDocs } from '../../src/mcp/tools/read-logicstamp-docs.js';
 import { readFile } from 'fs/promises';
 import { join, resolve } from 'path';
@@ -203,5 +204,6 @@ describe('readLogicStampDocs integration tests', () => {
       expect(result.docs.forLLMs).toBeDefined();
     });
   });
+
 });
 

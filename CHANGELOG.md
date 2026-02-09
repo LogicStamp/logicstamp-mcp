@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.6] - 2026-02-09
+
+### Changed
+
+- **Tool Description Optimization** - Optimized all 7 MCP tool descriptions for better LLM comprehension
+  - Reduced description length by ~40-50% while preserving all critical information
+  - Removed redundancy (duplicate "WHAT IT DOES" sections, repeated watch mode explanations)
+  - Consolidated related information into more scannable formats
+  - Improved structure: Warning → What → Returns → When → Next → Options → Docs
+  - All implementation details preserved - no functional changes
+  - Watch mode workflows now clearly documented in all relevant tools
+  - Makes it easier for LLMs to understand and use LogicStamp correctly
+
+- **Code Refactoring** - Extracted duplicated `isProcessRunning` function into shared utility
+  - Created `src/mcp/utils/process-utils.ts` with shared process checking logic
+  - Removed duplicate implementations from `watch-status.ts`, `read-bundle.ts`, `refresh-snapshot.ts`, and `list-bundles.ts`
+  - Improves code maintainability and makes future platform-specific fixes easier
+  - No functional changes - behavior remains identical
+
 ## [0.1.5] - 2026-01-21
 
 ### Added
@@ -186,13 +205,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Core Features
 - **MCP Server Implementation** - Full Model Context Protocol server for LogicStamp Context
 - **Snapshot Management** - In-memory snapshot state management with automatic cleanup (1-hour TTL)
-- **6 MCP Tools** - Complete tool suite for codebase analysis:
+- **7 MCP Tools** - Complete tool suite for codebase analysis:
   - `logicstamp_refresh_snapshot` - Create snapshots of codebase state
   - `logicstamp_list_bundles` - List available component bundles
   - `logicstamp_read_bundle` - Read full component contracts and dependency graphs
   - `logicstamp_compare_snapshot` - Detect changes after edits (drift detection)
   - `logicstamp_compare_modes` - Generate token cost comparisons across modes
   - `logicstamp_read_logicstamp_docs` - Access LogicStamp documentation
+  - `logicstamp_watch_status` - Check if watch mode is active
 
 #### Analysis Capabilities
 - **Component Contract Extraction** - Extract props, state, hooks, and dependencies

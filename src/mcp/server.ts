@@ -28,7 +28,7 @@ export function createServer(): Server {
   const server = new Server(
     {
       name: 'logicstamp-mcp',
-      version: '0.1.5',
+      version: '0.1.6',
     },
     {
       capabilities: {
@@ -46,25 +46,14 @@ export function createServer(): Server {
         {
           name: 'logicstamp_refresh_snapshot',
           description:
-            '⚠️ FIRST: Call logicstamp_watch_status to check if watch mode is active! ' +
-            'IF WATCH MODE IS ACTIVE → SKIP THIS TOOL. Go directly to list_bundles → read_bundle. Context is already fresh. ' +
-            'ONLY use this tool when: (1) watch mode is INACTIVE, (2) first time analyzing a new repo, (3) after large code changes without watch mode. ' +
-            'WHAT IT DOES: Runs `stamp context` to regenerate all AI-ready bundles. This is SLOW compared to reading existing context. ' +
-            'DEFAULT BEHAVIOR: skipIfWatchActive=true, so if watch mode is running, this tool automatically skips regeneration and reads existing files. ' +
-            'WHAT IT DOES: Runs `stamp context` which analyzes your React/TypeScript codebase and Node.js backend applications (Express.js, NestJS) and generates structured context files optimized for AI consumption: ' +
-            '(1) `context_main.json` - Main index with folder metadata, summary statistics, and folder entries. This is your entry point to discover all components. ' +
-            '(2) Multiple `context.json` files - One per folder containing component bundles with contracts, dependency graphs, and relationships. ' +
-            'These files are STRUCTURED DATA, not raw source - they capture the complete architecture and relationships in your codebase. ' +
+            '⚠️ FIRST: Call logicstamp_watch_status! If watch mode is ACTIVE → SKIP this tool, go to list_bundles → read_bundle (context is fresh). ' +
+            'Use when: watch mode INACTIVE, first-time analysis, or after large changes. Default skipIfWatchActive=true (auto-skips regeneration if watch mode active). ' +
+            'WHAT IT DOES: Runs `stamp context` to analyze React/TypeScript/Node.js codebases (Next.js, Express.js, NestJS) and generate structured context files (context_main.json + per-folder context.json bundles). These are STRUCTURED DATA, not raw source. SLOW compared to reading existing context. ' +
             'WHAT YOU GET: Summary statistics (component counts, token estimates, folder structure) and a snapshotId. If watch mode is active, also includes watchMode status. ' +
             'IMPORTANT: This summary does NOT include component details, props, dependencies, or style metadata. ' +
-            'WHAT TO DO NEXT: (1) Call logicstamp_list_bundles with the snapshotId to see available bundles, ' +
-            '(2) Then call logicstamp_read_bundle to get actual component contracts with full details including dependency graphs. ' +
-            'STYLE METADATA: Set includeStyle=true to extract visual/design information (Tailwind CSS classes, SCSS modules, framer-motion animations, color palettes, spacing patterns). ' +
-            'Style data appears in the "style" field of UIFContract when reading bundles - the summary does NOT show style info. ' +
-            'Use includeStyle=true for design system analysis, visual consistency checks, or when the user asks about styling, colors, spacing, animations, or visual design. ' +
-            'DEPTH PARAMETER: Default depth=2 includes nested components (App → Hero → Button). ' +
-            'For projects that only need direct dependencies, set depth=1 to include direct dependencies only (App → Hero). ' +
-            'Depth 2 ensures nested components are included in dependency graphs with their contracts and styles. ' +
+            'WHAT TO DO NEXT: list_bundles(snapshotId|projectPath) → read_bundle(snapshotId|projectPath, bundlePath). Use projectPath when watch mode is active (no snapshotId needed). ' +
+            'STYLE METADATA: Set includeStyle=true to extract visual/design info (Tailwind/SCSS/animations/colors/spacing). Appears in bundle "style" field, NOT in summary. Use for design system analysis or when user asks about styling/colors/animations. ' +
+            'DEPTH PARAMETER: Default depth=2 includes nested components (App → Hero → Button) with contracts and styles. Set depth=1 for direct dependencies only (App → Hero). ' +
             'PREFER BUNDLES OVER RAW CODE: These bundles are pre-parsed summaries optimized for AI - use them instead of reading raw .ts/.tsx files when possible. ' +
             'If you\'re unsure how LogicStamp works, call logicstamp_read_logicstamp_docs first.',
           inputSchema: {
@@ -113,12 +102,10 @@ export function createServer(): Server {
         {
           name: 'logicstamp_list_bundles',
           description:
-            'List all LogicStamp bundles available for this project. ' +
-            'WATCH MODE: If watch mode is active, just provide projectPath - no snapshotId needed! Context files are fresh. ' +
-            'WHAT IT DOES: Reads the folder structure from `context_main.json` and returns a catalog of all bundles with their locations. ' +
-            'WHAT YOU GET: Bundle descriptors with component names, file paths, bundle paths (use these in logicstamp_read_bundle), token estimates, and positions. ' +
-            'TYPICAL FLOW: watch_status → (if active) list_bundles(projectPath) → read_bundle(projectPath) | (if inactive) refresh_snapshot → list_bundles(snapshotId) → read_bundle(snapshotId). ' +
-            'FILTERING: Use folderPrefix to filter bundles by directory path (e.g., "src/components" to see only components in that folder).',
+            'Lists all bundles from context_main.json. Returns bundle catalog (component names, file paths, bundle paths, token estimates). ' +
+            'Use bundle paths in read_bundle to get component contracts. ' +
+            'Watch mode: Use projectPath directly (no snapshotId needed). Filter: folderPrefix="src/components" to filter by directory. ' +
+            'Next: read_bundle(snapshotId|projectPath, bundlePath).',
           inputSchema: {
             type: 'object',
             properties: {
@@ -140,14 +127,11 @@ export function createServer(): Server {
         {
           name: 'logicstamp_read_bundle',
           description:
-            'Read a LogicStamp bundle or index file to get component contracts and dependency graphs. ' +
-            'WATCH MODE: If watch mode is active, just provide projectPath - no snapshotId needed! Context files are fresh. ' +
-            'WHAT IT DOES: Reads either (1) `context_main.json` for project overview, or (2) a folder\'s `context.json` for component contracts. ' +
-            'These are pre-parsed summaries optimized for AI - PREFER THIS over reading raw .ts/.tsx files. ' +
-            'BUNDLE CONTENTS: entryId, graph.nodes[] (components with UIFContract), graph.edges[] (dependency relationships), meta.missing[] (unresolved deps). ' +
-            'UIFContract includes: kind, description, props, emits, state, exports, semanticHash, and optionally style metadata. ' +
-            'TYPICAL FLOW: watch_status → (if active) read_bundle(projectPath) | (if inactive) refresh_snapshot → read_bundle(snapshotId). ' +
-            'Use bundlePath="context_main.json" for project overview, or specific folder paths from list_bundles for component details.',
+            'Reads bundle/index file to get component contracts and dependency graphs. Reads context_main.json (project overview) or folder context.json (component contracts). ' +
+            'These are pre-parsed summaries optimized for AI - PREFER over raw .ts/.tsx files. ' +
+            'Bundle contains: entryId, graph.nodes[] (UIFContract), graph.edges[] (dependencies), meta.missing[] (unresolved). ' +
+            'UIFContract: kind, description, props, emits, state, exports, semanticHash, optional style metadata. ' +
+            'Watch mode: Use projectPath directly (no snapshotId needed). Use bundlePath="context_main.json" for overview, or folder paths from list_bundles for details.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -174,21 +158,13 @@ export function createServer(): Server {
         {
           name: 'logicstamp_compare_snapshot',
           description:
-            'Compare the current LogicStamp snapshot with a saved one to detect changes. ' +
-            'WHAT IT DOES: Compares all context files (multi-file mode) by reading the structured data in `context_main.json` and folder `context.json` files. ' +
-            'Detects: ADDED folders/components, REMOVED folders/components, CHANGED components (props added/removed, hooks changed, imports changed, semantic hash changed), UNCHANGED components. ' +
-            'Returns structured diff with folder-level and component-level changes, token deltas. ' +
-            'VALUE OF COMPARISON: By comparing the structured context files (which contain dependency graphs, contracts, and metadata), this tool can detect meaningful changes in component APIs, dependencies, and relationships - not just file changes, but architectural changes. ' +
-            'WHEN TO USE: After editing files to verify what changed. Like Jest snapshots - detects contract drift by comparing the structured context data. ' +
-            'This is useful when refactoring or reviewing a PR, instead of diffing raw code. ' +
-            'REGENERATION MODE: By default (forceRegenerate: false), reads existing context_main.json from disk (fast, assumes context is fresh). ' +
-            'Set forceRegenerate: true to run `stamp context` before comparing (ensures fresh context files with latest structured data). ' +
-            'STYLE METADATA: Set includeStyle: true (with forceRegenerate: true) to include style metadata in comparison. ' +
-            'If forceRegenerate is false, compares whatever is on disk (may not have style metadata). ' +
-            'DEPTH PARAMETER: IMPORTANT - When forceRegenerate: true, you can set depth to control dependency traversal depth. ' +
-            'By default, dependency graphs include nested components (depth=2). Set depth=1 for direct dependencies only. ' +
-            'BASELINE OPTIONS: Compare against "disk" (current snapshot), "snapshot" (stored snapshot), or "git:<ref>" (future: git baseline). ' +
-            'ERROR HANDLING: If context_main.json is missing and forceRegenerate is false, fails with clear error - run logicstamp_refresh_snapshot first, or use forceRegenerate: true to regenerate automatically.',
+            'Compares current snapshot with baseline to detect changes. Reads context_main.json and folder context.json files. ' +
+            'Detects: ADDED/REMOVED/CHANGED/UNCHANGED folders/components (props, hooks, imports, semantic hash changes). Returns structured diff with token deltas. ' +
+            'Use after editing files to verify changes (like Jest snapshots - detects contract drift, not just file changes). ' +
+            'Default (forceRegenerate=false): Reads from disk (fast, assumes fresh). Set forceRegenerate=true to regenerate before comparing. ' +
+            'Style: Set includeStyle=true (with forceRegenerate=true) to include style metadata. Depth: Set depth when forceRegenerate=true (default=2 nested, 1=direct only). ' +
+            'Baseline: "disk" (current snapshot, default), "snapshot" (stored), or "git:<ref>" (future). ' +
+            'Error: If context_main.json missing and forceRegenerate=false, fails - run refresh_snapshot first or use forceRegenerate=true.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -239,13 +215,11 @@ export function createServer(): Server {
         {
           name: 'logicstamp_compare_modes',
           description:
-            'Generate detailed token cost comparison across all context generation modes to help choose the optimal mode for AI workflows. ' +
-            'WHAT IT DOES: Executes `stamp context --compare-modes --stats` which analyzes the codebase and generates `context_compare_modes.json` with token counts for all modes: ' +
-            '(1) none - contracts only (~79% savings vs full), (2) header - contracts+JSDoc (~65% savings, recommended), (3) header+style - header+style metadata (~52% savings), (4) full - complete source code (no savings). ' +
-            'Also compares against raw source files to show LogicStamp efficiency (typically 70% savings for header mode). ' +
-            'WHAT YOU GET: Token counts for all modes (GPT-4o-mini and Claude), savings percentages vs raw source and vs full context, file statistics, mode breakdown. ' +
-            'WHEN TO USE: (1) Before generating context to understand token costs, (2) User asks about token budgets/optimization/cost analysis, (3) Need to decide between modes (none/header/header+style/full), (4) Evaluate token impact of including style metadata, (5) Compare LogicStamp efficiency vs raw source files. ' +
-            'PERFORMANCE: Takes 2-3x longer than normal generation (regenerates contracts with/without style for accurate comparison).',
+            'Generates token cost comparison across all modes (none/header/header+style/full) to help choose optimal mode. ' +
+            'Executes `stamp context --compare-modes --stats` and returns token counts (GPT-4o-mini/Claude), savings vs raw source (~70% for header) and vs full context, file stats. ' +
+            'Modes: none (~79% savings), header (~65%, recommended), header+style (~52%), full (no savings). ' +
+            'Use before generating context, when user asks about token budgets, or to evaluate style metadata impact. ' +
+            'Performance: Takes 2-3x longer (regenerates with/without style for accuracy).',
           inputSchema: {
             type: 'object',
             properties: {
@@ -264,12 +238,11 @@ export function createServer(): Server {
         {
           name: 'logicstamp_read_logicstamp_docs',
           description:
-            'Read LogicStamp documentation to understand how the tool works and how to use it effectively. ' +
-            'WHAT IT DOES: Returns comprehensive LogicStamp documentation including: the canonical guide for LLMs (logicstamp-for-llms.md), usage guide, UIF contracts documentation, schema reference, CLI command documentation, compare modes guide, and known limitations. ' +
-            'WHAT YOU GET: Complete documentation bundle with summary of key concepts, workflow instructions, and best practices. ' +
-            'WHEN TO USE: (1) When you\'re unsure how LogicStamp works or how to use these tools, (2) Before starting to work with a new project, (3) When you need to understand the bundle structure or contract format, (4) When you want to understand the recommended workflow. ' +
-            'This is your escape hatch: if you\'re confused about LogicStamp, call this tool first. ' +
-            'The documentation explains: what LogicStamp is, why bundles are preferred over raw code, the recommended workflow (refresh → list → read), how to understand bundle structure, and best practices.',
+            'Returns comprehensive LogicStamp documentation (logicstamp-for-llms.md guide, usage, UIF contracts, schema, CLI commands, limitations). ' +
+            'Returns complete doc bundle with key concepts, workflow instructions, and best practices. ' +
+            'Use when: unsure how LogicStamp works, starting new project, need bundle structure/contract format, or want recommended workflow. ' +
+            'Escape hatch: if confused about LogicStamp, call this first. ' +
+            'Explains: what LogicStamp is, why bundles over raw code, workflow (refresh → list → read), bundle structure, best practices.',
           inputSchema: {
             type: 'object',
             properties: {},
@@ -278,18 +251,12 @@ export function createServer(): Server {
         {
           name: 'logicstamp_watch_status',
           description:
-            '⚠️ CALL THIS FIRST before any other LogicStamp tool! ' +
-            'Checks if watch mode (`stamp context --watch`) is active. ' +
-            'CRITICAL WORKFLOW: ' +
-            '→ IF ACTIVE: SKIP refresh_snapshot entirely! Go directly to list_bundles → read_bundle. Context is already fresh via incremental rebuilds. ' +
-            '→ IF INACTIVE: Call refresh_snapshot to generate context files first. ' +
-            'This check enables zero-cost instant context access when watch mode is running. ' +
-            'WHAT IT DOES: Reads .logicstamp/context_watch-status.json and verifies the watch process is still running. ' +
-            'WATCH MODE FEATURES: (1) Incremental rebuilds - only rebuilds affected bundles, not entire project, ' +
-            '(2) Change detection - shows what changed (props, hooks, state, components), ' +
-            '(3) Debouncing - batches rapid changes (500ms delay), ' +
-            '(4) Optional log file - structured change logs for tracking modifications. ' +
-            'RECENT LOGS: Set includeRecentLogs=true to see the most recent regeneration events.',
+            '⚠️ CALL THIS FIRST before any other LogicStamp tool! Checks if watch mode (`stamp context --watch`) is active. ' +
+            'If ACTIVE: SKIP refresh_snapshot, go to list_bundles → read_bundle (context fresh via incremental rebuilds). ' +
+            'If INACTIVE: Call refresh_snapshot first. Enables zero-cost instant context access when watch mode running. ' +
+            'Reads .logicstamp/context_watch-status.json and verifies process is running. ' +
+            'Watch features: Incremental rebuilds (affected bundles only), change detection (props/hooks/state/components), debouncing (500ms), optional log file. ' +
+            'Set includeRecentLogs=true to see recent regeneration events.',
           inputSchema: {
             type: 'object',
             properties: {

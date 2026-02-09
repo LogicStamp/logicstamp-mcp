@@ -86,7 +86,7 @@ export interface RefreshSnapshotInput {
   depth?: number; // Dependency traversal depth (default: profile default, typically 2)
   projectPath: string; // REQUIRED: Absolute path to project root
   cleanCache?: boolean; // Manually force cache cleanup (default: false, auto-detects corruption)
-  skipIfWatchActive?: boolean; // Skip regeneration if watch mode is active (default: false). When true and watch mode is running, just reads existing context files.
+  skipIfWatchActive?: boolean; // Skip regeneration if watch mode is active (default: true). When true and watch mode is running, just reads existing context files.
 }
 
 export interface RefreshSnapshotOutput {
