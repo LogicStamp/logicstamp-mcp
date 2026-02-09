@@ -87,13 +87,16 @@ LogicStamp bundles are **pre-parsed, structured summaries** optimized for AI con
 
 ## Watch Mode Awareness
 
-**LogicStamp supports incremental watch mode** (`stamp context --watch`) which automatically regenerates context bundles when files change. The MCP server detects when watch mode is active and can skip expensive regeneration.
+**Best Practice:** LogicStamp supports incremental watch mode (`stamp context --watch`) which automatically regenerates context bundles when files change. **We recommend starting watch mode when beginning a coding session** - it dramatically improves MCP response times and keeps context fresh automatically.
+
+The MCP server detects when watch mode is active and can skip expensive regeneration.
 
 ### How Watch Mode Works
 
 1. **Watch mode runs in background** - User starts `stamp context --watch` in their terminal
 2. **Incremental rebuilds** - Only affected bundles are regenerated when files change (not entire project)
 3. **Context stays fresh** - Context files are always up-to-date
+4. **Faster MCP responses** - AI can skip regeneration and read fresh context instantly
 
 ### Using Watch Mode with MCP
 
@@ -111,6 +114,10 @@ refresh_snapshot({ projectPath: "...", skipIfWatchActive: true })
 // If watch mode is active: Skips regeneration, reads existing context (fast)
 // If watch mode is NOT active: Normal regeneration (slow)
 ```
+
+**See Also:**
+- [Watch Status Command Documentation](./commands/watch-status.md) - Complete command reference
+- [Refresh Snapshot Command Documentation](./commands/refresh-snapshot.md) - Includes `skipIfWatchActive` parameter
 
 **Benefits:**
 - **Faster** - Skip expensive regeneration when context is already fresh
@@ -235,8 +242,9 @@ LogicStamp offers preset configurations:
 - **`llm-safe`** - Conservative mode for token-limited contexts
   - Depth: 2, header mode, max 30 nodes
 
-- **`ci-strict`** - Strict validation mode for CI/CD
-  - Contracts only (no code), strict dependency checks
+- **`ci-strict`** - Strict validation mode
+  - Contracts only (no code), strict dependency checks, fails on missing dependencies
+  - Useful for validation workflows (note: git baseline comparison for CI/CD is not yet implemented)
 
 ## Dependency Depth Parameter
 
@@ -279,6 +287,38 @@ refresh_snapshot({ projectPath: "...", depth: 1 })
 3. read_bundle(snapshotId, bundlePath) → get contract + graph
 4. Analyze contract.props, contract.logicSignature, contract.graph
 ```
+
+### Finding Components: Root vs Dependencies
+
+LogicStamp organizes components into two categories:
+
+- **Root components** - Components that have their own bundles (listed in `context_main.json` under each folder's `components` array). These are entry points that other components import.
+- **Dependencies** - Components that are imported by root components. They appear in the importing component's bundle as nodes in `graph.nodes[]`, not as separate root bundles.
+
+**Workflow for finding a component:**
+
+1. **Check `context_main.json` first** - Look in the `folders[]` array for the component's file name in the `components` list. If found, it's a root component with its own bundle.
+2. **If not found as a root** - The component is likely a dependency. Find which root component imports it:
+   - Search for import statements in source code, or
+   - Check bundles in the same folder (dependencies are typically in the same folder as their importing component)
+3. **Read the importing root's bundle** - The dependency's contract will be in `graph.nodes[]` of that bundle.
+
+**Example:**
+
+```
+FAQ.tsx is imported by src/app/page.tsx (line 7)
+→ FAQ is NOT in src/components/sections/context.json (not a root)
+→ FAQ IS in src/app/page.tsx bundle (as a dependency node)
+→ To access FAQ: read src/app/context.json with rootComponent: "page"
+```
+
+**Why this matters:**
+
+- Root components = own bundles (e.g., `Features.tsx`, `Stats.tsx` in `src/components/sections/context.json`)
+- Dependencies = included in importing root component's bundle graph (e.g., `FAQ.tsx` in `src/app/page.tsx` bundle)
+- This structure matches how developers think: pages/features are entry points, their dependencies are included automatically
+
+**Common mistake:** Looking for a component as a root when it's actually a dependency. Always check `context_main.json` first to see if it's listed as a root component.
 
 ### Finding Dependencies
 

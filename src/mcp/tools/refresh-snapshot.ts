@@ -9,6 +9,7 @@ import { constants } from 'fs';
 import type { RefreshSnapshotInput, RefreshSnapshotOutput, LogicStampIndex } from '../../types/schemas.js';
 import { stateManager } from '../state.js';
 import { execWithTimeout } from '../utils/exec-with-timeout.js';
+import { isProcessRunning } from '../utils/process-utils.js';
 
 /**
  * Check if a file or directory exists
@@ -16,19 +17,6 @@ import { execWithTimeout } from '../utils/exec-with-timeout.js';
 async function exists(path: string): Promise<boolean> {
   try {
     await access(path, constants.F_OK);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Check if a process is still running by PID
- */
-function isProcessRunning(pid: number): boolean {
-  try {
-    // Sending signal 0 tests if process exists without killing it
-    process.kill(pid, 0);
     return true;
   } catch {
     return false;

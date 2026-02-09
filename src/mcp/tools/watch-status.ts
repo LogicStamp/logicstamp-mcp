@@ -7,6 +7,7 @@ import { readFile, access } from 'fs/promises';
 import { join, resolve } from 'path';
 import { constants } from 'fs';
 import type { WatchStatusInput, WatchStatusOutput, WatchStatus, WatchLogEntry } from '../../types/schemas.js';
+import { isProcessRunning } from '../utils/process-utils.js';
 
 /**
  * Check if a file exists
@@ -14,19 +15,6 @@ import type { WatchStatusInput, WatchStatusOutput, WatchStatus, WatchLogEntry } 
 async function exists(path: string): Promise<boolean> {
   try {
     await access(path, constants.F_OK);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Check if a process is still running by PID
- */
-function isProcessRunning(pid: number): boolean {
-  try {
-    // Sending signal 0 tests if process exists without killing it
-    process.kill(pid, 0);
     return true;
   } catch {
     return false;
