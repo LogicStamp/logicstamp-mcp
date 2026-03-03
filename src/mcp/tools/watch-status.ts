@@ -3,7 +3,7 @@
  * Check if watch mode is active and get status information
  */
 
-import { readFile, access } from 'fs/promises';
+import { readFile, access, unlink } from 'fs/promises';
 import { join, resolve } from 'path';
 import { constants } from 'fs';
 import type { WatchStatusInput, WatchStatusOutput, WatchStatus, WatchLogEntry } from '../../types/schemas.js';
@@ -22,7 +22,8 @@ async function exists(path: string): Promise<boolean> {
 }
 
 /**
- * Read and parse the watch status file
+ * Read and parse the watch status file.
+ * Validates that the PID is still running and cleans up stale files.
  */
 async function readWatchStatus(projectPath: string): Promise<WatchStatus | null> {
   const statusPath = join(projectPath, '.logicstamp', 'context_watch-status.json');
@@ -37,7 +38,12 @@ async function readWatchStatus(projectPath: string): Promise<WatchStatus | null>
 
     // Verify the process is still running
     if (status.pid && !isProcessRunning(status.pid)) {
-      // Status file exists but process is dead - stale status
+      // Status file exists but process is dead - clean up stale file
+      try {
+        await unlink(statusPath);
+      } catch {
+        // Ignore cleanup errors
+      }
       return null;
     }
 
@@ -96,18 +102,25 @@ export async function watchStatus(input: WatchStatusInput): Promise<WatchStatusO
   // Read watch status
   const status = await readWatchStatus(projectPath);
   const watchModeActive = status !== null && status.active === true;
+  // strictWatch is read from the watch status file (.logicstamp/context_watch-status.json)
+  const strictWatch = watchModeActive && status?.strictWatch === true;
 
   // Build output
   const output: WatchStatusOutput = {
     projectPath,
     watchModeActive,
     message: watchModeActive
-      ? `Watch mode is ACTIVE (PID: ${status!.pid}, started: ${status!.startedAt}). Context bundles are being kept fresh automatically. You can skip calling refresh_snapshot - just use list_bundles and read_bundle with the existing context files.`
-      : 'Watch mode is NOT active. Context files may be stale. Consider running refresh_snapshot or starting watch mode with `stamp context --watch`.',
+      ? strictWatch
+        ? `Watch mode is ACTIVE with STRICT WATCH enabled (PID: ${status!.pid}, started: ${status!.startedAt}). Context bundles are being kept fresh automatically with breaking change detection. You can skip calling refresh_snapshot - just use list_bundles and read_bundle with the existing context files.`
+        : `Watch mode is ACTIVE (PID: ${status!.pid}, started: ${status!.startedAt}). Context bundles are being kept fresh automatically. You can skip calling refresh_snapshot - just use list_bundles and read_bundle with the existing context files.`
+      : 'Watch mode is NOT active. Context files may be stale. Consider running refresh_snapshot or starting watch mode with `stamp context --watch` (or `stamp context --watch --strict-watch` for breaking change detection).',
   };
 
   if (watchModeActive && status) {
     output.status = status;
+    if (strictWatch) {
+      output.strictWatch = true;
+    }
   }
 
   // Include recent logs if requested

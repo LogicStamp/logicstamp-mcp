@@ -3,7 +3,7 @@
  * Run `stamp context` and create a snapshot before edits
  */
 
-import { readFile, rm, access } from 'fs/promises';
+import { readFile, rm, access, unlink } from 'fs/promises';
 import { join, resolve } from 'path';
 import { constants } from 'fs';
 import type { RefreshSnapshotInput, RefreshSnapshotOutput, LogicStampIndex } from '../../types/schemas.js';
@@ -24,13 +24,15 @@ async function exists(path: string): Promise<boolean> {
 }
 
 /**
- * Check if watch mode is active for the project
- * Returns watch status info if active, null otherwise
+ * Check if watch mode is active for the project.
+ * Returns watch status info if active, null otherwise.
+ * Cleans up stale status files when the process is no longer running.
  */
 async function checkWatchMode(projectPath: string): Promise<{
   active: boolean;
   pid?: number;
   startedAt?: string;
+  strictWatch?: boolean;
 } | null> {
   const statusPath = join(projectPath, '.logicstamp', 'context_watch-status.json');
 
@@ -44,7 +46,12 @@ async function checkWatchMode(projectPath: string): Promise<{
 
     // Verify the process is still running
     if (status.pid && !isProcessRunning(status.pid)) {
-      // Status file exists but process is dead - stale status
+      // Status file exists but process is dead - clean up stale file
+      try {
+        await unlink(statusPath);
+      } catch {
+        // Ignore cleanup errors
+      }
       return null;
     }
 
@@ -52,6 +59,7 @@ async function checkWatchMode(projectPath: string): Promise<{
       active: status.active === true,
       pid: status.pid,
       startedAt: status.startedAt,
+      strictWatch: status.strictWatch === true, // Read from status file, undefined if not present
     };
   } catch {
     return null;
@@ -223,9 +231,12 @@ export async function refreshSnapshot(input: RefreshSnapshotInput): Promise<Refr
           folders: contextMain.folders,
           watchMode: {
             active: true,
-            message: 'Watch mode is ACTIVE - skipped regeneration. Context files are being kept fresh automatically via incremental rebuilds. Using existing context_main.json.',
+            message: watchStatus.strictWatch
+              ? 'Watch mode is ACTIVE with STRICT WATCH enabled - skipped regeneration. Context files are being kept fresh automatically via incremental rebuilds with breaking change detection. Using existing context_main.json.'
+              : 'Watch mode is ACTIVE - skipped regeneration. Context files are being kept fresh automatically via incremental rebuilds. Using existing context_main.json.',
             pid: watchStatus.pid,
             startedAt: watchStatus.startedAt,
+            strictWatch: watchStatus.strictWatch,
           },
         };
 
@@ -348,9 +359,12 @@ export async function refreshSnapshot(input: RefreshSnapshotInput): Promise<Refr
     if (watchStatus?.active) {
       output.watchMode = {
         active: true,
-        message: 'Watch mode is ACTIVE. Context bundles are being kept fresh automatically via incremental rebuilds. Future refresh_snapshot calls may be unnecessary - the context files are already up-to-date.',
+        message: watchStatus.strictWatch
+          ? 'Watch mode is ACTIVE with STRICT WATCH enabled. Context bundles are being kept fresh automatically via incremental rebuilds with breaking change detection. Future refresh_snapshot calls may be unnecessary - the context files are already up-to-date.'
+          : 'Watch mode is ACTIVE. Context bundles are being kept fresh automatically via incremental rebuilds. Future refresh_snapshot calls may be unnecessary - the context files are already up-to-date.',
         pid: watchStatus.pid,
         startedAt: watchStatus.startedAt,
+        strictWatch: watchStatus.strictWatch,
       };
     }
 

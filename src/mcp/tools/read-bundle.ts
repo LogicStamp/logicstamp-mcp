@@ -3,7 +3,7 @@
  * Return the full bundle (contract + graph) for a specific component
  */
 
-import { readFile, access } from 'fs/promises';
+import { readFile, access, unlink } from 'fs/promises';
 import { join, resolve } from 'path';
 import { constants } from 'fs';
 import type {
@@ -28,7 +28,8 @@ async function exists(path: string): Promise<boolean> {
 }
 
 /**
- * Check if watch mode is active for the project
+ * Check if watch mode is active for the project.
+ * Cleans up stale status files when the process is no longer running.
  */
 async function checkWatchMode(projectPath: string): Promise<boolean> {
   const statusPath = join(projectPath, '.logicstamp', 'context_watch-status.json');
@@ -43,6 +44,12 @@ async function checkWatchMode(projectPath: string): Promise<boolean> {
 
     // Verify the process is still running
     if (status.pid && !isProcessRunning(status.pid)) {
+      // Clean up stale file
+      try {
+        await unlink(statusPath);
+      } catch {
+        // Ignore cleanup errors
+      }
       return false;
     }
 
@@ -171,9 +178,12 @@ export async function readBundle(input: ReadBundleInput): Promise<ReadBundleOutp
       if (!found) {
         throw new Error(
           `Bundle not found for component "${input.rootComponent}" in ${input.bundlePath}. ` +
-          `The component may not exist in this bundle file, or the component name may be incorrect. ` +
-          `Use logicstamp_list_bundles to see all available components in this snapshot, ` +
-          `or omit rootComponent to read the first bundle in the file.`
+          `IMPORTANT: LogicStamp organizes components into ROOT components (have their own bundles) and DEPENDENCIES (included in importing root's bundle). ` +
+          `If "${input.rootComponent}" is not listed in logicstamp_list_bundles output, it's likely a DEPENDENCY, not a root component. ` +
+          `To find a dependency: (1) Use logicstamp_list_bundles to see all root components, ` +
+          `(2) Read bundles that might import "${input.rootComponent}" (check bundle.graph.nodes[] for dependency contracts), ` +
+          `or (3) Search source code to find which root component imports "${input.rootComponent}". ` +
+          `Dependencies appear in bundle.graph.nodes[] of the root component that imports them, not as separate root bundles.`
         );
       }
 

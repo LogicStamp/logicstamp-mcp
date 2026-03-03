@@ -102,7 +102,9 @@ export function createServer(): Server {
         {
           name: 'logicstamp_list_bundles',
           description:
-            'Lists all bundles from context_main.json. Returns bundle catalog (component names, file paths, bundle paths, token estimates). ' +
+            'Lists all ROOT bundles from context_main.json. Returns bundle catalog (component names, file paths, bundle paths, token estimates). ' +
+            'IMPORTANT: LogicStamp organizes components into ROOT components (have their own bundles, listed here) and DEPENDENCIES (included in importing root\'s bundle.graph.nodes[], not listed here). ' +
+            'If a component isn\'t in this list, it\'s a dependency - find which root imports it, then read that root\'s bundle to see the dependency contract in bundle.graph.nodes[]. ' +
             'Use bundle paths in read_bundle to get component contracts. ' +
             'Watch mode: Use projectPath directly (no snapshotId needed). Filter: folderPrefix="src/components" to filter by directory. ' +
             'Next: read_bundle(snapshotId|projectPath, bundlePath).',
@@ -129,7 +131,9 @@ export function createServer(): Server {
           description:
             'Reads bundle/index file to get component contracts and dependency graphs. Reads context_main.json (project overview) or folder context.json (component contracts). ' +
             'These are pre-parsed summaries optimized for AI - PREFER over raw .ts/.tsx files. ' +
-            'Bundle contains: entryId, graph.nodes[] (UIFContract), graph.edges[] (dependencies), meta.missing[] (unresolved). ' +
+            'ROOT vs DEPENDENCY: Root components have their own bundles (use rootComponent param). Dependencies appear in bundle.graph.nodes[] of the root that imports them. ' +
+            'If a component isn\'t found as root, it\'s a dependency - read bundles that might import it and check bundle.graph.nodes[] for the dependency contract. ' +
+            'Bundle contains: entryId, graph.nodes[] (UIFContract for root + dependencies), graph.edges[] (dependencies), meta.missing[] (unresolved). ' +
             'UIFContract: kind, description, props, emits, state, exports, semanticHash, optional style metadata. ' +
             'Watch mode: Use projectPath directly (no snapshotId needed). Use bundlePath="context_main.json" for overview, or folder paths from list_bundles for details.',
           inputSchema: {
@@ -149,7 +153,7 @@ export function createServer(): Server {
               },
               rootComponent: {
                 type: 'string',
-                description: 'Specific root component name to filter within the bundle file (optional). If omitted, returns the first bundle in the file.',
+                description: 'Specific ROOT component name to filter within the bundle file (optional). Only works for root components (listed in list_bundles). If omitted, returns the first bundle. Note: Dependencies appear in bundle.graph.nodes[] of the root that imports them, not as separate root bundles.',
               },
             },
             required: ['bundlePath'],
@@ -256,6 +260,8 @@ export function createServer(): Server {
             'If INACTIVE: Call refresh_snapshot first. Enables zero-cost instant context access when watch mode running. ' +
             'Reads .logicstamp/context_watch-status.json and verifies process is running. ' +
             'Watch features: Incremental rebuilds (affected bundles only), change detection (props/hooks/state/components), debouncing (500ms), optional log file. ' +
+            'Strict watch mode (`stamp context --watch --strict-watch`): Also detects breaking changes. Returns strictWatch=true when enabled. ' +
+            'Detection: Reads strictWatch field from .logicstamp/context_watch-status.json file (when LogicStamp CLI includes it). ' +
             'Set includeRecentLogs=true to see recent regeneration events.',
           inputSchema: {
             type: 'object',
