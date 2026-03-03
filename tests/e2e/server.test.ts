@@ -572,4 +572,36 @@ describe('MCP Server E2E tests', () => {
       }
     });
   });
+
+  describe('parameter validation edge cases', () => {
+    it('should validate missing snapshotId and projectPath for read_bundle', async () => {
+      await expect(
+        callTool('logicstamp_read_bundle', {
+          bundlePath: 'src/components/context.json',
+        })
+      ).rejects.toThrow('Either snapshotId or projectPath is required');
+    });
+
+    it('should handle read_bundle with bundlePath but no snapshotId or projectPath', async () => {
+      await expect(
+        callTool('logicstamp_read_bundle', {
+          bundlePath: 'test.json',
+        })
+      ).rejects.toThrow('Either snapshotId or projectPath is required');
+    });
+  });
+
+  describe('startServer function', () => {
+    it('should export startServer function', async () => {
+      const module = await import('../../src/mcp/server.js');
+      expect(typeof module.startServer).toBe('function');
+    });
+
+    // Note: startServer is difficult to test in isolation because it:
+    // 1. Creates a transport layer (stdio)
+    // 2. Connects to the transport
+    // 3. Logs to console.error
+    // These are integration concerns that require a full MCP client/server setup
+    // The function is covered by manual testing and E2E scenarios
+  });
 });

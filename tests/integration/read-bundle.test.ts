@@ -525,4 +525,206 @@ describe('readBundle integration tests', () => {
       expect(result.bundle!.position).toBe('2/2');
     });
   });
+
+  describe('direct projectPath access (watch mode)', () => {
+    it('should read bundle using projectPath without snapshotId', async () => {
+      await createMockIndex(tempDir, {
+        folders: [
+          {
+            path: 'src/components',
+            bundles: 1,
+            components: ['Button'],
+          },
+        ],
+      });
+
+      const mockBundle = createMockBundle('Button');
+      await createMockBundleFiles(tempDir, 'src/components', [mockBundle]);
+
+      const result = await readBundle({
+        projectPath: tempDir,
+        bundlePath: 'src/components/context.json',
+      });
+
+      expect(result.projectPath).toBe(tempDir);
+      expect(result.bundle).toBeDefined();
+      expect(result.snapshotId).toBeUndefined();
+    });
+
+    it('should throw error when projectPath provided but context_main.json missing', async () => {
+      await expect(
+        readBundle({
+          projectPath: tempDir,
+          bundlePath: 'src/components/context.json',
+        })
+      ).rejects.toThrow('context_main.json not found');
+    });
+
+    it('should detect watch mode when status file exists and process is running', async () => {
+      await createMockIndex(tempDir, {
+        folders: [
+          {
+            path: 'src/components',
+            bundles: 1,
+            components: ['Button'],
+          },
+        ],
+      });
+
+      const mockBundle = createMockBundle('Button');
+      await createMockBundleFiles(tempDir, 'src/components', [mockBundle]);
+
+      // Create watch status file with active=true and valid PID
+      const { writeFile, mkdir } = await import('fs/promises');
+      const { join } = await import('path');
+      const logicstampDir = join(tempDir, '.logicstamp');
+      await mkdir(logicstampDir, { recursive: true });
+      
+      const statusPath = join(logicstampDir, 'context_watch-status.json');
+      const status = {
+        active: true,
+        pid: process.pid, // Use current process PID (will be running)
+      };
+      await writeFile(statusPath, JSON.stringify(status));
+
+      const result = await readBundle({
+        projectPath: tempDir,
+        bundlePath: 'src/components/context.json',
+      });
+
+      expect(result.watchMode).toBe(true);
+    });
+
+    it('should not set watchMode when status file exists but process is not running', async () => {
+      await createMockIndex(tempDir, {
+        folders: [
+          {
+            path: 'src/components',
+            bundles: 1,
+            components: ['Button'],
+          },
+        ],
+      });
+
+      const mockBundle = createMockBundle('Button');
+      await createMockBundleFiles(tempDir, 'src/components', [mockBundle]);
+
+      // Create watch status file with inactive PID
+      const { writeFile, mkdir } = await import('fs/promises');
+      const { join } = await import('path');
+      const logicstampDir = join(tempDir, '.logicstamp');
+      await mkdir(logicstampDir, { recursive: true });
+      
+      const statusPath = join(logicstampDir, 'context_watch-status.json');
+      const status = {
+        active: true,
+        pid: 999999, // Invalid PID
+      };
+      await writeFile(statusPath, JSON.stringify(status));
+
+      const result = await readBundle({
+        projectPath: tempDir,
+        bundlePath: 'src/components/context.json',
+      });
+
+      expect(result.watchMode).toBeUndefined();
+    });
+  });
+
+  describe('file validation', () => {
+    it('should throw error when bundle file is a TypeScript file', async () => {
+      await createMockIndex(tempDir, {
+        folders: [
+          {
+            path: 'src/components',
+            bundles: 1,
+            components: ['Button'],
+          },
+        ],
+      });
+
+      const { writeFile, mkdir } = await import('fs/promises');
+      const { join } = await import('path');
+      const folderPath = join(tempDir, 'src/components');
+      await mkdir(folderPath, { recursive: true });
+      
+      // Write a TypeScript file instead of JSON
+      await writeFile(join(folderPath, 'context.json'), 'import React from "react";\nexport function Button() {}');
+
+      await expect(
+        readBundle({
+          snapshotId,
+          bundlePath: 'src/components/context.json',
+        })
+      ).rejects.toThrow('appears to be a TypeScript file');
+    });
+
+    it('should throw error when bundle file starts with export statement', async () => {
+      await createMockIndex(tempDir, {
+        folders: [
+          {
+            path: 'src/components',
+            bundles: 1,
+            components: ['Button'],
+          },
+        ],
+      });
+
+      const { writeFile, mkdir } = await import('fs/promises');
+      const { join } = await import('path');
+      const folderPath = join(tempDir, 'src/components');
+      await mkdir(folderPath, { recursive: true });
+      
+      // Write a file starting with export
+      await writeFile(join(folderPath, 'context.json'), 'export const data = {};');
+
+      await expect(
+        readBundle({
+          snapshotId,
+          bundlePath: 'src/components/context.json',
+        })
+      ).rejects.toThrow('appears to be a TypeScript file');
+    });
+
+    it('should validate LogicStampIndex type when reading context_main.json', async () => {
+      await createMockIndex(tempDir);
+
+      // Overwrite with invalid index (missing type field)
+      const { writeFile } = await import('fs/promises');
+      const { join } = await import('path');
+      const invalidIndex = {
+        schemaVersion: '1.0.0',
+        folders: [],
+      };
+      await writeFile(join(tempDir, 'context_main.json'), JSON.stringify(invalidIndex));
+
+      await expect(
+        readBundle({
+          snapshotId,
+          bundlePath: 'context_main.json',
+        })
+      ).rejects.toThrow('does not appear to be a valid LogicStampIndex file');
+    });
+
+    it('should validate LogicStampIndex type field value', async () => {
+      await createMockIndex(tempDir);
+
+      // Overwrite with invalid index (wrong type value)
+      const { writeFile } = await import('fs/promises');
+      const { join } = await import('path');
+      const invalidIndex = {
+        type: 'InvalidType',
+        schemaVersion: '1.0.0',
+        folders: [],
+      };
+      await writeFile(join(tempDir, 'context_main.json'), JSON.stringify(invalidIndex));
+
+      await expect(
+        readBundle({
+          snapshotId,
+          bundlePath: 'context_main.json',
+        })
+      ).rejects.toThrow('Expected type: "LogicStampIndex"');
+    });
+  });
 });
