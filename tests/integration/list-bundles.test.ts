@@ -466,4 +466,152 @@ describe('listBundles integration tests', () => {
       expect(result.bundles.map(b => b.folder)).not.toContain('srcTest');
     });
   });
+
+  describe('direct projectPath access (watch mode)', () => {
+    it('should list bundles using projectPath without snapshotId', async () => {
+      await createMockIndex(tempDir, {
+        folders: [
+          {
+            path: 'src/components',
+            bundles: 1,
+            components: ['Button'],
+          },
+        ],
+      });
+
+      const mockBundle = createMockBundle('Button');
+      await createMockBundleFiles(tempDir, 'src/components', [mockBundle]);
+
+      const result = await listBundles({ projectPath: tempDir });
+
+      expect(result.projectPath).toBe(tempDir);
+      expect(result.totalBundles).toBe(1);
+      expect(result.bundles).toHaveLength(1);
+      expect(result.snapshotId).toBeUndefined();
+    });
+
+    it('should throw error when projectPath provided but context_main.json missing', async () => {
+      // Don't create context_main.json
+
+      await expect(
+        listBundles({ projectPath: tempDir })
+      ).rejects.toThrow('context_main.json not found');
+    });
+
+    it('should detect watch mode when status file exists and process is running', async () => {
+      await createMockIndex(tempDir, {
+        folders: [
+          {
+            path: 'src/components',
+            bundles: 1,
+            components: ['Button'],
+          },
+        ],
+      });
+
+      const mockBundle = createMockBundle('Button');
+      await createMockBundleFiles(tempDir, 'src/components', [mockBundle]);
+
+      // Create watch status file with active=true and valid PID
+      const { writeFile, mkdir } = await import('fs/promises');
+      const { join } = await import('path');
+      const logicstampDir = join(tempDir, '.logicstamp');
+      await mkdir(logicstampDir, { recursive: true });
+      
+      const statusPath = join(logicstampDir, 'context_watch-status.json');
+      const status = {
+        active: true,
+        pid: process.pid, // Use current process PID (will be running)
+      };
+      await writeFile(statusPath, JSON.stringify(status));
+
+      const result = await listBundles({ projectPath: tempDir });
+
+      expect(result.watchMode).toBe(true);
+    });
+
+    it('should not set watchMode when status file exists but process is not running', async () => {
+      await createMockIndex(tempDir, {
+        folders: [
+          {
+            path: 'src/components',
+            bundles: 1,
+            components: ['Button'],
+          },
+        ],
+      });
+
+      const mockBundle = createMockBundle('Button');
+      await createMockBundleFiles(tempDir, 'src/components', [mockBundle]);
+
+      // Create watch status file with inactive PID (999999 is unlikely to be running)
+      const { writeFile, mkdir } = await import('fs/promises');
+      const { join } = await import('path');
+      const logicstampDir = join(tempDir, '.logicstamp');
+      await mkdir(logicstampDir, { recursive: true });
+      
+      const statusPath = join(logicstampDir, 'context_watch-status.json');
+      const status = {
+        active: true,
+        pid: 999999, // Invalid PID
+      };
+      await writeFile(statusPath, JSON.stringify(status));
+
+      const result = await listBundles({ projectPath: tempDir });
+
+      // Watch mode should be false because process is not running
+      // Status file should be cleaned up
+      expect(result.watchMode).toBeUndefined();
+    });
+
+    it('should handle invalid watch status file gracefully', async () => {
+      await createMockIndex(tempDir, {
+        folders: [
+          {
+            path: 'src/components',
+            bundles: 1,
+            components: ['Button'],
+          },
+        ],
+      });
+
+      const mockBundle = createMockBundle('Button');
+      await createMockBundleFiles(tempDir, 'src/components', [mockBundle]);
+
+      // Create invalid watch status file
+      const { writeFile, mkdir } = await import('fs/promises');
+      const { join } = await import('path');
+      const logicstampDir = join(tempDir, '.logicstamp');
+      await mkdir(logicstampDir, { recursive: true });
+      
+      const statusPath = join(logicstampDir, 'context_watch-status.json');
+      await writeFile(statusPath, 'invalid json');
+
+      const result = await listBundles({ projectPath: tempDir });
+
+      // Should still work, just without watch mode
+      expect(result.totalBundles).toBe(1);
+      expect(result.watchMode).toBeUndefined();
+    });
+
+    it('should handle missing watch status file', async () => {
+      await createMockIndex(tempDir, {
+        folders: [
+          {
+            path: 'src/components',
+            bundles: 1,
+            components: ['Button'],
+          },
+        ],
+      });
+
+      const mockBundle = createMockBundle('Button');
+      await createMockBundleFiles(tempDir, 'src/components', [mockBundle]);
+
+      const result = await listBundles({ projectPath: tempDir });
+
+      expect(result.totalBundles).toBe(1);
+      expect(result.watchMode).toBeUndefined();
+    });
+  });
 });
