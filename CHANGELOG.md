@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+---
+
+## [Unreleased]
+
+### Roadmap
+
+For a comprehensive roadmap with detailed status, priorities, and implementation plans, see [ROADMAP.md](ROADMAP.md).
+
+---
+
+## [0.2.0] - 2026-03-03
+
+### Changed
+
+- **Enhanced Watch Mode Functionality and Documentation** ([#26](https://github.com/LogicStamp/logicstamp-mcp/pull/26)) - Improved watch mode detection and documentation clarity
+  - Improved descriptions in server tools to clarify the distinction between ROOT components and DEPENDENCIES
+  - Added cleanup of stale watch status files when the process is no longer running across multiple tools
+  - Updated watch status handling to include strict watch mode detection, enhancing user awareness of breaking change detection
+  - Enhanced tests to verify strict watch mode functionality and its reporting in various scenarios
+  - Updated schemas to reflect the new strict watch mode field in watch status outputs
+
+- **Documentation Updates and Node.js Requirement** ([#27](https://github.com/LogicStamp/logicstamp-mcp/pull/27)) - Updated Node.js requirement and enhanced documentation clarity
+  - Updated Node.js version requirement to >= 20 across various documentation files for consistency
+  - Improved clarity in documentation regarding the distinction between ROOT components and DEPENDENCIES
+  - Enhanced descriptions in multiple guides to reflect the latest tool capabilities and usage patterns
+  - Adjusted default behavior notes for `skipIfWatchActive` in the `refresh_snapshot` command
+
+- **Documentation Improvements** ([#28](https://github.com/LogicStamp/logicstamp-mcp/pull/28)) - Updated README and roadmap for clarity and consistency
+  - Revised Node.js version requirement to >= 20 across documentation
+  - Enhanced README with a new Table of Contents and improved descriptions for better navigation and understanding
+  - Updated roadmap with the correct last updated date format
+  - Adjusted various sections for clarity, including prerequisites and features, to reflect the latest tool capabilities
+
+- **Test Coverage Improvements** ([#29](https://github.com/LogicStamp/logicstamp-mcp/pull/29)) - Enhanced test coverage for better code quality assurance
+  - Added comprehensive tests for watch mode detection and direct projectPath access in `list-bundles.ts` and `read-bundle.ts`
+  - Added tests for TypeScript file validation and LogicStampIndex type validation in `read-bundle.ts`
+  - Added tests for error paths in `read-logicstamp-docs.ts` including package root detection and fallback strategies
+  - Added tests for server parameter validation edge cases
+  - Improved branch coverage for error handling paths and edge cases
+  - All new tests passing with improved confidence in error handling and watch mode functionality
+
+
 ## [0.1.6] - 2026-02-09
 
 ### Changed
@@ -284,6 +326,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - This is the initial public release
 - Requires `logicstamp-context` CLI to be installed globally (`npm install -g logicstamp-context`)
 - All tools are read-only - they analyze but never modify your codebase
+
+[Unreleased]: https://github.com/LogicStamp/logicstamp-mcp/compare/v0.2.0...HEAD
+
+[0.2.0]: https://github.com/LogicStamp/logicstamp-mcp/releases/tag/v0.2.0
 
 [0.1.6]: https://github.com/LogicStamp/logicstamp-mcp/releases/tag/v0.1.6
 
