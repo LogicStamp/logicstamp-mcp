@@ -6,7 +6,7 @@ LogicStamp MCP server works with [Claude Code](https://claude.com/claude-code) -
 
 Before diving into setup, check these common issues:
 
-- ✅ **Node.js installed?** Run `node --version` (needs >= 18.18.0, Node 20+ recommended)
+- ✅ **Node.js installed?** Run `node --version` (needs >= 20)
 - ✅ **Claude CLI installed?** Run `claude --version`
 - ✅ **Package installed?** Run `npm list -g logicstamp-mcp`
 - ✅ **LogicStamp CLI installed?** Run `stamp --version` (needs `npm install -g logicstamp-context`)
@@ -232,7 +232,7 @@ After installation, verify the server is configured:
    logicstamp: npx logicstamp-mcp - ✓ Connected
    ```
 
-3. **Test in Project** - Navigate to a React/TypeScript project and start Claude:
+3. **Test in Project** - Navigate to a TypeScript project and start Claude:
    ```bash
    cd /path/to/your/react-project
    claude
@@ -247,7 +247,7 @@ After installation, verify the server is configured:
 
 ## Usage
 
-Start Claude Code in any React/TypeScript project:
+Start Claude Code in any TypeScript project:
 
 ```bash
 cd /path/to/your/react-project

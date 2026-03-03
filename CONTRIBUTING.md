@@ -10,7 +10,7 @@ This project adheres to a [Code of Conduct](CODE_OF_CONDUCT.md). By participatin
 
 ### Prerequisites
 
-- Node.js >= 18.18.0 (Node 20+ recommended for best performance and features)
+- Node.js >= 20
 - npm or yarn
 - Git
 - LogicStamp Context CLI (`npm install -g logicstamp-context`)
@@ -203,7 +203,7 @@ If you already ran `npm link` during installation (see [Installation](#installat
 2. **Verify it's linked:**
    ```bash
    npm list -g logicstamp-mcp
-   # Should show: logicstamp-mcp@0.1.4 -> /path/to/logicstamp-mcp
+   # Should show: logicstamp-mcp@0.1.6 -> /path/to/logicstamp-mcp
    ```
 
 3. **Your MCP clients will automatically use the local version** if they're configured with `npx logicstamp-mcp` (which is the standard configuration). No additional configuration needed!
