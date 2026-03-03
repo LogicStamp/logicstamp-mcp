@@ -4,7 +4,7 @@
 
 ## Overview
 
-**LogicStamp Context** is a zero-configuration CLI tool that analyzes React/TypeScript codebases and backend Node.js applications (Express.js, NestJS) and generates machine-readable context bundles optimized for AI assistants and CI/CD pipelines. It extracts comprehensive component metadata, API routes, builds dependency graphs, and produces structured JSON documentation that captures the complete architecture of your application.
+**LogicStamp Context** is a zero-configuration CLI tool that analyzes TypeScript codebases and generates machine-readable context bundles optimized for AI assistants and CI/CD pipelines. It extracts comprehensive component metadata, builds dependency graphs, and produces structured JSON documentation that captures the complete architecture of your application.
 
 > **Note:** This document describes LogicStamp Context CLI capabilities. For MCP server usage, see the [MCP Integration Guide](mcp_integration.md) and [README](../README.md).
 
@@ -24,7 +24,6 @@ For each component in your codebase, LogicStamp Context generates a detailed con
   - `react:component` - React functional or class components
   - `ts:module` - TypeScript utility modules
   - `node:cli` - CLI entry points
-  - `node:api` - Backend API routes/handlers (Express.js, NestJS) (v0.4.0)
 - **Next.js framework detection**:
   - **Page/Layout identification** - Detects files in Next.js App Router (`/app` directory)
   - **Client component** - Identifies `'use client'` directive
@@ -71,7 +70,6 @@ LogicStamp Context builds a comprehensive dependency graph showing how component
 #### External Package Imports
 - **Import tracking** - Captures all import statements:
   - React ecosystem: `react`, `react-dom`, `next/router`, etc.
-  - Backend frameworks: `express`, `@nestjs/common`, `@nestjs/core`, etc.
   - State management: `react-query`, `zustand`, `redux`, etc.
   - Design systems: `@mui/material`, `@chakra-ui/react`, etc.
   - Utility libraries: `lodash`, `date-fns`, etc.
@@ -255,7 +253,7 @@ Each component contract (`UIFContract`) includes:
 {
   type: 'UIFContract',
   schemaVersion: '0.3',
-  kind: 'react:component' | 'ts:module' | 'node:cli' | 'node:api',
+  kind: 'react:component' | 'ts:module' | 'node:cli',
   entryId: string,                    // Normalized component path
   entryPathAbs: string,               // Absolute file path
   entryPathRel: string,               // Relative POSIX path
@@ -336,7 +334,7 @@ Each component contract (`UIFContract`) includes:
 ## Key Features
 
 ### Zero Configuration
-- Works out of the box on any React/TypeScript project or Node.js backend application (Express.js, NestJS)
+- Works out of the box on any TypeScript project
 - No build step required - analyzes source files directly
 - Automatic component detection and classification
 
@@ -355,19 +353,17 @@ Each component contract (`UIFContract`) includes:
 - **Reproducible builds** - Same input produces same output
 
 ### Framework Awareness
-- **Next.js App Router** - Detects pages, layouts, client/server components, route roles, segment paths, metadata exports
+- **Next.js App Router** - Detects pages, layouts, client/server components
 - **React patterns** - Recognizes hooks, context, refs
-- **Backend frameworks** - Express.js route extraction (`app.get()`, `router.post()`, etc.), NestJS controller extraction (`@Controller`, `@Get`, `@Post`, etc.), HTTP methods, route paths, API signatures (v0.4.0)
 - **TypeScript types** - Full type inference from interfaces and types
 
 ### CI/CD Integration
-
-> ⚠️ **Limited CI/CD support:** Git baseline comparison (`git:main`, `git:HEAD~1`) is not yet implemented. Current CI/CD workflows require committing context files (not recommended) or manual baseline generation.
-
 - **Strict validation** - `--strict-missing` flag for dependency checking
-- **Drift detection** - Compare context versions to detect changes (works, but only against disk snapshots)
+- **Drift detection** - Compare context versions to detect changes (works against disk snapshots; git baseline comparison not yet implemented)
 - **JSON stats output** - Machine-readable metrics for CI pipelines
 - **Exit codes** - CI-friendly success/failure indicators
+
+> ⚠️ **Note:** Git baseline comparison (`git:main`, `git:HEAD~1`) is not yet implemented. Current CI/CD workflows require committing context files (not recommended) or manual baseline generation. See the [roadmap](https://logicstamp.dev/roadmap) for planned features.
 
 ## Use Cases
 
@@ -391,12 +387,9 @@ Share context bundles with AI assistants to get:
 - **Complexity metrics** - Track component dependency counts
 
 ### CI/CD Validation
-
-> ⚠️ **Limited CI/CD support:** Git baseline comparison (`git:main`, `git:HEAD~1`) is not yet implemented. Current CI/CD workflows require committing context files (not recommended) or manual baseline generation. Full CI/CD integration requires git baseline support, which is planned but not yet implemented.
-
-- **Contract verification** - Ensure components match expected contracts (works, but only against disk snapshots)
-- **Dependency validation** - Catch missing or broken imports (works, but only against disk snapshots)
-- **Change detection** - Monitor component contract drift (works, but only against disk snapshots)
+- **Contract verification** - Ensure components match expected contracts (works against disk snapshots)
+- **Dependency validation** - Catch missing or broken imports
+- **Change detection** - Monitor component contract drift (works against disk snapshots; git baseline comparison not yet implemented)
 - **Token budgeting** - Track context size for AI workflows
 
 ## Technical Implementation
@@ -432,10 +425,10 @@ stamp context [path] [options]
 ```
 
 ### Key Options
-- `--depth <n>` - Dependency traversal depth (default: 2 for profiles, configurable)
+- `--depth <n>` - Dependency traversal depth (default: 1)
 - `--include-code <mode>` - Code inclusion: `none|header|full` (default: `header`)
 - `--include-style` - Include style metadata (Tailwind, SCSS, animations, etc.) - equivalent to `stamp context style`
-- `--profile <profile>` - Preset: `llm-safe|llm-chat|ci-strict` (⚠️ **Note:** `ci-strict` profile name implies CI/CD readiness, but git baseline comparison is not yet implemented)
+- `--profile <profile>` - Preset: `llm-safe|llm-chat|ci-strict`
 - `--predict-behavior` - Enable behavioral predictions
 - `--strict-missing` - Fail on missing dependencies (CI-friendly)
 - `--compare-modes` - Show token cost comparison
@@ -446,9 +439,7 @@ stamp context [path] [options]
 - `stamp context compare` - Multi-file drift detection
 - `stamp context validate` - Schema validation
 - `stamp context clean` - Remove generated files
-- `stamp init` - Project initialization (runs security scan by default)
-- `stamp security scan` - Security auditing
-- `stamp ignore <file>` - Exclude files from context generation
+- `stamp init` - Project initialization
 
 ## Summary
 

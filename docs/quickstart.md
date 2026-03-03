@@ -2,7 +2,7 @@
 
 ## 1. Prerequisites
 
-**Node.js Requirement:** >= 18.18.0 (Node 20+ recommended for best performance and features)
+**Node.js Requirement:** >= 20
 
 Install the LogicStamp Context CLI (this MCP server is a wrapper around it):
 
@@ -117,7 +117,7 @@ claude
 
 Then ask Claude to analyze your project:
 ```
-Can you analyze my React/TypeScript project using LogicStamp?
+Can you analyze my TypeScript project using LogicStamp?
 ```
 
 Or paste the [startup ritual](startup-ritual.md) message first.

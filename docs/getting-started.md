@@ -270,7 +270,7 @@ Read a specific context bundle or the project index:
 }
 ```
 
-**Important:** Set `skipIfWatchActive: true` (default) to automatically skip regeneration when watch mode is running. This avoids expensive regeneration when context is already fresh.
+**Important:** The default value of `skipIfWatchActive` is `true`, which automatically skips regeneration when watch mode is running. This avoids expensive regeneration when context is already fresh. You only need to set it explicitly if you want to change the default behavior (e.g., set to `false` to force regeneration even when watch mode is active).
 
 #### `logicstamp_compare_snapshot`
 
