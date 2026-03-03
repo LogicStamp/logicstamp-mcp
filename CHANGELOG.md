@@ -17,6 +17,13 @@ For a comprehensive roadmap with detailed status, priorities, and implementation
 
 ## [0.2.0] - 2026-03-03
 
+### ⚠️ Breaking Changes
+
+- **Minimum Node.js version is now >= 20.**
+  - logicstamp-mcp now requires Node.js 20 or higher.  
+  - This aligns MCP with the `logicstamp-context` CLI runtime requirements.  
+  - Users on Node.js 18 must upgrade to continue using MCP.
+
 ### Changed
 
 - **Enhanced Watch Mode Functionality and Documentation** ([#26](https://github.com/LogicStamp/logicstamp-mcp/pull/26)) - Improved watch mode detection and documentation clarity
