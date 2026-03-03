@@ -483,5 +483,5 @@ Always use `logicstamp_compare_snapshot` directly. With watch mode keeping conte
 
 ---
 
-**Last Updated:** 2026-02-09  
+**Last Updated:** 2026-13-02  
 **Version:** 0.1.6

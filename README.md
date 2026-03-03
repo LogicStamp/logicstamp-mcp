@@ -14,15 +14,15 @@
     <img src="./assets/logicstamp-fox.svg" alt="LogicStamp Fox Mascot" width="100" style="min-width: 80px;">
   </a>
 
-  [![Version](https://img.shields.io/badge/version-0.1.6-8b5cf6.svg)](https://www.npmjs.com/package/logicstamp-mcp)
+  [![Version](https://img.shields.io/npm/v/logicstamp-mcp?color=8b5cf6&label=version)](https://www.npmjs.com/package/logicstamp-mcp)
   ![Beta](https://img.shields.io/badge/status-beta-orange.svg)
   [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-  ![Node](https://img.shields.io/badge/node-%3E%3D18.18.0-brightgreen.svg)
+  ![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)
   [![CI](https://github.com/LogicStamp/logicstamp-mcp/workflows/CI/badge.svg)](https://github.com/LogicStamp/logicstamp-mcp/actions)
 
   <br/>
 
-  **Model Context Protocol (MCP) server for [LogicStamp Context](https://github.com/LogicStamp/logicstamp-context) - enabling AI assistants to safely analyze and understand React/TypeScript codebases and Node.js backend applications (Next.js, Express.js, NestJS).**
+**Model Context Protocol (MCP) server for [LogicStamp Context](https://github.com/LogicStamp/logicstamp-context), the Context Compiler for TypeScript - exposing deterministic architectural contracts to AI agents via secure, structured context delivery.**
 
 </div>
 
@@ -33,6 +33,25 @@
 *MCP server calling the CLI to generate and consume context bundles*
 
 ---
+
+<details>
+<summary><strong>📑 Table of Contents</strong></summary>
+
+- [Overview](#overview)
+- [Features](#-features)
+- [Prerequisites](#prerequisites)
+- [Quick Start](#quick-start)
+- [Usage Example](#usage-example)
+- [Tool Reference](#tool-reference)
+- [Startup Ritual](#startup-ritual)
+- [Documentation](#documentation)
+- [Troubleshooting](#troubleshooting)
+- [Development](#development)
+- [Architecture](#architecture)
+- [Requirements](#requirements)
+- [Need Help?](#need-help)
+- [License](#license)
+</details>
 
 ## Overview
 
@@ -45,7 +64,7 @@ This MCP server provides AI assistants with structured access to your codebase t
 - **Drift detection** - Verify changes after modifications
 - **Token optimization** - Control context size with configurable code inclusion modes
 
-## Features
+## ⚡ Features
 
 ### 7 Tools
 
@@ -67,7 +86,7 @@ This MCP server provides AI assistants with structured access to your codebase t
 
 ## Prerequisites
 
-1. **Node.js** >= 18.18.0 (Node 20+ recommended for best performance and features)
+1. **Node.js** >= 20
 2. **LogicStamp Context CLI** - The `stamp` command must be installed and available in PATH
    ```bash
    npm install -g logicstamp-context
@@ -138,7 +157,8 @@ For more examples and workflows, see [Usage Examples](docs/mcp_integration.md#ll
 
 The MCP server provides 7 tools. For complete API documentation with input/output examples, see the [MCP Integration Guide](docs/mcp_integration.md#mcp-tools-mvp).
 
-### Quick Reference
+<details>
+<summary><strong>📋 Quick Reference</strong></summary>
 
 **logicstamp_refresh_snapshot** - Create a snapshot of the current codebase state (STEP 1)
 - Parameters: `profile` (optional), `mode` (optional), `includeStyle` (optional), `depth` (optional), `projectPath` (required), `cleanCache` (optional), `skipIfWatchActive` (optional)
@@ -187,6 +207,8 @@ The MCP server provides 7 tools. For complete API documentation with input/outpu
 - Returns: `watchModeActive`, `status` (if active), `recentLogs` (if requested), `message`
 - **Use this** to check if `stamp context --watch` is running before calling refresh_snapshot
 - **When watch mode is active:** Context is being kept fresh automatically via incremental rebuilds - you can skip regeneration and just read existing bundles
+
+</details>
 
 ## Startup Ritual
 
@@ -287,7 +309,7 @@ When running manually, the server will wait for stdin input. Press `Ctrl+C` to e
 npm run dev
 ```
 
-For development details, see [MCP Integration Guide](docs/mcp_integration.md) and [Contributing Guide](CONTRIBUTING.md).
+For development details, see [MCP Integration Guide](docs/mcp_integration.md).
 
 ## Architecture
 
@@ -302,39 +324,37 @@ For detailed architecture documentation, see [MCP Integration Guide](docs/mcp_in
 
 ## Requirements
 
-This MCP server requires:
-- **`stamp context` command** - Must be installed and available in PATH
-- The CLI generates `context_main.json` files (already JSON format)
-- The MCP reads these JSON files directly - no special JSON output flags needed
+The LogicStamp MCP server requires:
+
+- Node.js >= 20
+- TypeScript codebase (React, Next.js, Vue (TS/TSX), Express, or NestJS)
+- **`stamp context` command** - Must be installed and available in PATH:
+  - The CLI generates `context_main.json` files
+  - The MCP server reads these JSON files directly (no special flags required)
+
+## Need Help?
+
+- **Issues** - [github.com/LogicStamp/logicstamp-context/issues](https://github.com/LogicStamp/logicstamp-mcp/issues)
+- **Roadmap** - [logicstamp.dev/roadmap](https://logicstamp.dev/roadmap)
 
 ## License
 
 [MIT](LICENSE)
 
-## Branding & Attribution
+---
 
-The LogicStamp Fox mascot and related brand assets are © 2025 Amit Levi.
+<details>
+<summary>Branding & Attribution</summary>
 
-These assets may not be used for third-party branding, logos, or commercial identity without permission. They are included in this repository for documentation and non-commercial use within the LogicStamp ecosystem only.
+The LogicStamp Fox mascot and related brand assets are © 2025 Amit Levi. These assets may not be used for third-party branding without permission.
+</details>
 
-## Contributing
+<details>
+<summary>Contributing</summary>
 
-Contributions welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Issues and PRs welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-## Community
+This project follows a [Code of Conduct](CODE_OF_CONDUCT.md).
+</details>
 
-This project follows a [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you agree to uphold it.
-
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for a detailed list of changes and version history.
-
-## Roadmap
-
-See [ROADMAP.md](ROADMAP.md) for planned enhancements and future features.
-
-## Links
-
-- [LogicStamp](https://logicstamp.dev) - Official website and documentation
-- [LogicStamp Context](https://github.com/LogicStamp/logicstamp-context) - CLI repository
-- [Model Context Protocol](https://modelcontextprotocol.io/) - MCP specification
+**Links:** [Website](https://logicstamp.dev) · [GitHub](https://github.com/LogicStamp/logicstamp-mcp) · [CLI](https://github.com/LogicStamp/logicstamp-context) · [Changelog](https://github.com/LogicStamp/logicstamp-mcp/blob/main/CHANGELOG.md)
