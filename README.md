@@ -334,7 +334,7 @@ The LogicStamp MCP server requires:
 
 ## Need Help?
 
-- **Issues** - [github.com/LogicStamp/logicstamp-context/issues](https://github.com/LogicStamp/logicstamp-mcp/issues)
+- **Issues** - [github.com/LogicStamp/logicstamp-mcp/issues](https://github.com/LogicStamp/logicstamp-mcp/issues)
 - **Roadmap** - [logicstamp.dev/roadmap](https://logicstamp.dev/roadmap)
 
 ## License
