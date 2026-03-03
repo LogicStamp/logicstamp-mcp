@@ -3,7 +3,7 @@
  * List available bundles in a snapshot for selective loading
  */
 
-import { readFile, access } from 'fs/promises';
+import { readFile, access, unlink } from 'fs/promises';
 import { join, resolve } from 'path';
 import { constants } from 'fs';
 import type {
@@ -28,7 +28,8 @@ async function exists(path: string): Promise<boolean> {
 }
 
 /**
- * Check if watch mode is active for the project
+ * Check if watch mode is active for the project.
+ * Cleans up stale status files when the process is no longer running.
  */
 async function checkWatchMode(projectPath: string): Promise<boolean> {
   const statusPath = join(projectPath, '.logicstamp', 'context_watch-status.json');
@@ -43,6 +44,12 @@ async function checkWatchMode(projectPath: string): Promise<boolean> {
 
     // Verify the process is still running
     if (status.pid && !isProcessRunning(status.pid)) {
+      // Clean up stale file
+      try {
+        await unlink(statusPath);
+      } catch {
+        // Ignore cleanup errors
+      }
       return false;
     }
 

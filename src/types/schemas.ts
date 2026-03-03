@@ -115,6 +115,7 @@ export interface RefreshSnapshotOutput {
     message: string;
     pid?: number;
     startedAt?: string;
+    strictWatch?: boolean; // True when strict watch mode is active (breaking change detection)
   };
 }
 
@@ -318,6 +319,8 @@ export interface WatchStatus {
   pid: number;
   startedAt: string; // ISO timestamp
   outputDir: string;
+  strictWatch?: boolean; // True when --strict-watch flag is enabled (breaking change detection)
+  // Note: This field is read from .logicstamp/context_watch-status.json when LogicStamp CLI includes it
 }
 
 /**
@@ -355,6 +358,8 @@ export interface WatchStatusInput {
 export interface WatchStatusOutput {
   projectPath: string;
   watchModeActive: boolean;
+  strictWatch?: boolean; // True when strict watch mode is active (only present if watchModeActive is true)
+  // Detection: Reads strictWatch field from .logicstamp/context_watch-status.json file
   status?: WatchStatus; // Only present if watch mode is active
   recentLogs?: WatchLogEntry[]; // Only present if includeRecentLogs is true and logs exist
   message: string; // Human-readable status message

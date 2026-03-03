@@ -128,6 +128,88 @@ describe('watchStatus integration tests', () => {
       expect(result.message).toContain('list_bundles');
       expect(result.message).toContain('read_bundle');
     });
+
+    it('should detect and report strict watch mode when enabled', async () => {
+      const logicstampDir = join(tempDir, '.logicstamp');
+      await mkdir(logicstampDir, { recursive: true });
+
+      const startedAt = new Date().toISOString();
+      const status = {
+        active: true,
+        projectRoot: tempDir,
+        pid: process.pid,
+        startedAt,
+        outputDir: tempDir,
+        strictWatch: true,
+      };
+      await writeFile(
+        join(logicstampDir, 'context_watch-status.json'),
+        JSON.stringify(status)
+      );
+
+      const result = await watchStatus({ projectPath: tempDir });
+
+      expect(result.watchModeActive).toBe(true);
+      expect(result.strictWatch).toBe(true);
+      expect(result.status?.strictWatch).toBe(true);
+      expect(result.message).toContain('STRICT WATCH');
+      expect(result.message).toContain('breaking change detection');
+    });
+
+    it('should not report strict watch when not enabled', async () => {
+      const logicstampDir = join(tempDir, '.logicstamp');
+      await mkdir(logicstampDir, { recursive: true });
+
+      const startedAt = new Date().toISOString();
+      const status = {
+        active: true,
+        projectRoot: tempDir,
+        pid: process.pid,
+        startedAt,
+        outputDir: tempDir,
+        strictWatch: false,
+      };
+      await writeFile(
+        join(logicstampDir, 'context_watch-status.json'),
+        JSON.stringify(status)
+      );
+
+      const result = await watchStatus({ projectPath: tempDir });
+
+      expect(result.watchModeActive).toBe(true);
+      expect(result.strictWatch).toBeUndefined();
+      expect(result.status?.strictWatch).toBe(false);
+      expect(result.message).not.toContain('STRICT WATCH');
+    });
+
+    it('should not report strict watch when field is missing from status file', async () => {
+      const logicstampDir = join(tempDir, '.logicstamp');
+      await mkdir(logicstampDir, { recursive: true });
+
+      const startedAt = new Date().toISOString();
+      // Status file without strictWatch field (current LogicStamp CLI behavior)
+      const status = {
+        active: true,
+        projectRoot: tempDir,
+        pid: process.pid,
+        startedAt,
+        outputDir: tempDir,
+        // strictWatch field not present
+      };
+      await writeFile(
+        join(logicstampDir, 'context_watch-status.json'),
+        JSON.stringify(status)
+      );
+
+      const result = await watchStatus({ projectPath: tempDir });
+
+      expect(result.watchModeActive).toBe(true);
+      expect(result.status).toBeDefined();
+      // strictWatch should be undefined when not in status file
+      expect(result.strictWatch).toBeUndefined();
+      expect(result.status?.strictWatch).toBeUndefined();
+      expect(result.message).not.toContain('STRICT WATCH');
+    });
   });
 
   describe('recent logs', () => {
