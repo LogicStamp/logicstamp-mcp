@@ -9,6 +9,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-03-06
+
+### Added
+
+- **Watch Mode Retry Logic** ([#35](https://github.com/LogicStamp/logicstamp-mcp/pull/35)) - Added automatic retry mechanism with exponential backoff for reading files when watch mode is active
+  - Initial delay before reading files: 200ms for regular watch mode, 500ms for strict watch mode
+  - Automatic retry up to 3 times with exponential backoff (100ms, 200ms, 400ms) if JSON parsing fails
+  - Prevents race conditions when watch mode is actively writing context files
+  - Worst case total wait: ~900ms for regular watch, ~1.1s for strict watch
+  - Only applies when watch mode is active - no performance impact otherwise
+  - Updated `logicstamp_read_bundle` and `logicstamp_list_bundles` to use retry logic
+    - **Documentation Warnings Against External `sleep()`** - Added explicit, prominent warnings in tool descriptions and outputs to prevent AI assistants from using unnecessary `sleep()` calls
+    - **Tool Descriptions** - Added "⚠️ CRITICAL: Do NOT use sleep() delays" as the FIRST line in all relevant tool descriptions (`logicstamp_watch_status`, `logicstamp_list_bundles`, `logicstamp_read_bundle`, `logicstamp_refresh_snapshot`) to ensure AI assistants see the warning immediately
+    - **Tool Output Warnings** - Added `warning` field to `logicstamp_read_bundle` and `logicstamp_list_bundles` outputs when watch mode is active, ensuring warnings appear in every response
+    - **Watch Status Messages** - Enhanced `logicstamp_watch_status` messages to explicitly state "DO NOT use sleep() delays" when watch mode is active
+    - **Documentation** - Added comprehensive section in `docs/logicstamp-for-llms.md` explaining why `sleep()` is unnecessary
+    - **Command Documentation** - Updated command documentation (`docs/commands/read-bundle.md`, `docs/commands/list-bundles.md`) with warnings that delays are internal
+    - Emphasizes that watch mode keeps bundles fresh automatically - AI assistants should read bundles directly without waiting
+    - Explains that internal retry logic handles all race conditions (200-500ms delays + exponential backoff built-in)
+    - Multiple warning touchpoints (descriptions, outputs, messages) ensure AI assistants cannot miss the guidance
+    - Prevents unnecessary delays that slow down AI assistant workflows when watch mode is active
+  - **Branch Testing Improvements** ([#36](https://github.com/LogicStamp/logicstamp-mcp/pull/36)) - Added comprehensive branch coverage tests for `read-logicstamp-docs.ts` and `compare-snapshot.ts`
+    - Added tests for filesystem root check in `findPackageRoot` function
+    - Added test for invalid docPath validation branch by exporting `readDocFile` for testing purposes
+    - Added depth validation tests (invalid, negative, non-integer values)
+    - Added baseline path resolution tests (snapshot, disk, custom path baselines)
+    - Added profile-specific command building tests for different profiles and depth combinations
+    - Added bundle hash comparison tests (hash changes, bundle addition/removal scenarios)
+    - Added tests for missing contracts, loadBundles error handling, and token delta fallback calculation
+    - Added cache cleanup tests for corruption detection scenarios
+    - Improves branch coverage for error handling paths and edge cases
+    - Exported `readDocFile` function for testing to enable coverage of defensive validation branch (line 93)
+
+### Fixed
+
+- **TypeScript File Validation** ([#35](https://github.com/LogicStamp/logicstamp-mcp/pull/35)) - Fixed issue where TypeScript file validation errors were masked by JSON parse errors in retry logic
+  - Retry logic now checks for TypeScript files (starting with `import` or `export`) before attempting JSON parsing
+  - Ensures proper error messages when users accidentally point to TypeScript source files instead of JSON bundle files
+
 ### Roadmap
 
 For a comprehensive roadmap with detailed status, priorities, and implementation plans, see [ROADMAP.md](ROADMAP.md).
@@ -334,7 +373,9 @@ For a comprehensive roadmap with detailed status, priorities, and implementation
 - Requires `logicstamp-context` CLI to be installed globally (`npm install -g logicstamp-context`)
 - All tools are read-only - they analyze but never modify your codebase
 
-[Unreleased]: https://github.com/LogicStamp/logicstamp-mcp/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/LogicStamp/logicstamp-mcp/compare/v0.2.1...HEAD
+
+[0.2.1]: https://github.com/LogicStamp/logicstamp-mcp/releases/tag/v0.2.1
 
 [0.2.0]: https://github.com/LogicStamp/logicstamp-mcp/releases/tag/v0.2.0
 
