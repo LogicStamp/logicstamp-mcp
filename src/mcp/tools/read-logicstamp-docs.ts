@@ -136,6 +136,10 @@ async function readDocFile(docPath: string): Promise<string> {
   }
 }
 
+// Exported for testing purposes to allow coverage of defensive validation logic.
+// Not intended as part of the public API.
+export { readDocFile };
+
 export async function readLogicStampDocs(): Promise<ReadLogicStampDocsOutput> {
   try {
     // Read only the LLM-focused doc bundle (embedded in MCP package)
