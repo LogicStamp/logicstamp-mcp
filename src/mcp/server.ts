@@ -46,6 +46,7 @@ export function createServer(): Server {
         {
           name: 'logicstamp_refresh_snapshot',
           description:
+            '⚠️ CRITICAL: Do NOT use sleep() delays. After calling this tool, bundles are immediately available. When watch mode is active, skip this tool entirely and read bundles directly - they\'re already fresh. ' +
             '⚠️ FIRST: Call logicstamp_watch_status! If watch mode is ACTIVE → SKIP this tool, go to list_bundles → read_bundle (context is fresh). ' +
             'Use when: watch mode INACTIVE, first-time analysis, or after large changes. Default skipIfWatchActive=true (auto-skips regeneration if watch mode active). ' +
             'WHAT IT DOES: Runs `stamp context` to analyze React/TypeScript/Node.js codebases (Next.js, Express.js, NestJS) and generate structured context files (context_main.json + per-folder context.json bundles). These are STRUCTURED DATA, not raw source. SLOW compared to reading existing context. ' +
@@ -102,12 +103,14 @@ export function createServer(): Server {
         {
           name: 'logicstamp_list_bundles',
           description:
+            '⚠️ CRITICAL: Do NOT use sleep() delays before calling this tool. When watch mode is active, bundles are already fresh - call this tool directly without any waiting. ' +
             'Lists all ROOT bundles from context_main.json. Returns bundle catalog (component names, file paths, bundle paths, token estimates). ' +
             'IMPORTANT: LogicStamp organizes components into ROOT components (have their own bundles, listed here) and DEPENDENCIES (included in importing root\'s bundle.graph.nodes[], not listed here). ' +
             'If a component isn\'t in this list, it\'s a dependency - find which root imports it, then read that root\'s bundle to see the dependency contract in bundle.graph.nodes[]. ' +
             'Use bundle paths in read_bundle to get component contracts. ' +
             'Watch mode: Use projectPath directly (no snapshotId needed). Filter: folderPrefix="src/components" to filter by directory. ' +
-            'Next: read_bundle(snapshotId|projectPath, bundlePath).',
+            'Next: read_bundle(snapshotId|projectPath, bundlePath). ' +
+            'The tool handles race conditions internally - no external sleep() delays needed.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -129,13 +132,15 @@ export function createServer(): Server {
         {
           name: 'logicstamp_read_bundle',
           description:
+            '⚠️ CRITICAL: Do NOT use sleep() delays before calling this tool. When watch mode is active, bundles are already fresh - call this tool directly without any waiting. ' +
             'Reads bundle/index file to get component contracts and dependency graphs. Reads context_main.json (project overview) or folder context.json (component contracts). ' +
             'These are pre-parsed summaries optimized for AI - PREFER over raw .ts/.tsx files. ' +
             'ROOT vs DEPENDENCY: Root components have their own bundles (use rootComponent param). Dependencies appear in bundle.graph.nodes[] of the root that imports them. ' +
             'If a component isn\'t found as root, it\'s a dependency - read bundles that might import it and check bundle.graph.nodes[] for the dependency contract. ' +
             'Bundle contains: entryId, graph.nodes[] (UIFContract for root + dependencies), graph.edges[] (dependencies), meta.missing[] (unresolved). ' +
             'UIFContract: kind, description, props, emits, state, exports, semanticHash, optional style metadata. ' +
-            'Watch mode: Use projectPath directly (no snapshotId needed). Use bundlePath="context_main.json" for overview, or folder paths from list_bundles for details.',
+            'Watch mode: Use projectPath directly (no snapshotId needed). Use bundlePath="context_main.json" for overview, or folder paths from list_bundles for details. ' +
+            'The tool handles race conditions internally with retry logic (200-500ms delays + exponential backoff built-in). No external sleep() delays needed.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -255,6 +260,7 @@ export function createServer(): Server {
         {
           name: 'logicstamp_watch_status',
           description:
+            '⚠️ CRITICAL: Do NOT use sleep() delays before calling LogicStamp tools when watch mode is active. Watch mode keeps bundles fresh automatically - just read them directly. ' +
             '⚠️ CALL THIS FIRST before any other LogicStamp tool! Checks if watch mode (`stamp context --watch`) is active. ' +
             'If ACTIVE: SKIP refresh_snapshot, go to list_bundles → read_bundle (context fresh via incremental rebuilds). ' +
             'If INACTIVE: Call refresh_snapshot first. Enables zero-cost instant context access when watch mode running. ' +
@@ -262,7 +268,8 @@ export function createServer(): Server {
             'Watch features: Incremental rebuilds (affected bundles only), change detection (props/hooks/state/components), debouncing (500ms), optional log file. ' +
             'Strict watch mode (`stamp context --watch --strict-watch`): Also detects breaking changes. Returns strictWatch=true when enabled. ' +
             'Detection: Reads strictWatch field from .logicstamp/context_watch-status.json file (when LogicStamp CLI includes it). ' +
-            'Set includeRecentLogs=true to see recent regeneration events.',
+            'Set includeRecentLogs=true to see recent regeneration events. ' +
+            'When watch mode is active, bundles are already fresh - read them directly without any sleep() delays. The tools handle race conditions internally.',
           inputSchema: {
             type: 'object',
             properties: {
