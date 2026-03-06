@@ -121,11 +121,114 @@ describe('readLogicStampDocs error scenarios', () => {
     }
   });
 
-  // Note: Line 93 (invalid docPath validation) is defensive code that's difficult to test
-  // because readDocFile is private and always called with the hardcoded path 'docs/logicstamp-for-llms.md'
-  // from readLogicStampDocs(). This branch is essentially unreachable in normal operation but serves
-  // as defensive programming if the code is refactored in the future. To test it, we would need to
-  // either export readDocFile (not ideal) or use complex module mocking (not worth it for defensive code).
+  it('should reject invalid docPath in readDocFile (line 93)', async () => {
+    // This tests line 92-98: the invalid docPath validation branch
+    // Import readDocFile which is now exported for testing
+    const { readDocFile } = await import('../../src/mcp/tools/read-logicstamp-docs.js');
+    
+    try {
+      await readDocFile('invalid/path.md');
+      fail('Should have thrown error for invalid docPath');
+    } catch (error: any) {
+      expect(error.message).toContain('Invalid documentation path requested');
+      expect(error.message).toContain('invalid/path.md');
+      expect(error.message).toContain('docs/logicstamp-for-llms.md');
+    }
+  });
+
+  it('should handle Strategy 2 success when Strategy 1 fails', async () => {
+    // This tests line 109-115: Strategy 1 fails, Strategy 2 succeeds via findPackageRoot
+    // Also tests line 71 TRUE branch: when package.json.name === 'logicstamp-mcp'
+    // Strategy 1 fails
+    (mockReadFileImpl as any).mockRejectedValueOnce(new Error('Strategy 1 failed'));
+    
+    // Strategy 2: findPackageRoot succeeds (finds correct package.json)
+    (mockStatImpl as any).mockResolvedValue({});
+    
+    let callCount = 0;
+    (mockReadFileImpl as any).mockImplementation((path: string) => {
+      callCount++;
+      if (path.includes('package.json')) {
+        // Return correct package name (tests line 71 TRUE branch - package name matches)
+        return Promise.resolve(JSON.stringify({ name: 'logicstamp-mcp' }));
+      }
+      // Second readFile call (for doc file) succeeds
+      if (callCount === 2) {
+        return Promise.resolve('# LogicStamp Documentation\n\nContent here');
+      }
+      return Promise.reject(new Error('Unexpected call'));
+    });
+
+    const result = await readLogicStampDocs();
+    expect(result).toBeDefined();
+    expect(result.type).toBe('LogicStampDocs');
+    expect(result.docs.forLLMs).toContain('LogicStamp Documentation');
+  });
+
+  it('should handle Strategy 3 success when Strategies 1 and 2 fail', async () => {
+    // This tests line 116-121: Strategies 1 and 2 fail, Strategy 3 succeeds via process.cwd()
+    // Strategy 1 fails
+    (mockReadFileImpl as any).mockRejectedValueOnce(new Error('Strategy 1 failed'));
+    
+    // Strategy 2: findPackageRoot fails (no package.json found)
+    (mockStatImpl as any).mockRejectedValue(new Error('File not found'));
+    
+    let callCount = 0;
+    (mockReadFileImpl as any).mockImplementation((path: string) => {
+      callCount++;
+      // Strategy 3 (process.cwd() path) succeeds
+      if (path.includes(process.cwd())) {
+        return Promise.resolve('# LogicStamp Documentation\n\nContent from cwd');
+      }
+      return Promise.reject(new Error('Strategy failed'));
+    });
+
+    const result = await readLogicStampDocs();
+    expect(result).toBeDefined();
+    expect(result.type).toBe('LogicStampDocs');
+    expect(result.docs.forLLMs).toContain('LogicStamp Documentation');
+  });
+
+  it('should handle error message with not attempted branches (lines 128-129)', async () => {
+    // This tests lines 128-129: 'not attempted' branches when Strategy 2 or 3 aren't attempted
+    // Strategy 1 fails immediately, Strategy 2 fails immediately (findPackageRoot throws before reading)
+    (mockReadFileImpl as any).mockRejectedValueOnce(new Error('Strategy 1 failed'));
+    
+    // Strategy 2: findPackageRoot throws error immediately (before reading doc file)
+    (mockStatImpl as any).mockRejectedValue(new Error('Package root not found'));
+    
+    // Strategy 3 also fails
+    (mockReadFileImpl as any).mockRejectedValue(new Error('Strategy 3 failed'));
+
+    const { readDocFile } = await import('../../src/mcp/tools/read-logicstamp-docs.js');
+    
+    try {
+      await readDocFile('docs/logicstamp-for-llms.md');
+      fail('Should have thrown error');
+    } catch (error: any) {
+      expect(error.message).toContain('Could not find documentation file');
+      // Should show 'not attempted' for Strategy 2 if findPackageRoot fails before reading
+      // The exact message depends on which strategies were attempted
+      expect(error.message).toContain('tried multiple strategies');
+    }
+  });
+
+  it('should handle non-Error objects in catch block (line 213)', async () => {
+    // This tests line 213: error instanceof Error ? error.message : String(error)
+    // Mock readFile to throw a non-Error object (string)
+    (mockReadFileImpl as any).mockRejectedValue('String error message');
+    (mockStatImpl as any).mockRejectedValue('String error');
+
+    try {
+      await readLogicStampDocs();
+      fail('Should have thrown error');
+    } catch (error: any) {
+      expect(error.message).toContain('Failed to read LogicStamp documentation');
+      // The error message should include the stringified error
+      expect(error.message).toContain('Error:');
+      expect(error instanceof Error).toBe(true);
+    }
+  });
 
   it('should handle findPackageRoot when package.json name does not match', async () => {
     // This tests line 72: the FALSE branch where package.json exists but name doesn't match
@@ -243,6 +346,36 @@ describe('readLogicStampDocs error scenarios', () => {
       expect(error.message).toContain('Failed to read LogicStamp documentation');
       // Verify multiple package.json files were checked (tests loop continuation)
       expect(packageJsonCallCount).toBeGreaterThan(0);
+    }
+  });
+
+  it('should handle findPackageRoot when reaching filesystem root', async () => {
+    // This tests line 79: the branch where parent === current (filesystem root reached)
+    // Strategy 1 fails
+    (mockReadFileImpl as any).mockRejectedValueOnce(new Error('Strategy 1 failed'));
+    
+    // Strategy 2: findPackageRoot reaches filesystem root
+    // Mock stat to fail (no package.json found)
+    (mockStatImpl as any).mockRejectedValue(new Error('File not found'));
+    
+    // Mock readFile to simulate reaching root (parent === current)
+    // We need to simulate the loop breaking condition
+    let statCallCount = 0;
+    (mockStatImpl as any).mockImplementation((path: string) => {
+      statCallCount++;
+      // After a few attempts, simulate reaching root by making stat fail consistently
+      // This will cause the loop to eventually break when parent === current
+      return Promise.reject(new Error('File not found'));
+    });
+    
+    (mockReadFileImpl as any).mockRejectedValue(new Error('File not found'));
+
+    try {
+      await readLogicStampDocs();
+      fail('Should have thrown error');
+    } catch (error: any) {
+      // Should eventually fail when package root cannot be found
+      expect(error.message).toContain('Failed to read LogicStamp documentation');
     }
   });
 });
