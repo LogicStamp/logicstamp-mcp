@@ -30,12 +30,16 @@ async function exists(path: string): Promise<boolean> {
 /**
  * Check if watch mode is active for the project.
  * Cleans up stale status files when the process is no longer running.
+ * Returns watch mode status including strictWatch flag.
  */
-async function checkWatchMode(projectPath: string): Promise<boolean> {
+async function checkWatchMode(projectPath: string): Promise<{
+  active: boolean;
+  strictWatch?: boolean;
+}> {
   const statusPath = join(projectPath, '.logicstamp', 'context_watch-status.json');
 
   if (!(await exists(statusPath))) {
-    return false;
+    return { active: false };
   }
 
   try {
@@ -50,13 +54,83 @@ async function checkWatchMode(projectPath: string): Promise<boolean> {
       } catch {
         // Ignore cleanup errors
       }
-      return false;
+      return { active: false };
     }
 
-    return status.active === true;
+    return {
+      active: status.active === true,
+      strictWatch: status.strictWatch === true,
+    };
   } catch {
-    return false;
+    return { active: false };
   }
+}
+
+/**
+ * Sleep utility for delays
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Read file with retry logic for watch mode.
+ * When watch mode is active, files may be in the process of being written,
+ * so we retry with exponential backoff if JSON parsing fails.
+ * 
+ * Note: This function validates JSON parsing to catch partial writes, but
+ * does NOT validate TypeScript files - that's handled by the caller.
+ */
+async function readFileWithRetry(
+  filePath: string,
+  watchMode: { active: boolean; strictWatch?: boolean },
+  maxRetries = 3
+): Promise<string> {
+  // If watch mode is active, add a small initial delay to let files stabilize
+  // Strict watch mode does breaking change detection which may take longer
+  // The retry logic below handles edge cases, so shorter delays are sufficient
+  if (watchMode.active) {
+    const delay = watchMode.strictWatch ? 500 : 200; // 500ms for strict watch, 200ms for regular watch
+    await sleep(delay);
+  }
+
+  let lastError: Error | null = null;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const content = await readFile(filePath, 'utf-8');
+      
+      // Check if this looks like a TypeScript file (not JSON)
+      // If so, return it immediately - let the caller handle the validation error
+      const trimmedContent = content.trim();
+      if (trimmedContent.startsWith('import ') || trimmedContent.startsWith('export ')) {
+        // This is likely a TypeScript file, not a partial JSON write
+        // Return it so the caller can throw the appropriate error
+        return content;
+      }
+      
+      // Try to parse as JSON to validate it's complete
+      // This catches cases where the file is partially written
+      JSON.parse(content);
+      
+      return content;
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      
+      // If watch mode is active and this might be a race condition, retry
+      if (watchMode.active && attempt < maxRetries) {
+        // Exponential backoff: 100ms, 200ms, 400ms
+        const backoffDelay = 100 * Math.pow(2, attempt);
+        await sleep(backoffDelay);
+        continue;
+      }
+      
+      // If not watch mode or out of retries, throw immediately
+      throw lastError;
+    }
+  }
+
+  throw lastError || new Error('Failed to read file after retries');
 }
 
 export async function readBundle(input: ReadBundleInput): Promise<ReadBundleOutput> {
@@ -64,6 +138,7 @@ export async function readBundle(input: ReadBundleInput): Promise<ReadBundleOutp
   let snapshotId: string | undefined;
   let projectPath: string;
   let isWatchMode = false;
+  let watchStatus: { active: boolean; strictWatch?: boolean } = { active: false };
 
   // Determine context directory: either from snapshot or direct disk access
   if (input.snapshotId) {
@@ -82,10 +157,13 @@ export async function readBundle(input: ReadBundleInput): Promise<ReadBundleOutp
     contextDir = snapshot.contextDir;
     snapshotId = input.snapshotId;
     projectPath = snapshot.projectPath;
+    // Check watch mode even for snapshots (in case watch mode started after snapshot)
+    watchStatus = await checkWatchMode(projectPath);
+    isWatchMode = watchStatus.active;
   } else if (input.projectPath) {
     // Direct disk access - check if watch mode is active or context files exist
     projectPath = resolve(input.projectPath);
-    const watchModeActive = await checkWatchMode(projectPath);
+    watchStatus = await checkWatchMode(projectPath);
     const contextMainPath = join(projectPath, 'context_main.json');
     const contextExists = await exists(contextMainPath);
 
@@ -99,7 +177,7 @@ export async function readBundle(input: ReadBundleInput): Promise<ReadBundleOutp
     }
 
     contextDir = projectPath;
-    isWatchMode = watchModeActive;
+    isWatchMode = watchStatus.active;
   } else {
     throw new Error(
       'Either snapshotId or projectPath is required. ' +
@@ -111,7 +189,8 @@ export async function readBundle(input: ReadBundleInput): Promise<ReadBundleOutp
   try {
     // Read the context.json file from the specified bundle path
     const contextPath = join(contextDir, input.bundlePath);
-    const contextContent = await readFile(contextPath, 'utf-8');
+    // Use retry logic when watch mode is active to handle race conditions
+    const contextContent = await readFileWithRetry(contextPath, watchStatus);
 
     // Validate that we're reading JSON, not a TypeScript file
     const trimmedContent = contextContent.trim();
@@ -214,6 +293,8 @@ export async function readBundle(input: ReadBundleInput): Promise<ReadBundleOutp
 
     if (isWatchMode) {
       output.watchMode = true;
+      // Add warning to help AI assistants avoid unnecessary sleep() calls
+      (output as any).warning = 'Watch mode is active - bundles are already fresh. Do not use sleep() delays before reading bundles.';
     }
 
     return output;

@@ -111,8 +111,8 @@ export async function watchStatus(input: WatchStatusInput): Promise<WatchStatusO
     watchModeActive,
     message: watchModeActive
       ? strictWatch
-        ? `Watch mode is ACTIVE with STRICT WATCH enabled (PID: ${status!.pid}, started: ${status!.startedAt}). Context bundles are being kept fresh automatically with breaking change detection. You can skip calling refresh_snapshot - just use list_bundles and read_bundle with the existing context files.`
-        : `Watch mode is ACTIVE (PID: ${status!.pid}, started: ${status!.startedAt}). Context bundles are being kept fresh automatically. You can skip calling refresh_snapshot - just use list_bundles and read_bundle with the existing context files.`
+        ? `⚠️ Watch mode is ACTIVE with STRICT WATCH enabled (PID: ${status!.pid}, started: ${status!.startedAt}). Context bundles are being kept fresh automatically with breaking change detection. You can skip calling refresh_snapshot - just use list_bundles and read_bundle with the existing context files. DO NOT use sleep() delays - bundles are already fresh, just read them directly.`
+        : `⚠️ Watch mode is ACTIVE (PID: ${status!.pid}, started: ${status!.startedAt}). Context bundles are being kept fresh automatically. You can skip calling refresh_snapshot - just use list_bundles and read_bundle with the existing context files. DO NOT use sleep() delays - bundles are already fresh, just read them directly.`
       : 'Watch mode is NOT active. Context files may be stale. Consider running refresh_snapshot or starting watch mode with `stamp context --watch` (or `stamp context --watch --strict-watch` for breaking change detection).',
   };
 
