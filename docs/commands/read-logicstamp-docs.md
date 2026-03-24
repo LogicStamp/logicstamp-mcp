@@ -70,19 +70,21 @@ Links to canonical documentation sources with redundancy (primary + fallback):
 - **Description:** Fallback GitHub repository: `https://github.com/LogicStamp/logicstamp-context`
 - **Always available** - Versioned, always accessible
 
+**CLI repo `docs/` layout** (same tree as [logicstamp-context/docs on GitHub](https://github.com/LogicStamp/logicstamp-context/tree/main/docs)): top-level `getting-started.md` and migration/schema/security notes; folders `changelog/`, `cli/`, `frameworks/`, `guides/`, `reference/`, `ui-frameworks/`. GitHub fallbacks below use these paths.
+
 #### `usage`
 - **Primary:** `https://logicstamp.dev/docs/logicstamp-context/usage`
-- **Fallback:** `https://github.com/LogicStamp/logicstamp-context/blob/main/docs/usage.md`
+- **Fallback:** `https://github.com/LogicStamp/logicstamp-context/blob/main/docs/guides/usage.md`
 - **Description:** Usage guide for LogicStamp Context
 
 #### `uifContracts`
 - **Primary:** `https://logicstamp.dev/docs/logicstamp-context/uif-contracts`
-- **Fallback:** `https://github.com/LogicStamp/logicstamp-context/blob/main/docs/uif_contracts.md`
+- **Fallback:** `https://github.com/LogicStamp/logicstamp-context/blob/main/docs/reference/uif-contracts.md`
 - **Description:** UIF (User Interface Function) contracts documentation
 
 #### `schema`
 - **Primary:** `https://logicstamp.dev/docs/logicstamp-context/schema`
-- **Fallback:** `https://github.com/LogicStamp/logicstamp-context/blob/main/docs/schema.md`
+- **Fallback:** `https://github.com/LogicStamp/logicstamp-context/blob/main/docs/reference/schema.md`
 - **Description:** Complete schema reference
 
 #### `context`
@@ -96,8 +98,8 @@ Links to canonical documentation sources with redundancy (primary + fallback):
 - **Description:** Compare modes guide for token optimization
 
 #### `limitations`
-- **Primary:** `https://logicstamp.dev/docs/complete-reference/known-limitations`
-- **Fallback:** `https://github.com/LogicStamp/logicstamp-context/blob/main/docs/limitations.md`
+- **Primary:** `https://logicstamp.dev/docs/reference/limitations`
+- **Fallback:** `https://github.com/LogicStamp/logicstamp-context/blob/main/docs/reference/limitations.md`
 - **Description:** Known limitations and edge cases
 
 ### `summary`
@@ -153,15 +155,15 @@ This returns the complete documentation bundle with embedded guide and canonical
     "cliRepo": "https://github.com/LogicStamp/logicstamp-context",
     "usage": {
       "primary": "https://logicstamp.dev/docs/logicstamp-context/usage",
-      "fallback": "https://github.com/LogicStamp/logicstamp-context/blob/main/docs/usage.md"
+      "fallback": "https://github.com/LogicStamp/logicstamp-context/blob/main/docs/guides/usage.md"
     },
     "uifContracts": {
       "primary": "https://logicstamp.dev/docs/logicstamp-context/uif-contracts",
-      "fallback": "https://github.com/LogicStamp/logicstamp-context/blob/main/docs/uif_contracts.md"
+      "fallback": "https://github.com/LogicStamp/logicstamp-context/blob/main/docs/reference/uif-contracts.md"
     },
     "schema": {
       "primary": "https://logicstamp.dev/docs/logicstamp-context/schema",
-      "fallback": "https://github.com/LogicStamp/logicstamp-context/blob/main/docs/schema.md"
+      "fallback": "https://github.com/LogicStamp/logicstamp-context/blob/main/docs/reference/schema.md"
     },
     "context": {
       "primary": "https://logicstamp.dev/docs/logicstamp-context/context",
@@ -172,8 +174,8 @@ This returns the complete documentation bundle with embedded guide and canonical
       "fallback": "https://github.com/LogicStamp/logicstamp-context/blob/main/docs/cli/compare-modes.md"
     },
     "limitations": {
-      "primary": "https://logicstamp.dev/docs/complete-reference/known-limitations",
-      "fallback": "https://github.com/LogicStamp/logicstamp-context/blob/main/docs/limitations.md"
+      "primary": "https://logicstamp.dev/docs/reference/limitations",
+      "fallback": "https://github.com/LogicStamp/logicstamp-context/blob/main/docs/reference/limitations.md"
     }
   },
   "summary": {

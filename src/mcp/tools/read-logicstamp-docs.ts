@@ -24,7 +24,7 @@ export interface ReadLogicStampDocsOutput {
     cliRepo: string; // Fallback: github.com/LogicStamp/logicstamp-context
     usage: {
       primary: string; // logicstamp.dev/docs/logicstamp-context/usage
-      fallback: string; // github.com/LogicStamp/logicstamp-context/blob/main/docs/usage.md
+      fallback: string; // .../blob/main/docs/guides/usage.md
     };
     uifContracts: {
       primary: string;
@@ -162,15 +162,18 @@ export async function readLogicStampDocs(): Promise<ReadLogicStampDocsOutput> {
         cliRepo: 'https://github.com/LogicStamp/logicstamp-context',
         usage: {
           primary: 'https://logicstamp.dev/docs/logicstamp-context/usage',
-          fallback: 'https://github.com/LogicStamp/logicstamp-context/blob/main/docs/usage.md',
+          fallback:
+            'https://github.com/LogicStamp/logicstamp-context/blob/main/docs/guides/usage.md',
         },
         uifContracts: {
           primary: 'https://logicstamp.dev/docs/logicstamp-context/uif-contracts',
-          fallback: 'https://github.com/LogicStamp/logicstamp-context/blob/main/docs/uif_contracts.md',
+          fallback:
+            'https://github.com/LogicStamp/logicstamp-context/blob/main/docs/reference/uif-contracts.md',
         },
         schema: {
           primary: 'https://logicstamp.dev/docs/logicstamp-context/schema',
-          fallback: 'https://github.com/LogicStamp/logicstamp-context/blob/main/docs/schema.md',
+          fallback:
+            'https://github.com/LogicStamp/logicstamp-context/blob/main/docs/reference/schema.md',
         },
         context: {
           primary: 'https://logicstamp.dev/docs/logicstamp-context/context',
@@ -181,8 +184,9 @@ export async function readLogicStampDocs(): Promise<ReadLogicStampDocsOutput> {
           fallback: 'https://github.com/LogicStamp/logicstamp-context/blob/main/docs/cli/compare-modes.md',
         },
         limitations: {
-          primary: 'https://logicstamp.dev/docs/complete-reference/known-limitations',
-          fallback: 'https://github.com/LogicStamp/logicstamp-context/blob/main/docs/limitations.md',
+          primary: 'https://logicstamp.dev/docs/reference/limitations',
+          fallback:
+            'https://github.com/LogicStamp/logicstamp-context/blob/main/docs/reference/limitations.md',
         },
       },
       summary: {
