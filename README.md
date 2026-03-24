@@ -235,15 +235,15 @@ When starting work with a new project, use the [Startup Ritual](docs/startup-rit
 
 | Topic | Primary (Landing Page) | Fallback (GitHub) |
 |-------|----------------------|-------------------|
-| **Usage Guide** | [logicstamp.dev/docs/logicstamp-context/usage](https://logicstamp.dev/docs/logicstamp-context/usage) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/usage.md) |
-| **UIF Contracts** | [logicstamp.dev/docs/logicstamp-context/uif-contracts](https://logicstamp.dev/docs/logicstamp-context/uif-contracts) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/uif_contracts.md) |
-| **Schema Reference** | [logicstamp.dev/docs/logicstamp-context/schema](https://logicstamp.dev/docs/logicstamp-context/schema) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/schema.md) |
+| **Usage Guide** | [logicstamp.dev/docs/logicstamp-context/usage](https://logicstamp.dev/docs/guides/usage) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/guides/usage.md) |
+| **UIF Contracts** | [logicstamp.dev/docs/logicstamp-context/uif-contracts](https://logicstamp.dev/docs/reference/uif-contracts) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/reference/uif-contracts.md) |
+| **Schema Reference** | [logicstamp.dev/docs/logicstamp-context/schema](https://logicstamp.dev/docs/reference/schema) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/reference/schema.md) |
 | **CLI Commands** | [logicstamp.dev/docs/logicstamp-context/context](https://logicstamp.dev/docs/logicstamp-context/context) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/cli/context.md) |
 | **Compare Modes** | [logicstamp.dev/docs/logicstamp-context/compare-modes](https://logicstamp.dev/docs/logicstamp-context/compare-modes) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/cli/compare-modes.md) |
-| **Limitations** | [logicstamp.dev/docs/complete-reference/known-limitations](https://logicstamp.dev/docs/complete-reference/known-limitations) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/limitations.md) |
+| **Limitations** | [logicstamp.dev/docs/reference/limitations](https://logicstamp.dev/docs/reference/limitations) | [GitHub](https://github.com/LogicStamp/logicstamp-context/blob/main/docs/reference/limitations.md) |
 
 **Note:** 
-- Docs are maintained in the CLI repo and synced to the landing page
+- Docs are maintained in the CLI repo under [`docs/`](https://github.com/LogicStamp/logicstamp-context/tree/main/docs) (folders: `changelog/`, `cli/`, `frameworks/`, `guides/`, `reference/`, `ui-frameworks/`, plus top-level guides and migration notes) and synced to the landing page
 - If the landing page is unavailable, use the GitHub links as fallback
 - The `logicstamp_read_logicstamp_docs` tool returns an embedded LLM-focused doc snapshot (`docs/logicstamp-for-llms.md`) for offline use
 

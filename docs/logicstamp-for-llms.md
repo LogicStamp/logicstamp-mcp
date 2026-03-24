@@ -477,28 +477,28 @@ For full documentation, see: https://logicstamp.dev/docs
   - Fallback: https://github.com/LogicStamp/logicstamp-context
 - **Usage Guide**: 
   - Primary: https://logicstamp.dev/docs/logicstamp-context/usage
-  - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/usage.md
+  - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/guides/usage.md
 - **CLI Commands**: 
   - Primary: https://logicstamp.dev/docs/logicstamp-context/context
   - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/cli/context.md
 - **UIF Contracts**: 
   - Primary: https://logicstamp.dev/docs/logicstamp-context/uif-contracts
-  - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/uif_contracts.md
+  - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/reference/uif-contracts.md
 - **Schema Reference**: 
   - Primary: https://logicstamp.dev/docs/logicstamp-context/schema
-  - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/schema.md
+  - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/reference/schema.md
 - **Token Optimization**: 
   - Primary: https://logicstamp.dev/docs/logicstamp-context/usage#token-cost-comparison
-  - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/usage.md#token-cost-comparison
+  - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/guides/usage.md#token-cost-comparison
 - **Mode Comparison**: 
   - Primary: https://logicstamp.dev/docs/logicstamp-context/compare-modes
   - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/cli/compare-modes.md
 - **CI Integration**: 
   - Primary: https://logicstamp.dev/docs/logicstamp-context/usage#cicd-integration
-  - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/usage.md#cicd-integration
+  - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/guides/usage.md#cicd-integration
 - **Known Limitations**: 
-  - Primary: https://logicstamp.dev/docs/logicstamp-context/limitations
-  - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/limitations.md
+  - Primary: https://logicstamp.dev/docs/reference/limitations
+  - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/reference/limitations.md
 - **Security Documentation**: 
   - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/SECURITY.md
 
