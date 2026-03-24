@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Roadmap
+
+For a comprehensive roadmap with detailed status, priorities, and implementation plans, see [ROADMAP.md](ROADMAP.md).
+
+---
+
+## [0.2.2] - 2026-03-24
+
+### Changed
+
+- **Canonical documentation links match logicstamp-context `docs/` layout** ([#38](https://github.com/LogicStamp/logicstamp-mcp/pull/38))
+  - Updated `logicstamp_read_logicstamp_docs` GitHub fallbacks to current paths (`docs/guides/usage.md`, `docs/reference/uif-contracts.md`, `docs/reference/schema.md`, `docs/reference/limitations.md`; CLI pages unchanged under `docs/cli/`)
+  - Set limitations primary URL to `https://logicstamp.dev/docs/reference/limitations`
+  - Refreshed `docs/logicstamp-for-llms.md`, `docs/commands/read-logicstamp-docs.md`, README, and `docs/getting-started.md` (including CLI repo `docs/` layout note and fixed external links)
+
+---
+
 ## [0.2.1] - 2026-03-06
 
 ### Added
@@ -47,10 +64,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **TypeScript File Validation** ([#35](https://github.com/LogicStamp/logicstamp-mcp/pull/35)) - Fixed issue where TypeScript file validation errors were masked by JSON parse errors in retry logic
   - Retry logic now checks for TypeScript files (starting with `import` or `export`) before attempting JSON parsing
   - Ensures proper error messages when users accidentally point to TypeScript source files instead of JSON bundle files
-
-### Roadmap
-
-For a comprehensive roadmap with detailed status, priorities, and implementation plans, see [ROADMAP.md](ROADMAP.md).
 
 ---
 
@@ -373,7 +386,9 @@ For a comprehensive roadmap with detailed status, priorities, and implementation
 - Requires `logicstamp-context` CLI to be installed globally (`npm install -g logicstamp-context`)
 - All tools are read-only - they analyze but never modify your codebase
 
-[Unreleased]: https://github.com/LogicStamp/logicstamp-mcp/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/LogicStamp/logicstamp-mcp/compare/v0.2.2...HEAD
+
+[0.2.2]: https://github.com/LogicStamp/logicstamp-mcp/releases/tag/v0.2.2
 
 [0.2.1]: https://github.com/LogicStamp/logicstamp-mcp/releases/tag/v0.2.1
 
