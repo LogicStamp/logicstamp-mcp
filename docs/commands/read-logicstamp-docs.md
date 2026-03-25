@@ -17,7 +17,7 @@
 > 2. **Full docs at logicstamp.dev** (always-updated canonical source)
 > 3. **Repo files** (may be outdated - do not rely solely on these)
 
-If you notice discrepancies between repo documentation files and this tool's output, **trust this tool** - it reads from the published package and reflects actual capabilities. The full, always-updated documentation lives at [logicstamp.dev/docs/logicstamp-context/context](https://logicstamp.dev/docs/logicstamp-context/context).
+If you notice discrepancies between repo documentation files and this tool's output, **trust this tool** - it reads from the published package and reflects actual capabilities. The full, always-updated documentation lives at [logicstamp.dev/docs/cli/context](https://logicstamp.dev/docs/cli/context).
 
 ## When to Use
 
@@ -62,7 +62,7 @@ Links to canonical documentation sources with redundancy (primary + fallback):
 
 #### `landingPage`
 - **Type:** `string`
-- **Description:** Primary documentation landing page: `https://logicstamp.dev/docs/logicstamp-context/context`
+- **Description:** Primary documentation landing page: `https://logicstamp.dev/docs/cli/context`
 - **Best UX** - Optimized landing page with navigation
 
 #### `cliRepo`
@@ -70,36 +70,34 @@ Links to canonical documentation sources with redundancy (primary + fallback):
 - **Description:** Fallback GitHub repository: `https://github.com/LogicStamp/logicstamp-context`
 - **Always available** - Versioned, always accessible
 
-**CLI repo `docs/` layout** (same tree as [logicstamp-context/docs on GitHub](https://github.com/LogicStamp/logicstamp-context/tree/main/docs)): top-level `getting-started.md` and migration/schema/security notes; folders `changelog/`, `cli/`, `frameworks/`, `guides/`, `reference/`, `ui-frameworks/`. GitHub fallbacks below use these paths.
-
 #### `usage`
-- **Primary:** `https://logicstamp.dev/docs/logicstamp-context/usage`
-- **Fallback:** `https://github.com/LogicStamp/logicstamp-context/blob/main/docs/guides/usage.md`
+- **Primary:** `https://logicstamp.dev/docs/cli/usage`
+- **Fallback:** `https://github.com/LogicStamp/logicstamp-context/blob/main/docs/usage.md`
 - **Description:** Usage guide for LogicStamp Context
 
 #### `uifContracts`
-- **Primary:** `https://logicstamp.dev/docs/logicstamp-context/uif-contracts`
-- **Fallback:** `https://github.com/LogicStamp/logicstamp-context/blob/main/docs/reference/uif-contracts.md`
+- **Primary:** `https://logicstamp.dev/docs/cli/uif-contracts`
+- **Fallback:** `https://github.com/LogicStamp/logicstamp-context/blob/main/docs/uif_contracts.md`
 - **Description:** UIF (User Interface Function) contracts documentation
 
 #### `schema`
-- **Primary:** `https://logicstamp.dev/docs/logicstamp-context/schema`
-- **Fallback:** `https://github.com/LogicStamp/logicstamp-context/blob/main/docs/reference/schema.md`
+- **Primary:** `https://logicstamp.dev/docs/cli/schema`
+- **Fallback:** `https://github.com/LogicStamp/logicstamp-context/blob/main/docs/schema.md`
 - **Description:** Complete schema reference
 
 #### `context`
-- **Primary:** `https://logicstamp.dev/docs/logicstamp-context/context`
+- **Primary:** `https://logicstamp.dev/docs/cli/context`
 - **Fallback:** `https://github.com/LogicStamp/logicstamp-context/blob/main/docs/cli/context.md`
 - **Description:** CLI `stamp context` command documentation
 
 #### `compareModes`
-- **Primary:** `https://logicstamp.dev/docs/logicstamp-context/compare-modes`
+- **Primary:** `https://logicstamp.dev/docs/cli/compare-modes`
 - **Fallback:** `https://github.com/LogicStamp/logicstamp-context/blob/main/docs/cli/compare-modes.md`
 - **Description:** Compare modes guide for token optimization
 
 #### `limitations`
-- **Primary:** `https://logicstamp.dev/docs/reference/limitations`
-- **Fallback:** `https://github.com/LogicStamp/logicstamp-context/blob/main/docs/reference/limitations.md`
+- **Primary:** `https://logicstamp.dev/docs/complete-reference/known-limitations`
+- **Fallback:** `https://github.com/LogicStamp/logicstamp-context/blob/main/docs/limitations.md`
 - **Description:** Known limitations and edge cases
 
 ### `summary`
@@ -151,31 +149,31 @@ This returns the complete documentation bundle with embedded guide and canonical
     "forLLMs": "# LogicStamp for LLMs\n\nLogicStamp is a CLI tool + MCP server that scans TypeScript codebases and produces structured, AI-ready summaries (bundles) optimized for LLM consumption...\n\n## How LogicStamp Works\n\n..."
   },
   "canonicalDocs": {
-    "landingPage": "https://logicstamp.dev/docs/logicstamp-context/context",
+    "landingPage": "https://logicstamp.dev/docs/cli/context",
     "cliRepo": "https://github.com/LogicStamp/logicstamp-context",
     "usage": {
-      "primary": "https://logicstamp.dev/docs/logicstamp-context/usage",
-      "fallback": "https://github.com/LogicStamp/logicstamp-context/blob/main/docs/guides/usage.md"
+      "primary": "https://logicstamp.dev/docs/cli/usage",
+      "fallback": "https://github.com/LogicStamp/logicstamp-context/blob/main/docs/usage.md"
     },
     "uifContracts": {
-      "primary": "https://logicstamp.dev/docs/logicstamp-context/uif-contracts",
-      "fallback": "https://github.com/LogicStamp/logicstamp-context/blob/main/docs/reference/uif-contracts.md"
+      "primary": "https://logicstamp.dev/docs/cli/uif-contracts",
+      "fallback": "https://github.com/LogicStamp/logicstamp-context/blob/main/docs/uif_contracts.md"
     },
     "schema": {
-      "primary": "https://logicstamp.dev/docs/logicstamp-context/schema",
-      "fallback": "https://github.com/LogicStamp/logicstamp-context/blob/main/docs/reference/schema.md"
+      "primary": "https://logicstamp.dev/docs/cli/schema",
+      "fallback": "https://github.com/LogicStamp/logicstamp-context/blob/main/docs/schema.md"
     },
     "context": {
-      "primary": "https://logicstamp.dev/docs/logicstamp-context/context",
+      "primary": "https://logicstamp.dev/docs/cli/context",
       "fallback": "https://github.com/LogicStamp/logicstamp-context/blob/main/docs/cli/context.md"
     },
     "compareModes": {
-      "primary": "https://logicstamp.dev/docs/logicstamp-context/compare-modes",
+      "primary": "https://logicstamp.dev/docs/cli/compare-modes",
       "fallback": "https://github.com/LogicStamp/logicstamp-context/blob/main/docs/cli/compare-modes.md"
     },
     "limitations": {
-      "primary": "https://logicstamp.dev/docs/reference/limitations",
-      "fallback": "https://github.com/LogicStamp/logicstamp-context/blob/main/docs/reference/limitations.md"
+      "primary": "https://logicstamp.dev/docs/complete-reference/known-limitations",
+      "fallback": "https://github.com/LogicStamp/logicstamp-context/blob/main/docs/limitations.md"
     }
   },
   "summary": {

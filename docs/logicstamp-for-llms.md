@@ -473,32 +473,32 @@ If you're unsure how LogicStamp works or how to use these tools:
 For full documentation, see: https://logicstamp.dev/docs
 
 - **Full Docs**: 
-  - Primary: https://logicstamp.dev/docs/logicstamp-context/context
+  - Primary: https://logicstamp.dev/docs/cli/context
   - Fallback: https://github.com/LogicStamp/logicstamp-context
 - **Usage Guide**: 
-  - Primary: https://logicstamp.dev/docs/logicstamp-context/usage
-  - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/guides/usage.md
+  - Primary: https://logicstamp.dev/docs/cli/usage
+  - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/usage.md
 - **CLI Commands**: 
-  - Primary: https://logicstamp.dev/docs/logicstamp-context/context
+  - Primary: https://logicstamp.dev/docs/cli/context
   - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/cli/context.md
 - **UIF Contracts**: 
-  - Primary: https://logicstamp.dev/docs/logicstamp-context/uif-contracts
-  - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/reference/uif-contracts.md
+  - Primary: https://logicstamp.dev/docs/cli/uif-contracts
+  - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/uif_contracts.md
 - **Schema Reference**: 
-  - Primary: https://logicstamp.dev/docs/logicstamp-context/schema
-  - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/reference/schema.md
+  - Primary: https://logicstamp.dev/docs/cli/schema
+  - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/schema.md
 - **Token Optimization**: 
-  - Primary: https://logicstamp.dev/docs/logicstamp-context/usage#token-cost-comparison
-  - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/guides/usage.md#token-cost-comparison
+  - Primary: https://logicstamp.dev/docs/cli/usage#token-cost-comparison
+  - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/usage.md#token-cost-comparison
 - **Mode Comparison**: 
-  - Primary: https://logicstamp.dev/docs/logicstamp-context/compare-modes
+  - Primary: https://logicstamp.dev/docs/cli/compare-modes
   - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/cli/compare-modes.md
 - **CI Integration**: 
-  - Primary: https://logicstamp.dev/docs/logicstamp-context/usage#cicd-integration
-  - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/guides/usage.md#cicd-integration
+  - Primary: https://logicstamp.dev/docs/cli/usage#cicd-integration
+  - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/usage.md#cicd-integration
 - **Known Limitations**: 
-  - Primary: https://logicstamp.dev/docs/reference/limitations
-  - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/reference/limitations.md
+  - Primary: https://logicstamp.dev/docs/cli/limitations
+  - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/docs/limitations.md
 - **Security Documentation**: 
   - Fallback: https://github.com/LogicStamp/logicstamp-context/blob/main/SECURITY.md
 
