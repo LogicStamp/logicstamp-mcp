@@ -15,6 +15,12 @@ For a comprehensive roadmap with detailed status, priorities, and implementation
 
 ---
 
+## [0.2.3] - 2026-03-26
+
+- **Documentation links aligned with CLI structure** ([#41](https://github.com/LogicStamp/logicstamp-context/pull/41))
+
+---
+
 ## [0.2.2] - 2026-03-24
 
 ### Changed
@@ -386,7 +392,9 @@ For a comprehensive roadmap with detailed status, priorities, and implementation
 - Requires `logicstamp-context` CLI to be installed globally (`npm install -g logicstamp-context`)
 - All tools are read-only - they analyze but never modify your codebase
 
-[Unreleased]: https://github.com/LogicStamp/logicstamp-mcp/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/LogicStamp/logicstamp-mcp/compare/v0.2.3...HEAD
+
+[0.2.3]: https://github.com/LogicStamp/logicstamp-mcp/releases/tag/v0.2.3
 
 [0.2.2]: https://github.com/LogicStamp/logicstamp-mcp/releases/tag/v0.2.2
 
