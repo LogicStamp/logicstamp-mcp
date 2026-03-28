@@ -15,6 +15,14 @@ For a comprehensive roadmap with detailed status, priorities, and implementation
 
 ---
 
+## [0.2.4] - 2026-03-29
+
+### Changed
+
+- **Dependencies** - Bumped `@modelcontextprotocol/sdk` and dev dependencies (`package.json` / `package-lock.json`). No MCP tool or runtime behavior changes intended. patch release for supply-chain and compatibility maintenance. ([#43](https://github.com/LogicStamp/logicstamp-context/pull/43))
+
+---
+
 ## [0.2.3] - 2026-03-26
 
 - **Documentation links aligned with CLI structure** ([#41](https://github.com/LogicStamp/logicstamp-context/pull/41))
@@ -392,7 +400,9 @@ For a comprehensive roadmap with detailed status, priorities, and implementation
 - Requires `logicstamp-context` CLI to be installed globally (`npm install -g logicstamp-context`)
 - All tools are read-only - they analyze but never modify your codebase
 
-[Unreleased]: https://github.com/LogicStamp/logicstamp-mcp/compare/v0.2.3...HEAD
+[Unreleased]: https://github.com/LogicStamp/logicstamp-mcp/compare/v0.2.4...HEAD
+
+[0.2.4]: https://github.com/LogicStamp/logicstamp-mcp/releases/tag/v0.2.4
 
 [0.2.3]: https://github.com/LogicStamp/logicstamp-mcp/releases/tag/v0.2.3
 
