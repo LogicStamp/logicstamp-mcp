@@ -191,7 +191,7 @@ logicstamp-context/
 **Behavior**:
 1. Open `<contextDir>/<bundlePath>`
 2. Parse bundle array
-3. Find bundle matching `rootComponent` by `entryId`
+3. Find bundle matching `rootComponent` by the canonical bundle root (`bundle.entryId`), not by the first item in `graph.nodes[]`
 4. Return full bundle object
 
 **Output**:
@@ -940,12 +940,14 @@ interface ComponentChange {
 
 ## Example MCP Client Usage (Claude Desktop)
 
+The `-y` flag prevents `npx` from waiting on interactive install prompts when the MCP host starts this process without a TTY.
+
 ```json
 {
   "mcpServers": {
     "logicstamp": {
       "command": "npx",
-      "args": ["logicstamp-mcp"],
+      "args": ["-y", "logicstamp-mcp"],
       "env": {
         "PROJECT_PATH": "/path/to/your/project"
       }

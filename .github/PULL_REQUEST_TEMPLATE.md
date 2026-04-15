@@ -4,6 +4,12 @@
 
 ---
 
+## What’s Changed
+
+<!-- Clear bullet list of WHAT changed -->
+
+---
+
 ## Type of Change
 
 - [ ] Bug fix
@@ -40,8 +46,7 @@ If changed, explain:
 
 ## Related Issues
 
-<!-- Link to related issues using #issue-number -->
-<!-- Example: Fixes #123, Closes #456 -->
+<!-- Fixes #123 -->
 
 ---
 
