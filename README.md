@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/logicstamp-logicstamp-mcp-badge.png)](https://mseep.ai/app/logicstamp-logicstamp-mcp)
+
 <div align="center">
 
   <a href="https://logicstamp.dev">
